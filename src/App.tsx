@@ -197,16 +197,16 @@ export function App() {
           <span className="text-[11px] font-bold">الخريطة</span>
         </button>
 
-        {/* 2. Centered Prominent Add Point Button (Plus on Top of Text) */}
-        <div className="flex-1 flex justify-center -mt-6">
+        {/* 2. Centered Prominent Add Point Button */}
+        <div className="flex-1 flex flex-col items-center justify-center -mt-6">
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="flex flex-col items-center justify-center w-15 h-15 rounded-full bg-gradient-to-tr from-emerald-800 to-emerald-600 text-white shadow-xl hover:shadow-2xl border-4 border-white active:scale-95 transition transform"
+            className="w-14 h-14 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-xl flex items-center justify-center border-4 border-white active:scale-95 transition shrink-0"
             title="إضافة نقطة تبرع جديدة"
           >
-            <Plus className="w-5 h-5 stroke-[2.8]" />
-            <span className="text-[10px] font-extrabold -mt-0.5 leading-tight">أضف نقطة</span>
+            <Plus className="w-7 h-7 stroke-[2.5]" />
           </button>
+          <span className="text-[10px] font-extrabold text-emerald-800 mt-0.5 whitespace-nowrap">أضف نقطة</span>
         </div>
 
         {/* 3. Nearest Tab */}
