@@ -17,7 +17,8 @@ import {
   ChevronRight,
   ChevronLeft,
   Maximize2,
-  Download
+  Download,
+  Edit
 } from 'lucide-react';
 import { CharityPoint, UserLocation } from '../types';
 import { AID_CATEGORIES_META } from '../data/wilayas';
@@ -27,12 +28,14 @@ interface PointDetailModalProps {
   point: CharityPoint | null;
   userLocation: UserLocation | null;
   onClose: () => void;
+  onEditPoint?: (point: CharityPoint) => void;
 }
 
 export const PointDetailModal: React.FC<PointDetailModalProps> = ({
   point,
   userLocation,
   onClose,
+  onEditPoint,
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [copiedPhone, setCopiedPhone] = useState(false);
@@ -390,6 +393,21 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
                   <span>{copiedLink ? 'تم النسخ' : 'نسخ الرابط'}</span>
                 </button>
               </div>
+
+              {/* Admin Quick Edit Button */}
+              {onEditPoint && (
+                <button
+                  type="button"
+                  onClick={() => {
+                    onEditPoint(point);
+                    onClose();
+                  }}
+                  className="w-full flex items-center justify-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold py-2.5 px-4 rounded-xl border border-emerald-300 transition text-xs active:scale-95 shadow-xs"
+                >
+                  <Edit className="w-3.5 h-3.5 text-emerald-700" />
+                  <span>تعديل بيانات هذه النقطة (Admin Edit)</span>
+                </button>
+              )}
             </div>
           </div>
         </div>

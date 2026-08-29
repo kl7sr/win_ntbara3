@@ -1,9 +1,10 @@
 // Cloudflare Pages Function: /api/points
-// Direct D1 SQL Database Handler
+// Direct D1 SQL Database Handler with Server-Side Password Security
 
 interface Env {
   DB: D1Database;
   VITE_ADMIN_PASSWORD?: string;
+  ADMIN_PASSWORD?: string;
 }
 
 const INIT_SQL = `
@@ -35,6 +36,17 @@ CREATE TABLE IF NOT EXISTS points (
 );
 `;
 
+function checkAdminAuth(request: Request, env: Env): boolean {
+  const secretPass = env.VITE_ADMIN_PASSWORD || env.ADMIN_PASSWORD;
+  if (!secretPass) return true; // If not configured, allow
+
+  const authHeader = request.headers.get("X-Admin-Password") || request.headers.get("Authorization");
+  if (!authHeader) return false;
+
+  const clientPass = authHeader.replace(/^Bearer\s+/i, "").trim();
+  return clientPass === secretPass.trim();
+}
+
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const db = context.env.DB;
   if (!db) {
@@ -45,7 +57,6 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   }
 
   try {
-    // Auto-create table if not exists
     await db.exec(INIT_SQL);
 
     const { results } = await db.prepare("SELECT * FROM points ORDER BY created_at DESC").all();
@@ -104,6 +115,17 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     await db.exec(INIT_SQL);
 
     const body: any = await context.request.json();
+
+    // If point created by admin or verified=true, require admin authentication
+    if (body.createdBy === 'admin' || body.verified) {
+      if (!checkAdminAuth(context.request, context.env)) {
+        return new Response(JSON.stringify({ error: "Unauthorized: Invalid admin credentials" }), {
+          status: 401,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
+    }
+
     const id = body.id || `point-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
     const createdAt = body.createdAt || new Date().toISOString();
 
@@ -165,6 +187,14 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
     return new Response(JSON.stringify({ error: "D1 Database binding missing" }), { status: 500 });
   }
 
+  // Bulletproof Admin Auth Check
+  if (!checkAdminAuth(context.request, context.env)) {
+    return new Response(JSON.stringify({ error: "Unauthorized: Invalid admin credentials" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" }
+    });
+  }
+
   try {
     const body: any = await context.request.json();
     const { id, updates } = body;
@@ -173,11 +203,46 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
       return new Response(JSON.stringify({ error: "Missing id or updates" }), { status: 400 });
     }
 
+    if (updates.title !== undefined) {
+      await db.prepare("UPDATE points SET title = ? WHERE id = ?").bind(updates.title, id).run();
+    }
+    if (updates.organizer !== undefined) {
+      await db.prepare("UPDATE points SET organizer = ? WHERE id = ?").bind(updates.organizer, id).run();
+    }
+    if (updates.phone !== undefined) {
+      await db.prepare("UPDATE points SET phone = ? WHERE id = ?").bind(updates.phone, id).run();
+    }
+    if (updates.address !== undefined) {
+      await db.prepare("UPDATE points SET address = ? WHERE id = ?").bind(updates.address, id).run();
+    }
+    if (updates.commune !== undefined) {
+      await db.prepare("UPDATE points SET commune = ? WHERE id = ?").bind(updates.commune, id).run();
+    }
+    if (updates.wilayaCode !== undefined) {
+      await db.prepare("UPDATE points SET wilaya_code = ?, wilaya_name_ar = ?, wilaya_name_fr = ? WHERE id = ?").bind(
+        updates.wilayaCode, updates.wilayaNameAr || '', updates.wilayaNameFr || '', id
+      ).run();
+    }
+    if (updates.lat !== undefined && updates.lng !== undefined) {
+      await db.prepare("UPDATE points SET lat = ?, lng = ? WHERE id = ?").bind(updates.lat, updates.lng, id).run();
+    }
     if (updates.verified !== undefined) {
       await db.prepare("UPDATE points SET verified = ? WHERE id = ?").bind(updates.verified ? 1 : 0, id).run();
     }
     if (updates.status !== undefined) {
       await db.prepare("UPDATE points SET status = ? WHERE id = ?").bind(updates.status, id).run();
+    }
+    if (updates.pointType !== undefined) {
+      await db.prepare("UPDATE points SET point_type = ? WHERE id = ?").bind(updates.pointType, id).run();
+    }
+    if (updates.aidCategories !== undefined) {
+      await db.prepare("UPDATE points SET aid_categories = ? WHERE id = ?").bind(JSON.stringify(updates.aidCategories), id).run();
+    }
+    if (updates.notes !== undefined) {
+      await db.prepare("UPDATE points SET notes = ? WHERE id = ?").bind(updates.notes, id).run();
+    }
+    if (updates.images !== undefined) {
+      await db.prepare("UPDATE points SET images = ? WHERE id = ?").bind(JSON.stringify(updates.images), id).run();
     }
 
     return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });
@@ -190,6 +255,14 @@ export const onRequestDelete: PagesFunction<Env> = async (context) => {
   const db = context.env.DB;
   if (!db) {
     return new Response(JSON.stringify({ error: "D1 Database binding missing" }), { status: 500 });
+  }
+
+  // Bulletproof Admin Auth Check
+  if (!checkAdminAuth(context.request, context.env)) {
+    return new Response(JSON.stringify({ error: "Unauthorized: Invalid admin credentials" }), {
+      status: 401,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 
   try {

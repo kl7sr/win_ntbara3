@@ -22,7 +22,10 @@ import {
   Image as ImageIcon,
   Flame,
   Camera,
-  Loader2
+  Loader2,
+  Edit,
+  Building2,
+  HeartHandshake
 } from 'lucide-react';
 import { CharityPoint, AidCategory, PointStatus, PointType } from '../types';
 import { WILAYAS, AID_CATEGORIES_META } from '../data/wilayas';
@@ -45,6 +48,7 @@ interface AdminPanelProps {
   onDeletePoint: (id: string) => void;
   onReloadPoints: () => void;
   onSelectPointOnMap: (point: CharityPoint) => void;
+  onEditPoint?: (point: CharityPoint) => void;
 }
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({
@@ -56,20 +60,24 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   onDeletePoint,
   onReloadPoints,
   onSelectPointOnMap,
+  onEditPoint,
 }) => {
   if (!isOpen) return null;
 
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passInput, setPassInput] = useState('');
   const [authError, setAuthError] = useState('');
-  const [selectedPhotoPreview, setSelectedPhotoPreview] = useState<string | null>(null);
 
-  // Active Tab
-  const [activeTab, setActiveTab] = useState<'unconfirmed' | 'add_burnt_zone' | 'google_link' | 'manage_points' | 'settings'>('unconfirmed');
+  // Tabs: charity_hubs | fire_zones | quick_add | settings
+  const [activeTab, setActiveTab] = useState<'charity_hubs' | 'fire_zones' | 'quick_add' | 'settings'>('charity_hubs');
 
-  // Burnt Zone Form State (Admin Exclusive)
+  // Search & Filters
+  const [adminSearch, setAdminSearch] = useState('');
+  const [adminWilayaFilter, setAdminWilayaFilter] = useState<number | null>(null);
+
+  // Burnt Zone Form State
   const [burntTitle, setBurntTitle] = useState('');
-  const [burntWilaya, setBurntWilaya] = useState<number>(15); // Default Tizi Ouzou
+  const [burntWilaya, setBurntWilaya] = useState<number>(15);
   const [burntCommune, setBurntCommune] = useState('');
   const [burntAddress, setBurntAddress] = useState('');
   const [burntPhone, setBurntPhone] = useState('');
@@ -78,17 +86,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [burntCoordsInput, setBurntCoordsInput] = useState('');
   const [burntLat, setBurntLat] = useState<number | null>(null);
   const [burntLng, setBurntLng] = useState<number | null>(null);
+  const [burntStatus, setBurntStatus] = useState<PointStatus>('urgent');
   const [burntSuccessMsg, setBurntSuccessMsg] = useState('');
   const [burntError, setBurntError] = useState('');
 
-  // Google Maps Quick Add State
+  // Quick Google Add State
   const [googleInput, setGoogleInput] = useState('');
   const [parsedLat, setParsedLat] = useState<number | null>(null);
   const [parsedLng, setParsedLng] = useState<number | null>(null);
   const [parseStatus, setParseStatus] = useState<'idle' | 'success' | 'error'>('idle');
   const [parseError, setParseError] = useState('');
-
-  // Quick form fields
   const [quickTitle, setQuickTitle] = useState('');
   const [quickOrganizer, setQuickOrganizer] = useState('');
   const [quickPhone, setQuickPhone] = useState('');
@@ -97,13 +104,33 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [quickAddress, setQuickAddress] = useState('');
   const [quickNotes, setQuickNotes] = useState('');
   const [quickCategories, setQuickCategories] = useState<AidCategory[]>(['food_water', 'clothes', 'medical']);
-  const [quickUrgent, setQuickUrgent] = useState(false);
-  const [quickUrgentNote, setQuickUrgentNote] = useState('');
   const [quickPhotos, setQuickPhotos] = useState<string[]>([]);
   const [quickSuccessMsg, setQuickSuccessMsg] = useState('');
   const [parsingLoading, setParsingLoading] = useState(false);
   const [quickImageLoading, setQuickImageLoading] = useState(false);
   const quickFileInputRef = useRef<HTMLInputElement>(null);
+
+  // Re-sync State
+  const [syncingPointId, setSyncingPointId] = useState<string | null>(null);
+  const [syncSuccessMsg, setSyncSuccessMsg] = useState<string>('');
+
+  // Settings
+  const [newPass, setNewPass] = useState('');
+  const [passChangeMsg, setPassChangeMsg] = useState('');
+
+  const charityPoints = points.filter((p) => p.pointType !== 'burnt_zone');
+  const firePoints = points.filter((p) => p.pointType === 'burnt_zone');
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const correctPass = getAdminPasscode();
+    if (passInput.trim() === correctPass.trim()) {
+      setIsAuthenticated(true);
+      setAuthError('');
+    } else {
+      setAuthError('كلمة المرور غير صحيحة');
+    }
+  };
 
   const handleQuickImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -125,143 +152,33 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     }
   };
 
-  // Manage table filters
-  const [adminSearch, setAdminSearch] = useState('');
-  const [adminWilayaFilter, setAdminWilayaFilter] = useState<number | null>(null);
-
-  // Settings
-  const [newPass, setNewPass] = useState('');
-  const [passChangeMsg, setPassChangeMsg] = useState('');
-
-  // Re-sync state
-  const [syncingPointId, setSyncingPointId] = useState<string | null>(null);
-  const [syncSuccessMsg, setSyncSuccessMsg] = useState<string>('');
-
-  const unconfirmedPoints = points.filter((p) => !p.verified);
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    const correctPass = getAdminPasscode();
-    if (passInput.trim() === correctPass.trim()) {
-      setIsAuthenticated(true);
-      setAuthError('');
-    } else {
-      setAuthError('كلمة المرور غير صحيحة');
-    }
-  };
-
-  const handleResyncPoint = async (point: CharityPoint) => {
-    const targetLink = point.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${point.lat},${point.lng}`;
-    setSyncingPointId(point.id);
-    setSyncSuccessMsg('');
-
-    try {
-      const res = await fetch(`/api/resolve-google-maps?url=${encodeURIComponent(targetLink)}`);
-      if (res.ok) {
-        const data = await res.json();
-        const updates: Partial<CharityPoint> = {};
-
-        if (data.title) {
-          updates.title = data.title.split('+').join(' ').replace(/\s+/g, ' ').trim();
-        }
-        if (data.lat && data.lng) {
-          updates.lat = data.lat;
-          updates.lng = data.lng;
-        }
-        if (data.address) updates.address = data.address;
-        if (data.commune) updates.commune = data.commune;
-        if (data.phone && (!point.phone || point.phone === '0550000000')) updates.phone = data.phone;
-        if (data.photos && data.photos.length > 0) {
-          updates.images = data.photos;
-          updates.imageUrl = data.photos[0];
-        }
-
-        onUpdatePoint(point.id, updates);
-        setSyncSuccessMsg(`تمت إعادة مزامنة وتحديث "${updates.title || point.title}" بنجاح.`);
-        setTimeout(() => setSyncSuccessMsg(''), 4000);
-      } else {
-        alert('تعذر استخراج بيانات المزامنة من الرابط.');
-      }
-    } catch (e) {
-      console.error('Resync failed:', e);
-      alert('فشلت عملية إعادة المزامنة.');
-    } finally {
-      setSyncingPointId(null);
-    }
-  };
-
-  const handleConfirmPoint = (point: CharityPoint) => {
-    onUpdatePoint(point.id, { verified: true });
-  };
-
-  const handleOpenPhotoInNewTab = (imgUrl: string) => {
-    const newTab = window.open();
-    if (newTab) {
-      newTab.document.write(`
-        <!DOCTYPE html>
-        <html lang="ar">
-          <head>
-            <title>معاينة صورة نقطة التبرع</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-              body {
-                margin: 0;
-                background-color: #0f172a;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                min-height: 100vh;
-                font-family: sans-serif;
-              }
-              img {
-                max-width: 95vw;
-                max-height: 90vh;
-                object-fit: contain;
-                border-radius: 8px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-              }
-            </style>
-          </head>
-          <body>
-            <img src="${imgUrl}" alt="Charity point photo" />
-          </body>
-        </html>
-      `);
-      newTab.document.close();
-    }
-  };
-
-  // Parse Burnt Zone Coords
-  const handleParseBurntCoords = () => {
-    if (!burntCoordsInput.trim()) {
-      setBurntError('يرجى إدخال رابط أو إحداثيات موقع الحريق');
+  const handleBurntCoordsParse = () => {
+    setBurntError('');
+    const parsed = parseGoogleMapsLinkOrCoords(burntCoordsInput);
+    if (!parsed) {
+      setBurntError('تعذر استخراج الإحداثيات، يرجى التأكد من الرابط أو إدخال (lat, lng)');
       return;
     }
-    const result = parseGoogleMapsLinkOrCoords(burntCoordsInput);
-    if (result && isWithinAlgeriaBounds(result.lat, result.lng)) {
-      setBurntLat(Number(result.lat.toFixed(6)));
-      setBurntLng(Number(result.lng.toFixed(6)));
-      setBurntError('');
-      const closest = WILAYAS.reduce((prev, curr) => {
-        const distPrev = Math.hypot(prev.lat - result.lat, prev.lng - result.lng);
-        const distCurr = Math.hypot(curr.lat - result.lat, curr.lng - result.lng);
-        return distCurr < distPrev ? curr : prev;
-      });
-      if (closest) setBurntWilaya(closest.code);
-    } else {
-      setBurntError('يرجى إدخال إحداثيات أو رابط صالح داخل الجزائر (مثال: 36.71, 4.04)');
+    if (!isWithinAlgeriaBounds(parsed.lat, parsed.lng)) {
+      setBurntError('الموقع يقع خارج حدود الجزائر');
+      return;
     }
+    setBurntLat(Number(parsed.lat.toFixed(6)));
+    setBurntLng(Number(parsed.lng.toFixed(6)));
+    const closest = WILAYAS.reduce((prev, curr) => {
+      const distPrev = Math.hypot(prev.lat - parsed.lat, prev.lng - parsed.lng);
+      const distCurr = Math.hypot(curr.lat - parsed.lat, curr.lng - parsed.lng);
+      return distCurr < distPrev ? curr : prev;
+    });
+    if (closest) setBurntWilaya(closest.code);
   };
 
-  // Submit Burnt Zone (Admin Exclusive)
   const handleAddBurntZone = (e: React.FormEvent) => {
     e.preventDefault();
     if (!burntLat || !burntLng) {
-      setBurntError('يرجى استخراج وتحديد إحداثيات المنطقة أولاً');
+      setBurntError('يرجى تحديد وتأكيد موقع الحريق أولاً');
       return;
     }
-
     if (!burntTitle.trim() || !burntCommune.trim()) {
       setBurntError('يرجى ملء اسم المنطقة والبلدية');
       return;
@@ -270,8 +187,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     const wilaya = WILAYAS.find((w) => w.code === burntWilaya) || WILAYAS[14];
 
     onAddPoint({
-      title: `🔥 ${burntTitle.trim()}`,
-      organizer: burntCoordinator.trim() || 'خلية إغاثة المتضررين من الحرائق',
+      title: burntTitle.startsWith('🔥') || burntTitle.startsWith('💨') ? burntTitle.trim() : `${burntStatus === 'extinguished' ? '💨' : '🔥'} ${burntTitle.trim()}`,
+      organizer: burntCoordinator.trim() || 'خلية إغاثة المتضررين والحماية المدنية',
       phone: burntPhone.trim() || '14',
       wilayaCode: wilaya.code,
       wilayaNameAr: wilaya.nameAr,
@@ -281,18 +198,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       lat: burntLat,
       lng: burntLng,
       aidCategories: ['food_water', 'medical', 'blankets', 'shelter', 'clothes'],
-      status: 'urgent',
-      pointType: 'burnt_zone', // Burnt zone type
-      urgentDescription: burntNeeds.trim() || 'منطقة منكوبة ومتضررة من الحرائق بحاجة عاجلة لإغاثة ومساعدات.',
+      status: burntStatus,
+      pointType: 'burnt_zone',
+      urgentDescription: burntNeeds.trim() || (burntStatus === 'extinguished' ? 'تم إخماد الحريق والسيطرة عليه.' : 'منطقة متضررة من الحرائق بحاجة لإغاثة ومساعدات عاجلة.'),
       verified: true,
       featured: true,
       createdBy: 'admin',
       googleMapsUrl: getGoogleMapsDirUrl(burntLat, burntLng),
     });
 
-    setBurntSuccessMsg('تمت إضافة وتثبيت المنطقة المتضررة من الحرائق على الخريطة بنجاح.');
+    setBurntSuccessMsg('تمت إضافة المنطقة بنجاح.');
     setTimeout(() => setBurntSuccessMsg(''), 4000);
-
     setBurntTitle('');
     setBurntCommune('');
     setBurntAddress('');
@@ -305,24 +221,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   };
 
   const handleParseGoogleLink = async () => {
-    if (!googleInput.trim()) {
-      setParseStatus('error');
-      setParseError('يرجى لصق رابط خرائط Google أو الإحداثيات');
-      return;
-    }
-
+    if (!googleInput.trim()) return;
     setParsingLoading(true);
     setParseError('');
 
     try {
-      // 1. Try server-side Cloudflare resolver (handles short maps.app.goo.gl and extracts photos + title)
       const res = await fetch(`/api/resolve-google-maps?url=${encodeURIComponent(googleInput.trim())}`);
       if (res.ok) {
         const data = await res.json();
         if (data.lat && data.lng) {
           if (!isWithinAlgeriaBounds(data.lat, data.lng)) {
             setParseStatus('error');
-            setParseError('عذراً، هذا الموقع يقع خارج حدود الجزائر.');
+            setParseError('الموقع يقع خارج حدود الجزائر.');
             setParsingLoading(false);
             return;
           }
@@ -330,7 +240,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           setParsedLat(Number(data.lat.toFixed(6)));
           setParsedLng(Number(data.lng.toFixed(6)));
           setParseStatus('success');
-          setParseError('');
 
           if (data.title) {
             const cleanTitle = data.title.split('+').join(' ').replace(/\s+/g, ' ').trim();
@@ -339,7 +248,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           if (data.phone) setQuickPhone(data.phone);
           if (data.address) setQuickAddress(data.address);
           if (data.commune) setQuickCommune(data.commune);
-          if (data.hours) setQuickNotes(`أوقات العمل: ${data.hours}`);
           if (data.photos && data.photos.length > 0) setQuickPhotos(data.photos);
 
           const closest = WILAYAS.reduce((prev, curr) => {
@@ -357,52 +265,26 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         }
       }
     } catch (e) {
-      console.warn('Backend resolver failed, using local parser:', e);
+      console.warn('Backend resolver failed:', e);
     }
 
-    // 2. Fallback to local regex parser
+    // Fallback
     const result = parseGoogleMapsLinkOrCoords(googleInput);
-    if (result) {
-      if (!isWithinAlgeriaBounds(result.lat, result.lng)) {
-        setParseStatus('error');
-        setParseError('عذراً، هذا الموقع يقع خارج حدود الجزائر.');
-      } else {
-        setParsedLat(Number(result.lat.toFixed(6)));
-        setParsedLng(Number(result.lng.toFixed(6)));
-        setParseStatus('success');
-        setParseError('');
-
-        const closest = WILAYAS.reduce((prev, curr) => {
-          const distPrev = Math.hypot(prev.lat - result.lat, prev.lng - result.lng);
-          const distCurr = Math.hypot(curr.lat - result.lat, curr.lng - result.lng);
-          return distCurr < distPrev ? curr : prev;
-        });
-        if (closest) {
-          setQuickWilaya(closest.code);
-        }
-      }
+    if (result && isWithinAlgeriaBounds(result.lat, result.lng)) {
+      setParsedLat(Number(result.lat.toFixed(6)));
+      setParsedLng(Number(result.lng.toFixed(6)));
+      setParseStatus('success');
     } else {
       setParseStatus('error');
-      setParseError('تعذر استخراج البيانات من الرابط. يرجى التأكد من الرابط أو إدخال الإحداثيات مباشرة.');
+      setParseError('تعذر استخراج البيانات من الرابط.');
     }
-
     setParsingLoading(false);
   };
 
   const handleAddQuickPoint = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!parsedLat || !parsedLng) {
-      setParseError('يرجى استخراج وتأكيد الإحداثيات أولاً');
-      return;
-    }
-
-    if (!isWithinAlgeriaBounds(parsedLat, parsedLng)) {
-      setParseError('عذراً، يجب أن يكون الموقع داخل الجزائر فقط.');
-      return;
-    }
-
-    if (!quickTitle.trim() || !quickPhone.trim()) {
-      setParseError('يرجى ملء الاسم ورقم الهاتف');
+    if (!parsedLat || !parsedLng || !quickTitle.trim() || !quickPhone.trim()) {
+      setParseError('يرجى التأكد من ملء الاسم ورقم الهاتف والإحداثيات');
       return;
     }
 
@@ -420,9 +302,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       lat: parsedLat,
       lng: parsedLng,
       aidCategories: quickCategories,
-      status: quickUrgent ? 'urgent' : 'active',
+      status: 'active',
       pointType: 'charity_hub',
-      urgentDescription: quickUrgentNote.trim() || quickNotes.trim() || undefined,
       notes: quickNotes.trim() || undefined,
       verified: true,
       featured: false,
@@ -431,9 +312,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       googleMapsUrl: googleInput.startsWith('http') ? googleInput : getGoogleMapsDirUrl(parsedLat, parsedLng),
     });
 
-    setQuickSuccessMsg('تمت إضافة وتوثيق نقطة التبرع وحفظ صورها وبياناتها بنجاح.');
+    setQuickSuccessMsg('تمت إضافة وتوثيق المركز بنجاح.');
     setTimeout(() => setQuickSuccessMsg(''), 4000);
-
     setGoogleInput('');
     setParsedLat(null);
     setParsedLng(null);
@@ -444,43 +324,41 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setQuickCommune('');
     setQuickAddress('');
     setQuickNotes('');
-    setQuickUrgentNote('');
     setQuickPhotos([]);
   };
 
-  const handleExport = () => {
-    const json = exportPointsJson();
-    const blob = new Blob([json], { type: 'application/json' });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement('a');
-    a.href = url;
-    a.download = `win-ntbara3-backup-${new Date().toISOString().slice(0, 10)}.json`;
-    a.click();
-    URL.revokeObjectURL(url);
-  };
+  const handleResyncPoint = async (point: CharityPoint) => {
+    const targetLink = point.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${point.lat},${point.lng}`;
+    setSyncingPointId(point.id);
+    setSyncSuccessMsg('');
 
-  const handleImportFile = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      const content = event.target?.result as string;
-      const imported = importPointsJson(content);
-      if (imported) {
-        onReloadPoints();
-        alert('تم استيراد قاعدة البيانات بنجاح.');
-      } else {
-        alert('الملف غير صالح.');
+    try {
+      const res = await fetch(`/api/resolve-google-maps?url=${encodeURIComponent(targetLink)}`);
+      if (res.ok) {
+        const data = await res.json();
+        const updates: Partial<CharityPoint> = {};
+
+        if (data.title) updates.title = data.title.split('+').join(' ').replace(/\s+/g, ' ').trim();
+        if (data.lat && data.lng) {
+          updates.lat = data.lat;
+          updates.lng = data.lng;
+        }
+        if (data.address) updates.address = data.address;
+        if (data.commune) updates.commune = data.commune;
+        if (data.phone && (!point.phone || point.phone === '0550000000')) updates.phone = data.phone;
+        if (data.photos && data.photos.length > 0) {
+          updates.images = data.photos;
+          updates.imageUrl = data.photos[0];
+        }
+
+        onUpdatePoint(point.id, updates);
+        setSyncSuccessMsg(`تمت مزامنة وتحديث "${updates.title || point.title}" بنجاح.`);
+        setTimeout(() => setSyncSuccessMsg(''), 4000);
       }
-    };
-    reader.readAsText(file);
-  };
-
-  const handleResetDefaults = () => {
-    if (confirm('هل تريد استعادة البيانات الافتراضية؟')) {
-      resetPointsToDefault();
-      onReloadPoints();
-      alert('تمت الاستعادة بنجاح.');
+    } catch (e) {
+      console.error('Resync error:', e);
+    } finally {
+      setSyncingPointId(null);
     }
   };
 
@@ -496,391 +374,381 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setTimeout(() => setPassChangeMsg(''), 3000);
   };
 
-  const filteredPoints = points.filter((p) => {
-    if (adminWilayaFilter && p.wilayaCode !== adminWilayaFilter) return false;
-    if (adminSearch.trim()) {
-      const q = adminSearch.toLowerCase();
-      const match =
-        p.title.toLowerCase().includes(q) ||
-        p.organizer.toLowerCase().includes(q) ||
-        p.phone.includes(q) ||
-        p.commune.toLowerCase().includes(q) ||
-        p.wilayaNameAr.includes(q);
-      if (!match) return false;
-    }
-    return true;
-  });
+  const filterList = (list: CharityPoint[]) => {
+    return list.filter((p) => {
+      if (adminWilayaFilter && p.wilayaCode !== adminWilayaFilter) return false;
+      if (adminSearch.trim()) {
+        const q = adminSearch.toLowerCase();
+        const match =
+          p.title.toLowerCase().includes(q) ||
+          p.organizer.toLowerCase().includes(q) ||
+          p.phone.includes(q) ||
+          p.commune.toLowerCase().includes(q) ||
+          p.wilayaNameAr.includes(q);
+        if (!match) return false;
+      }
+      return true;
+    });
+  };
 
   return (
-    <>
-      <div 
-        className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto cursor-pointer"
-        onClick={onClose}
-      >
-        <div 
-          className="bg-white border border-slate-200 rounded-2xl w-full max-w-4xl shadow-xl overflow-hidden my-auto max-h-[94vh] flex flex-col cursor-default"
-          onClick={(e) => e.stopPropagation()}
+    <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col overflow-hidden animate-in fade-in duration-150">
+      {/* Fullscreen Header */}
+      <header className="px-4 sm:px-8 py-3.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between shrink-0 shadow-lg">
+        <div className="flex items-center gap-3">
+          <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl">
+            <ShieldCheck className="w-6 h-6" />
+          </div>
+          <div>
+            <div className="flex items-center gap-2">
+              <h1 className="text-base sm:text-lg font-black text-white">لوحة تحكم المشرفين</h1>
+              <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800/60 px-2 py-0.5 rounded-full font-bold">
+                Admin Fullscreen
+              </span>
+            </div>
+            <p className="text-xs text-slate-400">إدارة وتعديل مراكز التبرع، مناطق الحرائق، والمزامنة السحابية</p>
+          </div>
+        </div>
+
+        <button
+          type="button"
+          onClick={onClose}
+          className="p-2 rounded-xl text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition active:scale-95 flex items-center gap-1.5 text-xs font-bold"
+          title="إغلاق والعودة للموقع"
         >
-          {/* Top Header */}
-          <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-            <div className="flex items-center gap-2.5">
-              <div className="p-2 bg-emerald-100 text-emerald-800 rounded-lg">
-                <ShieldCheck className="w-5 h-5" />
+          <X className="w-5 h-5" />
+          <span className="hidden sm:inline">إغلاق اللوحة</span>
+        </button>
+      </header>
+
+      {/* Main Container */}
+      <div className="flex-1 flex flex-col overflow-hidden max-w-7xl w-full mx-auto p-3 sm:p-6">
+        {!isAuthenticated ? (
+          <div className="flex-1 flex items-center justify-center p-4">
+            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 sm:p-10 max-w-md w-full shadow-2xl text-center space-y-5">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto shadow-inner">
+                <Lock className="w-8 h-8" />
               </div>
               <div>
-                <h2 className="text-base sm:text-lg font-bold text-slate-900 flex items-center gap-2">
-                  <span>لوحة تحكم المشرفين</span>
-                  <span className="text-[10px] bg-slate-200 text-slate-700 px-2 py-0.5 rounded font-normal">
-                    Admin
-                  </span>
-                </h2>
-                <p className="text-xs text-slate-500">إضافة أماكن الحرائق حصرياً، توثيق النقاط، الإدارة</p>
+                <h3 className="text-lg font-bold text-white mb-1">تسجيل دخول الإدارة</h3>
+                <p className="text-xs text-slate-400">
+                  أدخل كلمة المرور للوصول إلى أدوات تعديل النقاط وإدارة الحرائق
+                </p>
               </div>
-            </div>
 
-            <button
-              type="button"
-              onClick={onClose}
-              className="p-2 rounded-xl text-slate-400 hover:text-slate-800 bg-white hover:bg-slate-100 border border-slate-200 shadow-xs transition"
-              title="إغلاق"
-            >
-              <X className="w-5 h-5" />
-            </button>
-          </div>
-
-          {/* Authentication Gate */}
-          {!isAuthenticated ? (
-            <div className="p-6 sm:p-12 flex flex-col items-center justify-center text-center max-w-md mx-auto">
-              <div className="w-14 h-14 rounded-2xl bg-slate-100 border border-slate-200 flex items-center justify-center text-slate-700 mb-4">
-                <Lock className="w-7 h-7" />
-              </div>
-              <h3 className="text-lg font-bold text-slate-900 mb-1">تسجيل دخول المشرف</h3>
-              <p className="text-xs text-slate-500 mb-6">
-                أدخل كلمة المرور لإدارة وتأكيد نقاط التبرع وإضافة أماكن الحرائق
-              </p>
-
-              <form onSubmit={handleLogin} className="w-full space-y-3">
+              <form onSubmit={handleLogin} className="space-y-4">
                 <div className="relative">
                   <input
                     type="password"
                     value={passInput}
                     onChange={(e) => setPassInput(e.target.value)}
                     placeholder="كلمة المرور"
-                    className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-slate-900 text-center tracking-widest focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white text-center tracking-widest text-sm focus:outline-none focus:border-emerald-500"
                     autoFocus
                   />
-                  <KeyRound className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
+                  <KeyRound className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 </div>
 
-                {authError && (
-                  <p className="text-xs text-red-600 font-medium">{authError}</p>
-                )}
+                {authError && <p className="text-xs text-red-400 font-medium">{authError}</p>}
 
-                <div className="flex flex-col gap-2 pt-1">
-                  <button
-                    type="submit"
-                    className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-lg shadow transition"
-                  >
-                    دخول
-                  </button>
+                <button
+                  type="submit"
+                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg transition active:scale-95 text-sm"
+                >
+                  دخول لوحة التحكم
+                </button>
 
-                  <button
-                    type="button"
-                    onClick={onClose}
-                    className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg transition text-xs"
-                  >
-                    إلغاء والعودة للخريطة
-                  </button>
-                </div>
+                <button
+                  type="button"
+                  onClick={onClose}
+                  className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition"
+                >
+                  إلغاء والعودة للخريطة
+                </button>
               </form>
             </div>
-          ) : (
-            /* Admin Main Content */
-            <div className="flex-1 flex flex-col overflow-hidden">
-              {/* Tabs Navigation */}
-              <div className="flex items-center gap-1 p-2 bg-slate-50 border-b border-slate-200 text-xs sm:text-sm overflow-x-auto">
-                <button
-                  onClick={() => setActiveTab('unconfirmed')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition whitespace-nowrap ${
-                    activeTab === 'unconfirmed'
-                      ? 'bg-amber-700 text-white shadow-xs'
-                      : 'text-slate-700 hover:bg-slate-100'
-                  }`}
-                >
-                  <AlertTriangle className="w-4 h-4" />
-                  <span>المواقع غير المؤكدة</span>
-                  {unconfirmedPoints.length > 0 && (
-                    <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
-                      activeTab === 'unconfirmed' ? 'bg-amber-900 text-white' : 'bg-amber-100 text-amber-900'
-                    }`}>
-                      {unconfirmedPoints.length}
-                    </span>
-                  )}
-                </button>
+          </div>
+        ) : (
+          <div className="flex-1 flex flex-col bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
+            {/* Navigation Tabs */}
+            <div className="bg-slate-900 border-b border-slate-800 p-2 sm:p-3 flex items-center gap-1.5 sm:gap-2 overflow-x-auto shrink-0">
+              <button
+                onClick={() => setActiveTab('charity_hubs')}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition shrink-0 ${
+                  activeTab === 'charity_hubs'
+                    ? 'bg-emerald-600 text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <HeartHandshake className="w-4 h-4 text-emerald-300" />
+                <span>مراكز التبرع ({charityPoints.length})</span>
+              </button>
 
-                {/* Exclusive Fire / Burnt Zone Tab */}
-                <button
-                  onClick={() => setActiveTab('add_burnt_zone')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition whitespace-nowrap ${
-                    activeTab === 'add_burnt_zone'
-                      ? 'bg-red-600 text-white shadow-xs'
-                      : 'text-red-700 hover:bg-red-50 bg-red-50/50'
-                  }`}
-                >
-                  <Flame className="w-4 h-4" />
-                  <span>إضافة منطقة حرائق (خاص بالمشرف)</span>
-                </button>
+              <button
+                onClick={() => setActiveTab('fire_zones')}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition shrink-0 ${
+                  activeTab === 'fire_zones'
+                    ? 'bg-red-600 text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <Flame className="w-4 h-4 text-red-300" />
+                <span>مناطق الحرائق ({firePoints.length})</span>
+              </button>
 
-                <button
-                  onClick={() => setActiveTab('google_link')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition whitespace-nowrap ${
-                    activeTab === 'google_link'
-                      ? 'bg-emerald-700 text-white shadow-xs'
-                      : 'text-slate-700 hover:bg-slate-100'
-                  }`}
-                >
-                  <LinkIcon className="w-4 h-4" />
-                  <span>إضافة عبر رابط Google Maps</span>
-                </button>
+              <button
+                onClick={() => setActiveTab('quick_add')}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition shrink-0 ${
+                  activeTab === 'quick_add'
+                    ? 'bg-teal-600 text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <LinkIcon className="w-4 h-4" />
+                <span>إضافة سريعة بالرابط</span>
+              </button>
 
-                <button
-                  onClick={() => setActiveTab('manage_points')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition whitespace-nowrap ${
-                    activeTab === 'manage_points'
-                      ? 'bg-emerald-700 text-white shadow-xs'
-                      : 'text-slate-700 hover:bg-slate-100'
-                  }`}
-                >
-                  <MapPin className="w-4 h-4" />
-                  <span>جميع النقاط ({points.length})</span>
-                </button>
+              <button
+                onClick={() => setActiveTab('settings')}
+                className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition shrink-0 ${
+                  activeTab === 'settings'
+                    ? 'bg-slate-700 text-white shadow-md'
+                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                }`}
+              >
+                <Sliders className="w-4 h-4" />
+                <span>الإعدادات والنسخ</span>
+              </button>
+            </div>
 
-                <button
-                  onClick={() => setActiveTab('settings')}
-                  className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition whitespace-nowrap ${
-                    activeTab === 'settings'
-                      ? 'bg-emerald-700 text-white shadow-xs'
-                      : 'text-slate-700 hover:bg-slate-100'
-                  }`}
-                >
-                  <Sliders className="w-4 h-4" />
-                  <span>النسخ الاحتياطي والإعدادات</span>
-                </button>
+            {/* Notification Toast */}
+            {syncSuccessMsg && (
+              <div className="bg-emerald-900/80 border-b border-emerald-700 text-emerald-200 px-4 py-2 text-xs flex items-center justify-between">
+                <span className="font-semibold">{syncSuccessMsg}</span>
+                <button onClick={() => setSyncSuccessMsg('')} className="text-emerald-400 hover:text-white">✕</button>
               </div>
+            )}
 
-              {/* Tab 0: Unconfirmed Points */}
-              {activeTab === 'unconfirmed' && (
-                <div className="p-4 sm:p-6 overflow-y-auto space-y-4 text-xs sm:text-sm flex-1">
-                  <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
-                    <div className="p-2 bg-amber-100 text-amber-800 rounded-lg shrink-0">
-                      <AlertTriangle className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-amber-900 text-sm">قائمة النقاط المضافة التي تحتاج لتأكيدك ({unconfirmedPoints.length})</h4>
-                      <p className="text-xs text-amber-800 mt-1 leading-relaxed">
-                        يمكنك معاينة الصور المرفقة والتأكد من بيانات الموقع، ثم الضغط على "تأكيد وتوثيق".
-                      </p>
-                    </div>
+            {/* TAB 1: CHARITY HUBS */}
+            {activeTab === 'charity_hubs' && (
+              <div className="flex-1 p-4 sm:p-6 flex flex-col overflow-hidden space-y-4">
+                <div className="flex flex-col sm:flex-row items-center gap-3 shrink-0">
+                  <div className="relative flex-1 w-full">
+                    <input
+                      type="text"
+                      value={adminSearch}
+                      onChange={(e) => setAdminSearch(e.target.value)}
+                      placeholder="بحث في مراكز التبرع بالاسم، المشرف، الهاتف..."
+                      className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-3 pr-10 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-emerald-500"
+                    />
+                    <Search className="w-4 h-4 text-slate-500 absolute right-3.5 top-1/2 -translate-y-1/2" />
                   </div>
 
-                  <div className="space-y-3">
-                    {unconfirmedPoints.length === 0 ? (
-                      <div className="text-center py-12 text-slate-500 bg-slate-50 rounded-xl border border-slate-200">
-                        <ShieldCheck className="w-10 h-10 text-emerald-600 mx-auto mb-2" />
-                        <p className="font-bold text-slate-800">رائع! جميع المواقع مؤكدة وموثوقة</p>
-                      </div>
-                    ) : (
-                      unconfirmedPoints.map((point) => {
-                        const imgs = point.images || (point.imageUrl ? [point.imageUrl] : []);
-                        return (
-                          <div
-                            key={point.id}
-                            className="p-4 bg-white border border-amber-300 rounded-2xl flex flex-col gap-3 shadow-xs"
-                          >
-                            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                              <div className="space-y-1 flex-1">
-                                <div className="flex items-center gap-2 flex-wrap">
-                                  <span className="font-bold text-slate-900 text-sm sm:text-base">{point.title}</span>
-                                  <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-300">
-                                    غير مؤكد
-                                  </span>
-                                  <span className="text-slate-500 text-xs">({point.wilayaNameAr} - {point.commune})</span>
-                                </div>
+                  <select
+                    value={adminWilayaFilter ?? ''}
+                    onChange={(e) => setAdminWilayaFilter(e.target.value ? Number(e.target.value) : null)}
+                    className="w-full sm:w-auto bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-xs"
+                  >
+                    <option value="">جميع الولايات</option>
+                    {WILAYAS.map((w) => (
+                      <option key={w.code} value={w.code}>
+                        {w.code} - {w.nameAr}
+                      </option>
+                    ))}
+                  </select>
+                </div>
 
-                                <div className="flex items-center gap-4 text-xs text-slate-700 flex-wrap">
-                                  <span>المشرف: <strong className="text-slate-900">{point.organizer}</strong></span>
-                                  <span>الهاتف: <a href={`tel:${point.phone}`} className="text-emerald-700 font-bold font-mono underline" dir="ltr">{point.phone}</a></span>
-                                </div>
-
-                                <p className="text-xs text-slate-500">{point.address}</p>
-                              </div>
-
-                              <div className="flex items-center gap-2 shrink-0 pt-2 sm:pt-0">
-                                <button
-                                  onClick={() => handleConfirmPoint(point)}
-                                  className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition active:scale-95"
-                                >
-                                  <Check className="w-4 h-4" />
-                                  <span>تأكيد وتوثيق الموقع</span>
-                                </button>
-
-                                <button
-                                  onClick={() => {
-                                    onSelectPointOnMap(point);
-                                    onClose();
-                                  }}
-                                  className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-200 transition"
-                                  title="معاينة على الخريطة"
-                                >
-                                  <Eye className="w-4 h-4" />
-                                </button>
-
-                                <button
-                                  onClick={() => {
-                                    if (confirm(`هل تريد حذف "${point.title}"؟`)) {
-                                      onDeletePoint(point.id);
-                                    }
-                                  }}
-                                  className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl border border-red-200 transition"
-                                  title="حذف النقطة"
-                                >
-                                  <Trash2 className="w-4 h-4" />
-                                </button>
-                              </div>
-                            </div>
-
-                            {/* Attached photos review */}
-                            {imgs.length > 0 && (
-                              <div className="pt-2 border-t border-slate-100">
-                                <span className="text-xs text-slate-600 font-semibold block mb-1.5 flex items-center gap-1">
-                                  <ImageIcon className="w-3.5 h-3.5 text-amber-700" />
-                                  <span>الصور المرفقة ({imgs.length}):</span>
-                                </span>
-                                <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                                  {imgs.map((imgSrc, i) => (
-                                    <div
-                                      key={i}
-                                      className="relative group w-20 h-20 rounded-xl overflow-hidden border border-slate-300 shrink-0 shadow-xs"
-                                    >
-                                      <img 
-                                        src={imgSrc} 
-                                        alt="Inspection" 
-                                        onClick={() => setSelectedPhotoPreview(imgSrc)}
-                                        className="w-full h-full object-cover cursor-pointer hover:scale-105 transition" 
-                                      />
-                                      <button
-                                        onClick={(e) => {
-                                          e.stopPropagation();
-                                          handleOpenPhotoInNewTab(imgSrc);
-                                        }}
-                                        className="absolute bottom-1 right-1 bg-black/75 hover:bg-black text-white p-1 rounded-md text-[10px] flex items-center gap-0.5 shadow transition"
-                                        title="فتح في تبويب جديد"
-                                      >
-                                        <ExternalLink className="w-3 h-3" />
-                                      </button>
-                                    </div>
-                                  ))}
-                                </div>
-                              </div>
-                            )}
+                <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                  {filterList(charityPoints).length === 0 ? (
+                    <div className="text-center py-16 text-slate-500">لا توجد مراكز تبرع مطابقة</div>
+                  ) : (
+                    filterList(charityPoints).map((point) => (
+                      <div
+                        key={point.id}
+                        className="p-4 bg-slate-950 border border-slate-800 hover:border-slate-700 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition shadow-sm"
+                      >
+                        <div className="space-y-1.5 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-white text-sm sm:text-base">{point.title}</span>
+                            <span className="text-slate-400 text-xs">({point.wilayaNameAr} - {point.commune})</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                              point.verified
+                                ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
+                                : 'bg-amber-950 text-amber-400 border-amber-800'
+                            }`}>
+                              {point.verified ? 'مؤكد ✓' : 'غير مؤكد'}
+                            </span>
                           </div>
-                        );
-                      })
-                    )}
+
+                          <div className="flex items-center gap-4 text-xs text-slate-400">
+                            <span>المشرف: <strong className="text-slate-200">{point.organizer}</strong></span>
+                            <span>الهاتف: <strong dir="ltr" className="font-mono text-emerald-400">{point.phone}</strong></span>
+                          </div>
+
+                          {point.address && <p className="text-[11px] text-slate-500">{point.address}</p>}
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2 shrink-0 self-end sm:self-center">
+                          {/* Edit Button */}
+                          <button
+                            type="button"
+                            onClick={() => onEditPoint?.(point)}
+                            className="p-2 bg-slate-800 hover:bg-emerald-700 text-slate-200 hover:text-white rounded-xl border border-slate-700 transition flex items-center gap-1 text-xs font-semibold"
+                            title="تعديل بيانات النقطة"
+                          >
+                            <Edit className="w-3.5 h-3.5 text-emerald-400" />
+                            <span>تعديل</span>
+                          </button>
+
+                          {/* Re-sync Button */}
+                          <button
+                            type="button"
+                            onClick={() => handleResyncPoint(point)}
+                            disabled={syncingPointId === point.id}
+                            className="p-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-300 rounded-xl border border-slate-700 transition"
+                            title="مزامنة مع خرائط Google"
+                          >
+                            <RefreshCw className={`w-3.5 h-3.5 ${syncingPointId === point.id ? 'animate-spin text-emerald-400' : ''}`} />
+                          </button>
+
+                          {/* View on Map */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onSelectPointOnMap(point);
+                              onClose();
+                            }}
+                            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 transition"
+                            title="عرض على الخريطة"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
+
+                          {/* Delete */}
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (confirm(`هل تريد حذف "${point.title}"؟`)) {
+                                onDeletePoint(point.id);
+                              }
+                            }}
+                            className="p-2 bg-red-950/60 hover:bg-red-900 text-red-400 rounded-xl border border-red-900 transition"
+                            title="حذف المركز"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* TAB 2: FIRE & CRISIS ZONES */}
+            {activeTab === 'fire_zones' && (
+              <div className="flex-1 p-4 sm:p-6 flex flex-col sm:flex-row gap-6 overflow-hidden">
+                {/* Left: Fire Zones List */}
+                <div className="flex-1 flex flex-col overflow-hidden space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h3 className="font-bold text-white text-sm flex items-center gap-1.5">
+                      <Flame className="w-4 h-4 text-red-400" />
+                      <span>المناطق المتضررة والحرائق المسجلة ({firePoints.length})</span>
+                    </h3>
+                  </div>
+
+                  <div className="flex-1 overflow-y-auto space-y-3 pr-1">
+                    {firePoints.map((point) => (
+                      <div
+                        key={point.id}
+                        className="p-3.5 bg-slate-950 border border-slate-800 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs"
+                      >
+                        <div className="space-y-1 flex-1">
+                          <div className="flex items-center gap-2">
+                            <span className="font-bold text-white text-sm">{point.title}</span>
+                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                              point.status === 'extinguished'
+                                ? 'bg-slate-800 text-slate-400 border-slate-700'
+                                : 'bg-red-950 text-red-400 border-red-800'
+                            }`}>
+                              {point.status === 'extinguished' ? '💨 تم الإخماد (رمادي)' : '🔥 حريق نشط'}
+                            </span>
+                          </div>
+                          <p className="text-xs text-slate-400">{point.wilayaNameAr} - {point.commune} ({point.address})</p>
+                        </div>
+
+                        <div className="flex items-center gap-2 shrink-0">
+                          <button
+                            type="button"
+                            onClick={() => onEditPoint?.(point)}
+                            className="p-1.5 px-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition flex items-center gap-1"
+                          >
+                            <Edit className="w-3 h-3 text-emerald-400" />
+                            <span>تعديل</span>
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              onSelectPointOnMap(point);
+                              onClose();
+                            }}
+                            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700"
+                          >
+                            <Eye className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => onDeletePoint(point.id)}
+                            className="p-2 bg-red-950/60 hover:bg-red-900 text-red-400 rounded-xl border border-red-900"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
                   </div>
                 </div>
-              )}
 
-              {/* Tab 0.5: Add Fire Affected / Burnt Zone (Exclusive to Admin) */}
-              {activeTab === 'add_burnt_zone' && (
-                <div className="p-4 sm:p-6 overflow-y-auto space-y-4 text-xs sm:text-sm flex-1">
-                  <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
-                    <div className="p-2 bg-red-100 text-red-700 rounded-lg shrink-0">
-                      <Flame className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-red-900 text-sm">إضافة وتثبيت منطقة متضررة من الحرائق (خاص بالإدارة)</h4>
-                      <p className="text-xs text-red-800 mt-1 leading-relaxed">
-                        هذا القسم مخصص حصرياً للمشرف لإضافة المناطق المنكوبة والقرى المتضررة من الحرائق لتظهر بعلامة حمراء بارزة على الخريطة لتوجيه المساعدات إليها.
-                      </p>
-                    </div>
-                  </div>
+                {/* Right: Add Burnt Zone Form */}
+                <div className="w-full sm:w-96 bg-slate-950 border border-slate-800 rounded-2xl p-4 overflow-y-auto space-y-3.5">
+                  <h4 className="font-bold text-white text-xs border-b border-slate-800 pb-2 flex items-center gap-1.5">
+                    <Plus className="w-4 h-4 text-red-400" />
+                    <span>إضافة منطقة حرائق أو إخماد جديدة</span>
+                  </h4>
 
                   {burntSuccessMsg && (
-                    <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-lg flex items-center gap-2 font-bold">
-                      <CheckCircle className="w-4 h-4 text-emerald-700 shrink-0" />
-                      <span>{burntSuccessMsg}</span>
+                    <div className="p-2.5 bg-emerald-950 border border-emerald-800 rounded-xl text-emerald-300 text-xs font-bold">
+                      {burntSuccessMsg}
                     </div>
                   )}
 
-                  <form onSubmit={handleAddBurntZone} className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 space-y-4">
-                    {burntError && (
-                      <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs font-semibold">
-                        {burntError}
-                      </div>
-                    )}
+                  {burntError && (
+                    <div className="p-2.5 bg-red-950 border border-red-800 rounded-xl text-red-300 text-xs">
+                      {burntError}
+                    </div>
+                  )}
 
-                    {/* Coordinates & Google link */}
-                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
-                      <label className="block text-slate-800 font-bold">1. موقع المنطقة المتضررة (رابط Google Maps أو إحداثيات): *</label>
-                      <div className="flex gap-2">
-                        <input
-                          type="text"
-                          dir="ltr"
-                          value={burntCoordsInput}
-                          onChange={(e) => setBurntCoordsInput(e.target.value)}
-                          placeholder="https://maps.app.goo.gl/... أو 36.7118, 4.0459"
-                          className="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-mono text-xs focus:ring-2 focus:ring-red-600"
-                        />
-                        <button
-                          type="button"
-                          onClick={handleParseBurntCoords}
-                          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-xs transition shrink-0"
-                        >
-                          تحديد الإحداثيات
-                        </button>
-                      </div>
-
-                      {burntLat && burntLng && (
-                        <p className="text-[11px] text-emerald-700 font-semibold mt-1">
-                          ✓ تم تحديد الإحداثيات: {burntLat}, {burntLng}
-                        </p>
-                      )}
+                  <form onSubmit={handleAddBurntZone} className="space-y-3 text-xs">
+                    <div>
+                      <label className="block text-slate-300 font-semibold mb-1">اسم المنطقة / الغابة *</label>
+                      <input
+                        type="text"
+                        required
+                        value={burntTitle}
+                        onChange={(e) => setBurntTitle(e.target.value)}
+                        placeholder="مثال: غابة تاكسنة، قرية آيت هشام..."
+                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                      />
                     </div>
 
-                    {/* Zone Details */}
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-slate-700 font-semibold mb-1">اسم المنطقة / القرية المتضررة *</label>
-                        <input
-                          type="text"
-                          required
-                          value={burntTitle}
-                          onChange={(e) => setBurntTitle(e.target.value)}
-                          placeholder="مثال: قرية آث وغليس، غابات بني كسيلة..."
-                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-red-600"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-slate-700 font-semibold mb-1">المشرف الميداني / لجنة الإغاثة</label>
-                        <input
-                          type="text"
-                          value={burntCoordinator}
-                          onChange={(e) => setBurntCoordinator(e.target.value)}
-                          placeholder="خلية أزمة البلدية، متطوعين..."
-                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-red-600"
-                        />
-                      </div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <div>
-                        <label className="block text-slate-700 font-semibold mb-1">الولاية *</label>
+                        <label className="block text-slate-300 font-semibold mb-1">الولاية *</label>
                         <select
                           value={burntWilaya}
                           onChange={(e) => setBurntWilaya(Number(e.target.value))}
-                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-white"
                         >
                           {WILAYAS.map((w) => (
                             <option key={w.code} value={w.code}>
@@ -891,152 +759,110 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       </div>
 
                       <div>
-                        <label className="block text-slate-700 font-semibold mb-1">البلدية *</label>
+                        <label className="block text-slate-300 font-semibold mb-1">البلدية *</label>
                         <input
                           type="text"
                           required
                           value={burntCommune}
                           onChange={(e) => setBurntCommune(e.target.value)}
-                          placeholder="البلدية المتضررة"
-                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-slate-700 font-semibold mb-1">رقم الهاتف للتنسيق</label>
-                        <input
-                          type="tel"
-                          dir="ltr"
-                          value={burntPhone}
-                          onChange={(e) => setBurntPhone(e.target.value)}
-                          placeholder="0550123456"
-                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-mono"
+                          placeholder="البلدية"
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-white"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-slate-700 font-semibold mb-1">الاحتياجات والمستلزمات العاجلة للمتضررين</label>
-                      <textarea
-                        rows={2}
-                        value={burntNeeds}
-                        onChange={(e) => setBurntNeeds(e.target.value)}
-                        placeholder="أفرشة، خيم إيواء، مياه شرب، أدوية ومطهرات، حليب أطفال..."
-                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-red-600"
-                      />
+                      <label className="block text-slate-300 font-semibold mb-1">حالة الحريق</label>
+                      <select
+                        value={burntStatus}
+                        onChange={(e) => setBurntStatus(e.target.value as PointStatus)}
+                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-white font-bold"
+                      >
+                        <option value="urgent">🔥 حريق نشط / بحاجة لإغاثة عاجلة (أحمر)</option>
+                        <option value="extinguished">💨 تم إخماد الحريق والسيطرة عليه (رمادي)</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-300 font-semibold mb-1">رابط Google Maps أو الإحداثيات *</label>
+                      <div className="flex gap-1.5">
+                        <input
+                          type="text"
+                          dir="ltr"
+                          value={burntCoordsInput}
+                          onChange={(e) => setBurntCoordsInput(e.target.value)}
+                          placeholder="36.6583, 5.7924 أو رابط قوقل"
+                          className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono text-[11px]"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleBurntCoordsParse}
+                          className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-bold text-[11px]"
+                        >
+                          استخراج
+                        </button>
+                      </div>
+                      {burntLat && burntLng && (
+                        <p className="text-[10px] text-emerald-400 font-mono mt-1">
+                          ✓ تم استخراج: {burntLat}, {burntLng}
+                        </p>
+                      )}
                     </div>
 
                     <button
                       type="submit"
-                      className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow transition flex items-center justify-center gap-2 text-sm"
+                      className="w-full py-2.5 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition"
                     >
-                      <Flame className="w-4 h-4" />
-                      <span>نشر المنطقة المتضررة من الحرائق على الخريطة</span>
+                      تثبيت منطقة الحرائق
                     </button>
                   </form>
                 </div>
-              )}
+              </div>
+            )}
 
-              {/* Tab 1: Google Maps Link / Location Adder */}
-              {activeTab === 'google_link' && (
-                <div className="p-4 sm:p-6 overflow-y-auto space-y-5 text-xs sm:text-sm flex-1">
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 flex items-start gap-3">
-                    <div className="p-2 bg-emerald-100 text-emerald-800 rounded-lg shrink-0">
-                      <LinkIcon className="w-5 h-5" />
-                    </div>
-                    <div>
-                      <h4 className="font-bold text-slate-900 text-sm">إضافة نقطة فورية داخل الجزائر عبر Google Maps</h4>
-                      <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                        الصق رابط مشاركة من تطبيق Google Maps أو أدخل الإحداثيات (مثال: <code className="text-emerald-800 font-mono">36.7538, 3.0588</code>).
-                      </p>
-                    </div>
+            {/* TAB 3: QUICK GOOGLE MAPS ADD */}
+            {activeTab === 'quick_add' && (
+              <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4">
+                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 sm:p-6 space-y-4">
+                  <div>
+                    <h3 className="font-bold text-white text-sm sm:text-base flex items-center gap-2">
+                      <LinkIcon className="w-5 h-5 text-emerald-400" />
+                      <span>إضافة مركز بالرابط المباشر من Google Maps</span>
+                    </h3>
+                    <p className="text-xs text-slate-400 mt-1">
+                      الصق رابط المركز (`maps.app.goo.gl/...`) لاستخراج الإحداثيات والاسم والبلدية تلقائياً
+                    </p>
                   </div>
 
-                  {quickSuccessMsg && (
-                    <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-lg flex items-center gap-2">
-                      <CheckCircle className="w-4 h-4 text-emerald-700 shrink-0" />
-                      <span>{quickSuccessMsg}</span>
-                    </div>
-                  )}
-
-                  {/* Step 1: Input URL / Coords */}
-                  <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
-                    <label className="block text-slate-800 font-bold">
-                      1. رابط خرائط Google Maps أو الإحداثيات بالجزائر:
-                    </label>
-
-                    <div className="flex flex-col sm:flex-row items-stretch gap-2">
-                      <div className="relative flex-1">
-                        <input
-                          type="text"
-                          dir="ltr"
-                          value={googleInput}
-                          onChange={(e) => {
-                            setGoogleInput(e.target.value);
-                            setParseStatus('idle');
-                          }}
-                          placeholder="https://maps.app.goo.gl/... أو 36.7538, 3.0588"
-                          className="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-2.5 text-slate-900 font-mono text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"
-                        />
-                        <LinkIcon className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
-                      </div>
-
-                      <button
-                        type="button"
-                        disabled={parsingLoading}
-                        onClick={handleParseGoogleLink}
-                        className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-600 text-white font-bold rounded-lg shadow-xs transition flex items-center justify-center gap-2 shrink-0"
-                      >
-                        {parsingLoading ? (
-                          <>
-                            <RefreshCw className="w-4 h-4 animate-spin" />
-                            <span>جاري الاستخراج...</span>
-                          </>
-                        ) : (
-                          <span>استخراج الموقع والصور</span>
-                        )}
-                      </button>
-                    </div>
-
-                    {parseStatus === 'error' && (
-                      <p className="text-xs text-red-600 flex items-center gap-1 mt-1">
-                        <AlertTriangle className="w-4 h-4 shrink-0" />
-                        <span>{parseError}</span>
-                      </p>
-                    )}
-
-                    {parseStatus === 'success' && parsedLat && parsedLng && (
-                      <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-lg flex flex-wrap items-center justify-between gap-2 text-xs">
-                        <div className="flex items-center gap-2 text-emerald-900 font-medium">
-                          <CheckCircle className="w-4 h-4 text-emerald-700" />
-                          <span>تم استخراج موقع بالجزائر: Latitude: {parsedLat}, Longitude: {parsedLng}</span>
-                        </div>
-
-                        <a
-                          href={getGoogleMapsDirUrl(parsedLat, parsedLng)}
-                          target="_blank"
-                          rel="noreferrer"
-                          className="text-slate-700 hover:underline flex items-center gap-1"
-                        >
-                          <span>معاينة في Google Maps</span>
-                          <ExternalLink className="w-3 h-3" />
-                        </a>
-                      </div>
-                    )}
+                  <div className="flex gap-2">
+                    <input
+                      type="text"
+                      dir="ltr"
+                      value={googleInput}
+                      onChange={(e) => setGoogleInput(e.target.value)}
+                      placeholder="https://maps.app.goo.gl/..."
+                      className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white font-mono text-xs focus:outline-none focus:border-emerald-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleParseGoogleLink}
+                      disabled={parsingLoading || !googleInput.trim()}
+                      className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition"
+                    >
+                      {parsingLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>استخراج الموقع</span>}
+                    </button>
                   </div>
 
-                  {/* Step 2: Quick Point Details Form */}
+                  {parseError && <p className="text-xs text-red-400">{parseError}</p>}
+                  {quickSuccessMsg && <p className="text-xs text-emerald-400 font-bold">{quickSuccessMsg}</p>}
+
                   {parsedLat && parsedLng && (
-                    <form onSubmit={handleAddQuickPoint} className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 space-y-4">
-                      <h4 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
-                        2. تفاصيل ومعلومات المركز:
-                      </h4>
-
-                      {/* Photos & Images Attachment */}
-                      <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
+                    <form onSubmit={handleAddQuickPoint} className="pt-4 border-t border-slate-800 space-y-4 text-xs">
+                      {/* Photos */}
+                      <div className="p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-2">
                         <div className="flex items-center justify-between">
-                          <label className="block text-slate-800 font-semibold text-xs flex items-center gap-1.5">
-                            <ImageIcon className="w-4 h-4 text-emerald-700" />
+                          <label className="text-slate-300 font-semibold flex items-center gap-1.5">
+                            <ImageIcon className="w-4 h-4 text-emerald-400" />
                             <span>صور المركز ({quickPhotos.length}/3):</span>
                           </label>
 
@@ -1053,69 +879,57 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                               type="button"
                               onClick={() => quickFileInputRef.current?.click()}
                               disabled={quickImageLoading || quickPhotos.length >= 3}
-                              className="px-2.5 py-1 bg-white hover:bg-slate-100 disabled:opacity-50 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-xs transition"
+                              className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1 transition"
                             >
-                              {quickImageLoading ? (
-                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
-                              ) : (
-                                <Camera className="w-3.5 h-3.5 text-emerald-700" />
-                              )}
-                              <span>إضافة صور</span>
+                              {quickImageLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Camera className="w-3 h-3 text-emerald-400" />}
+                              <span>رفع صورة</span>
                             </button>
                           </div>
                         </div>
 
-                        {quickPhotos.length > 0 ? (
-                          <div className="flex items-center gap-2.5 overflow-x-auto pb-1">
-                            {quickPhotos.map((photoUrl, idx) => (
-                              <div key={idx} className="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-300 shrink-0 shadow-xs group">
-                                <img src={photoUrl} alt={`Photo ${idx}`} className="w-full h-full object-cover" />
+                        {quickPhotos.length > 0 && (
+                          <div className="flex items-center gap-2 overflow-x-auto pb-1">
+                            {quickPhotos.map((p, idx) => (
+                              <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden border border-slate-700 shrink-0">
+                                <img src={p} alt={`Photo ${idx}`} className="w-full h-full object-cover" />
                                 <button
                                   type="button"
                                   onClick={() => setQuickPhotos(prev => prev.filter((_, i) => i !== idx))}
-                                  className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-0.5 shadow transition"
-                                  title="حذف الصورة"
+                                  className="absolute top-0.5 right-0.5 bg-red-600 text-white rounded-full p-0.5"
                                 >
                                   <X className="w-3 h-3" />
                                 </button>
                               </div>
                             ))}
                           </div>
-                        ) : (
-                          <p className="text-[11px] text-slate-500">
-                            يمكنك التقاط أو رفع صور واجهة المركز لتسهيل وصول المتبرعين.
-                          </p>
                         )}
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-slate-700 font-semibold mb-1">اسم النقطة / المركز *</label>
+                          <label className="block text-slate-300 font-semibold mb-1">اسم المركز *</label>
                           <input
                             type="text"
                             required
                             value={quickTitle}
                             onChange={(e) => setQuickTitle(e.target.value)}
-                            placeholder="مثال: مركز الهلال الأحمر، دار الشباب..."
-                            className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-emerald-600"
+                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white"
                           />
                         </div>
-
                         <div>
-                          <label className="block text-slate-700 font-semibold mb-1">المشرف / الجمعية (اختياري)</label>
+                          <label className="block text-slate-300 font-semibold mb-1">المشرف / الجمعية</label>
                           <input
                             type="text"
                             value={quickOrganizer}
                             onChange={(e) => setQuickOrganizer(e.target.value)}
-                            placeholder="اسم الجمعية أو المنظم (اختياري)"
-                            className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-emerald-600"
+                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white"
                           />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
-                          <label className="block text-slate-700 font-semibold mb-1">الهاتف الرئيسي *</label>
+                          <label className="block text-slate-300 font-semibold mb-1">الهاتف الرئيسي *</label>
                           <input
                             type="tel"
                             required
@@ -1123,16 +937,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             value={quickPhone}
                             onChange={(e) => setQuickPhone(e.target.value)}
                             placeholder="0550123456"
-                            className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-mono"
+                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-slate-700 font-semibold mb-1">الولاية *</label>
+                          <label className="block text-slate-300 font-semibold mb-1">الولاية *</label>
                           <select
                             value={quickWilaya}
                             onChange={(e) => setQuickWilaya(Number(e.target.value))}
-                            className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
+                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white"
                           >
                             {WILAYAS.map((w) => (
                               <option key={w.code} value={w.code}>
@@ -1143,233 +957,100 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         </div>
 
                         <div>
-                          <label className="block text-slate-700 font-semibold mb-1">البلدية *</label>
+                          <label className="block text-slate-300 font-semibold mb-1">البلدية *</label>
                           <input
                             type="text"
                             required
                             value={quickCommune}
                             onChange={(e) => setQuickCommune(e.target.value)}
-                            placeholder="البلدية أو الحي"
-                            className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
+                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-slate-700 font-semibold mb-1">العنوان التفصيلي</label>
+                        <label className="block text-slate-300 font-semibold mb-1">العنوان التفصيلي</label>
                         <input
                           type="text"
                           value={quickAddress}
                           onChange={(e) => setQuickAddress(e.target.value)}
-                          placeholder="المكان بدقة"
-                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
-                        />
-                      </div>
-
-                      <div>
-                        <label className="block text-slate-700 font-semibold mb-1">الوصف والملاحظات (Description & Notes)</label>
-                        <textarea
-                          rows={2}
-                          value={quickNotes}
-                          onChange={(e) => setQuickNotes(e.target.value)}
-                          placeholder="أدخل وصفاً للمركز، أوقات العمل، أو توجيهات خاصة بالمتبرعين..."
-                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
+                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white"
                         />
                       </div>
 
                       <button
                         type="submit"
-                        className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-lg shadow transition flex items-center justify-center gap-2 text-sm"
+                        className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg transition"
                       >
-                        <CheckCircle className="w-4 h-4" />
-                        <span>حفظ ونشر وتأكيد نقطة التبرع فوراً</span>
+                        حفظ ونشر وتأكيد المركز فوراً
                       </button>
                     </form>
-                  )}
-                </div>
-              )}
-
-              {/* Tab 2: Manage All Points */}
-              {activeTab === 'manage_points' && (
-                <div className="p-4 sm:p-6 overflow-y-auto space-y-4 text-xs sm:text-sm flex-1">
-                  <div className="flex flex-col sm:flex-row items-center gap-2">
-                    <div className="relative flex-1 w-full">
-                      <input
-                        type="text"
-                        value={adminSearch}
-                        onChange={(e) => setAdminSearch(e.target.value)}
-                        placeholder="بحث في النقاط..."
-                        className="w-full bg-white border border-slate-300 rounded-lg pl-3 pr-9 py-2 text-slate-900 text-xs sm:text-sm"
-                      />
-                      <Search className="w-4 h-4 text-slate-400 absolute right-3 top-1/2 -translate-y-1/2" />
-                    </div>
-
-                    <select
-                      value={adminWilayaFilter ?? ''}
-                      onChange={(e) => setAdminWilayaFilter(e.target.value ? Number(e.target.value) : null)}
-                      className="w-full sm:w-auto bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 text-xs"
-                    >
-                      <option value="">جميع الولايات</option>
-                      {WILAYAS.map((w) => (
-                        <option key={w.code} value={w.code}>
-                          {w.code} - {w.nameAr}
-                        </option>
-                      ))}
-                    </select>
-                  </div>
-
-                  <div className="space-y-2.5">
-                    {filteredPoints.length === 0 ? (
-                      <div className="text-center py-8 text-slate-400">لا توجد نقاط مطابقة</div>
-                    ) : (
-                      filteredPoints.map((point) => (
-                        <div
-                          key={point.id}
-                          className="p-3.5 bg-white border border-slate-200 rounded-xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs"
-                        >
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2 flex-wrap">
-                              <span className="font-bold text-slate-900 text-sm">{point.title}</span>
-                              <span className="text-slate-500 text-xs">({point.wilayaNameAr} - {point.commune})</span>
-                              {point.pointType === 'burnt_zone' ? (
-                                <span className="bg-red-100 text-red-800 text-[10px] font-bold px-1.5 py-0.5 rounded border border-red-300">
-                                  منطقة حرائق 🔥
-                                </span>
-                              ) : point.verified ? (
-                                <span className="bg-emerald-50 text-emerald-800 text-[10px] font-semibold px-1.5 py-0.5 rounded border border-emerald-200">
-                                  مؤكد
-                                </span>
-                              ) : (
-                                <span className="bg-amber-50 text-amber-800 text-[10px] font-semibold px-1.5 py-0.5 rounded border border-amber-300">
-                                  غير مؤكد
-                                </span>
-                              )}
-                            </div>
-
-                            <div className="flex items-center gap-3 text-xs text-slate-600">
-                              <span>المشرف: <strong className="text-emerald-800">{point.organizer}</strong></span>
-                              <span>الهاتف: <strong dir="ltr" className="font-mono">{point.phone}</strong></span>
-                            </div>
-
-                            {point.address && (
-                              <p className="text-[11px] text-slate-500">{point.address}</p>
-                            )}
-                          </div>
-
-                          <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
-                            <button
-                              type="button"
-                              onClick={() => handleResyncPoint(point)}
-                              disabled={syncingPointId === point.id}
-                              className="p-2 bg-emerald-50 hover:bg-emerald-100 disabled:opacity-50 text-emerald-800 rounded-lg border border-emerald-300 transition flex items-center gap-1 text-xs font-semibold"
-                              title="إعادة المزامنة مع خرائط Google وتحديث البيانات والصور"
-                            >
-                              <RefreshCw className={`w-3.5 h-3.5 ${syncingPointId === point.id ? 'animate-spin' : ''}`} />
-                              <span className="hidden sm:inline">مزامنة</span>
-                            </button>
-
-                            <button
-                              onClick={() => onUpdatePoint(point.id, { verified: !point.verified })}
-                              className={`p-1.5 px-2.5 rounded-lg text-xs font-semibold border transition ${
-                                point.verified
-                                ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                                : 'bg-amber-50 text-amber-800 border-amber-300'
-                              }`}
-                              title={point.verified ? 'إلغاء التوثيق' : 'تأكيد وتوثيق'}
-                            >
-                              {point.verified ? 'مؤكد ✓' : 'تأكيد الآن'}
-                            </button>
-
-                            <button
-                              onClick={() => {
-                                onSelectPointOnMap(point);
-                                onClose();
-                              }}
-                              className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-lg border border-slate-300 transition"
-                              title="عرض على الخريطة"
-                            >
-                              <Eye className="w-3.5 h-3.5" />
-                            </button>
-
-                            <button
-                              onClick={() => {
-                                if (confirm(`هل تريد حذف "${point.title}"؟`)) {
-                                onDeletePoint(point.id);
-                              }
-                            }}
-                            className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-lg border border-red-200 transition"
-                            title="حذف النقطة"
-                          >
-                            <Trash2 className="w-3.5 h-3.5" />
-                          </button>
-                        </div>
-                      </div>
-                    ))
                   )}
                 </div>
               </div>
             )}
 
-            {/* Tab 3: Settings & Backup */}
+            {/* TAB 4: SETTINGS & BACKUP */}
             {activeTab === 'settings' && (
-              <div className="p-4 sm:p-6 overflow-y-auto space-y-5 text-xs sm:text-sm flex-1">
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
-                  <h4 className="font-bold text-slate-900 text-sm">النسخ الاحتياطي واستيراد البيانات</h4>
-                  <p className="text-slate-600 text-xs">
-                    تصدير واستيراد قاعدة بيانات نقاط التبرع كملف JSON.
-                  </p>
-
-                  <div className="flex flex-wrap items-center gap-3 pt-1">
-                    <button
-                      onClick={handleExport}
-                      className="px-4 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-semibold rounded-lg flex items-center gap-2 transition"
-                    >
-                      <Download className="w-4 h-4" />
-                      <span>تصدير البيانات (JSON)</span>
-                    </button>
-
-                    <label className="px-4 py-2 bg-slate-200 hover:bg-slate-300 text-slate-800 font-semibold rounded-lg flex items-center gap-2 cursor-pointer transition">
-                      <Upload className="w-4 h-4" />
-                      <span>استيراد ملف (JSON)</span>
-                      <input type="file" accept=".json" onChange={handleImportFile} className="hidden" />
-                    </label>
-
-                    <button
-                      onClick={handleResetDefaults}
-                      className="px-4 py-2 bg-red-50 hover:bg-red-100 text-red-700 font-semibold rounded-lg border border-red-200 flex items-center gap-2 transition"
-                    >
-                      <RefreshCw className="w-4 h-4" />
-                      <span>استعادة البيانات الافتراضية</span>
-                    </button>
-                  </div>
-                </div>
-
-                <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
-                  <h4 className="font-bold text-slate-900 text-sm">تغيير كلمة مرور المشرف</h4>
-                  
-                  <form onSubmit={handleChangePass} className="space-y-3 max-w-sm">
-                    <div>
-                      <label className="block text-slate-700 mb-1">كلمة المرور الجديدة:</label>
-                      <input
-                        type="password"
-                        value={newPass}
-                        onChange={(e) => setNewPass(e.target.value)}
-                        placeholder="أدخل كلمة مرور جديدة"
-                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-emerald-600"
-                      />
-                    </div>
-
-                    {passChangeMsg && (
-                      <p className="text-xs text-emerald-800 font-semibold">{passChangeMsg}</p>
-                    )}
-
+              <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-6 max-w-2xl text-xs sm:text-sm">
+                {/* Change Passcode */}
+                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4">
+                  <h4 className="font-bold text-white text-sm">تغيير كلمة مرور المشرف</h4>
+                  {passChangeMsg && <p className="text-xs text-emerald-400 font-bold">{passChangeMsg}</p>}
+                  <form onSubmit={handleChangePass} className="space-y-3">
+                    <input
+                      type="password"
+                      value={newPass}
+                      onChange={(e) => setNewPass(e.target.value)}
+                      placeholder="كلمة المرور الجديدة"
+                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white"
+                    />
                     <button
                       type="submit"
-                      className="px-4 py-2 bg-slate-900 hover:bg-slate-800 text-white font-semibold rounded-lg transition"
+                      className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition"
                     >
-                      حفظ كلمة المرور
+                      حفظ كلمة المرور الجديدة
                     </button>
                   </form>
+                </div>
+
+                {/* Backups */}
+                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4">
+                  <h4 className="font-bold text-white text-sm">النسخ الاحتياطي واستعادة البيانات</h4>
+                  <p className="text-slate-400 text-xs">
+                    تصدير قاعدة بيانات نقاط التبرع والحرائق كملف JSON آمن للنسخ الاحتياطي.
+                  </p>
+                  <div className="flex gap-2">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const jsonStr = exportPointsJson();
+                        const blob = new Blob([jsonStr], { type: 'application/json' });
+                        const url = URL.createObjectURL(blob);
+                        const a = document.createElement('a');
+                        a.href = url;
+                        a.download = `win-ntbara3-backup-${new Date().toISOString().slice(0, 10)}.json`;
+                        a.click();
+                      }}
+                      className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl border border-slate-700 flex items-center gap-2 transition"
+                    >
+                      <Download className="w-4 h-4 text-emerald-400" />
+                      <span>تحميل النسخة الاحتياطية</span>
+                    </button>
+
+                    <button
+                      type="button"
+                      onClick={() => {
+                        if (confirm('هل تريد استعادة البيانات الافتراضية؟')) {
+                          resetPointsToDefault();
+                          onReloadPoints();
+                        }
+                      }}
+                      className="px-4 py-2.5 bg-red-950/50 hover:bg-red-900 text-red-400 font-bold rounded-xl border border-red-900 transition"
+                    >
+                      استعادة البيانات الافتراضية
+                    </button>
+                  </div>
                 </div>
               </div>
             )}
@@ -1377,38 +1058,5 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         )}
       </div>
     </div>
-
-    {/* Fullscreen Photo Lightbox Modal */}
-    {selectedPhotoPreview && (
-      <div 
-        className="fixed inset-0 z-60 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center p-4"
-        onClick={() => setSelectedPhotoPreview(null)}
-      >
-        <div className="absolute top-4 right-4 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
-          <button
-            onClick={() => handleOpenPhotoInNewTab(selectedPhotoPreview)}
-            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-xl transition shadow"
-          >
-            <ExternalLink className="w-4 h-4" />
-            <span>فتح في نافذة جديدة</span>
-          </button>
-
-          <button
-            onClick={() => setSelectedPhotoPreview(null)}
-            className="p-1.5 bg-white/20 hover:bg-white/40 text-white rounded-full transition"
-          >
-            <X className="w-6 h-6" />
-          </button>
-        </div>
-
-        <img 
-          src={selectedPhotoPreview} 
-          alt="Inspection Preview" 
-          className="max-w-full max-h-[85vh] rounded-2xl object-contain shadow-2xl"
-          onClick={(e) => e.stopPropagation()}
-        />
-      </div>
-    )}
-  </>
   );
 };

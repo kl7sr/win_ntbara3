@@ -6,6 +6,7 @@ import { PointDetailModal } from './components/PointDetailModal';
 import { AddPointModal } from './components/AddPointModal';
 import { NearestListDrawer } from './components/NearestListDrawer';
 import { AdminPanel } from './components/AdminPanel';
+import { EditPointModal } from './components/EditPointModal';
 import { CharityPoint, UserLocation } from './types';
 import { 
   getStoredPoints, 
@@ -24,6 +25,7 @@ import { CheckCircle2, Plus, Compass, Map as MapIcon, ShieldCheck } from 'lucide
 export function App() {
   const [points, setPoints] = useState<CharityPoint[]>([]);
   const [selectedPoint, setSelectedPoint] = useState<CharityPoint | null>(null);
+  const [editingPoint, setEditingPoint] = useState<CharityPoint | null>(null);
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
 
   // Modals & Panels
@@ -224,9 +226,18 @@ export function App() {
         point={selectedPoint}
         userLocation={userLocation}
         onClose={() => setSelectedPoint(null)}
+        onEditPoint={(point) => setEditingPoint(point)}
       />
 
-      {/* 6. Add Charity Point Modal */}
+      {/* 6. Edit Point Modal (Map & Admin Direct Edit) */}
+      <EditPointModal
+        point={editingPoint}
+        isOpen={Boolean(editingPoint)}
+        onClose={() => setEditingPoint(null)}
+        onUpdatePoint={handleUpdatePoint}
+      />
+
+      {/* 7. Add Charity Point Modal */}
       <AddPointModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
@@ -234,7 +245,7 @@ export function App() {
         initialCoords={userLocation ? { lat: userLocation.lat, lng: userLocation.lng } : null}
       />
 
-      {/* 7. Nearest Points Drawer */}
+      {/* 8. Nearest Points Drawer */}
       <NearestListDrawer
         isOpen={isNearestDrawerOpen}
         onClose={() => setIsNearestDrawerOpen(false)}
@@ -249,7 +260,7 @@ export function App() {
         onSelectWilaya={setSelectedWilaya}
       />
 
-      {/* 8. Admin Dashboard */}
+      {/* 9. Admin Dashboard (Fullscreen) */}
       <AdminPanel
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
@@ -261,6 +272,7 @@ export function App() {
         onSelectPointOnMap={(point) => {
           setSelectedPoint(point);
         }}
+        onEditPoint={(point) => setEditingPoint(point)}
       />
 
       {/* Toast Notification */}

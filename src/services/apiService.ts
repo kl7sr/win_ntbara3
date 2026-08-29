@@ -1,6 +1,5 @@
 import { CharityPoint } from '../types';
-import { getStoredPoints, savePoints } from './storage';
-import { SEED_CHARITY_POINTS } from '../data/seedPoints';
+import { getStoredPoints, savePoints, getAdminPasscode } from './storage';
 
 /**
  * Loads all points live from Cloudflare D1 Database
@@ -35,10 +34,12 @@ export async function fetchLivePointsFromD1(): Promise<CharityPoint[]> {
  */
 export async function createLivePointInD1(point: Omit<CharityPoint, 'id' | 'createdAt'>): Promise<boolean> {
   try {
+    const adminPass = getAdminPasscode();
     const response = await fetch('/api/points', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
+        'X-Admin-Password': adminPass,
       },
       body: JSON.stringify(point),
     });
@@ -51,14 +52,16 @@ export async function createLivePointInD1(point: Omit<CharityPoint, 'id' | 'crea
 }
 
 /**
- * Updates a point in Cloudflare D1 Database (verification / status)
+ * Updates a point in Cloudflare D1 Database (all fields + verification / status)
  */
 export async function updateLivePointInD1(id: string, updates: Partial<CharityPoint>): Promise<boolean> {
   try {
+    const adminPass = getAdminPasscode();
     const response = await fetch('/api/points', {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
+        'X-Admin-Password': adminPass,
       },
       body: JSON.stringify({ id, updates }),
     });
@@ -75,8 +78,12 @@ export async function updateLivePointInD1(id: string, updates: Partial<CharityPo
  */
 export async function deleteLivePointFromD1(id: string): Promise<boolean> {
   try {
+    const adminPass = getAdminPasscode();
     const response = await fetch(`/api/points?id=${encodeURIComponent(id)}`, {
       method: 'DELETE',
+      headers: {
+        'X-Admin-Password': adminPass,
+      },
     });
 
     return response.ok;
