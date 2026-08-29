@@ -5,7 +5,9 @@ export type AidCategory =
   | 'blankets' 
   | 'baby_supplies' 
   | 'hygiene' 
-  | 'general';
+  | 'general'
+  | 'financial'
+  | 'shelter';
 
 export type PointStatus = 'active' | 'full' | 'urgent';
 
@@ -45,6 +47,8 @@ export interface WilayaInfo {
   lng: number;
   zoom?: number;
 }
+
+export type Wilaya = WilayaInfo;
 
 export interface UserLocation {
   lat: number;
