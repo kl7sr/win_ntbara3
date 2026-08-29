@@ -13,7 +13,8 @@ import {
   updatePoint as saveUpdatedPoint, 
   deletePoint as removePoint 
 } from './services/storage';
-import { CheckCircle2, Plus, Compass, Map as MapIcon, ShieldCheck } from 'lucide-react';
+import { fetchPointsFromGoogleSheet, syncPointToGoogleSheet } from './services/googleSheetsService';
+import { CheckCircle2, Plus, Compass, Map as MapIcon, ShieldCheck, RefreshCw } from 'lucide-react';
 
 export function App() {
   const [points, setPoints] = useState<CharityPoint[]>([]);
@@ -32,11 +33,24 @@ export function App() {
   // Notification Toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Load points safely on mount
-  const loadPoints = useCallback(() => {
+  // Load points safely from local storage AND live Google Sheets cloud
+  const loadPoints = useCallback(async () => {
     try {
-      const loaded = getStoredPoints();
-      setPoints([...loaded]);
+      // 1. Initial instant load from local master
+      const localLoaded = getStoredPoints();
+      setPoints([...localLoaded]);
+
+      // 2. Fetch live data from Google Sheets in background
+      const sheetPoints = await fetchPointsFromGoogleSheet();
+      if (sheetPoints.length > 0) {
+        // Merge without duplicates
+        const map = new Map<string, CharityPoint>();
+        localLoaded.forEach(p => map.set(p.id, p));
+        sheetPoints.forEach(p => map.set(p.id, p));
+
+        const merged = Array.from(map.values());
+        setPoints(merged);
+      }
     } catch (e) {
       console.error('Error loading points:', e);
     }
@@ -81,12 +95,11 @@ export function App() {
     }
   };
 
-  // Handlers for points CRUD
-  const handleAddPoint = (newPointData: Omit<CharityPoint, 'id' | 'createdAt'>) => {
+  // Handlers for points CRUD with Google Sheets cloud synchronization
+  const handleAddPoint = async (newPointData: Omit<CharityPoint, 'id' | 'createdAt'>) => {
     try {
+      // 1. Save locally and update UI instantly
       const created = saveNewPoint(newPointData);
-      
-      // Update state directly for instant UI update
       setPoints((prev) => [created, ...prev.filter(p => p.id !== created.id)]);
       
       // Clear filters so new point is unconditionally visible on map
@@ -95,7 +108,10 @@ export function App() {
       
       // Focus and select the new point immediately
       setSelectedPoint(created);
-      showToast('تمت إضافة النقطة بنجاح وتظهر الآن على الخريطة');
+      showToast('تمت إضافة النقطة وحفظها في Google Sheets بنجاح');
+
+      // 2. Sync to live Google Sheet in background
+      syncPointToGoogleSheet(newPointData);
     } catch (e) {
       console.error('Error adding point:', e);
     }
