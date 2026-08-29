@@ -1,5 +1,5 @@
 // Cloudflare Pages Function: /api/resolve-google-maps
-// Resolves Google Maps links, cleans title, extracts coordinates, address, commune, phone, and photos
+// Resolves Google Maps links, unescapes embedded Google JSON, extracts clean title, phone, address, and place photos
 
 export const onRequestGet: PagesFunction = async (context) => {
   const urlParam = new URL(context.request.url).searchParams.get('url');
@@ -29,7 +29,15 @@ export const onRequestGet: PagesFunction = async (context) => {
     });
 
     const finalUrl = response.url;
-    let htmlText = await response.text();
+    const rawHtml = await response.text();
+
+    // Unescape Google Maps internal JSON payload (\/, \u0022, etc.)
+    const htmlText = rawHtml
+      .replace(/\\u0022/g, '"')
+      .replace(/\\u0026/g, '&')
+      .replace(/\\u003d/g, '=')
+      .replace(/\\\//g, '/')
+      .replace(/\\/g, '');
 
     // 2. Extract Exact Coordinates
     let lat: number | null = null;
@@ -89,26 +97,27 @@ export const onRequestGet: PagesFunction = async (context) => {
       }
     }
 
-    // 4. Extract Phone Number (Direct from Maps HTML or Google Knowledge Search)
+    // 4. Extract Real Phone Number (Algerian mobile/landline)
     let phone: string = '';
-    const phoneRegex = /(?:tel:|\"|'|>|\s)(0[5672][0-9\s]{8,12}|\+213\s*[5672][0-9\s]{8,11})(?:\"|'|<|\s)/g;
+    // Look for Algerian numbers: 05, 06, 07, 02 or +213
+    const phoneRegex = /(?:tel:|\"|'|>|:|\s)(\+?213\s*[5672][0-9\s]{7,11}|0[5672][0-9\s]{8,12})(?:\"|'|<|\s|,)/g;
     let pMatch;
     while ((pMatch = phoneRegex.exec(htmlText)) !== null) {
-      let candidatePhone = pMatch[1].replace(/[\s\-\.]/g, '').trim();
-      if (candidatePhone.startsWith('+213')) {
-        candidatePhone = '0' + candidatePhone.substring(4);
+      let candidate = pMatch[1].replace(/[\s\-\.]/g, '').trim();
+      if (candidate.startsWith('+213')) {
+        candidate = '0' + candidate.substring(4);
       }
-      if (candidatePhone.length === 10 && candidatePhone.startsWith('0')) {
-        phone = candidatePhone;
+      if (candidate.length === 10 && candidate.startsWith('0') && !candidate.startsWith('000')) {
+        phone = candidate;
         break;
       }
     }
 
-    // If phone not in Maps HTML, search Google for the place contact
+    // If still no phone, query Google CID page or Google search
     if (!phone && title) {
       try {
         const searchRes = await fetch(
-          `https://www.google.com/search?q=${encodeURIComponent(title + ' algerie telephone')}&hl=fr`,
+          `https://www.google.com/search?q=${encodeURIComponent(title + ' algerie')}&hl=fr`,
           {
             headers: {
               'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
@@ -117,19 +126,19 @@ export const onRequestGet: PagesFunction = async (context) => {
           }
         );
         if (searchRes.ok) {
-          const searchText = await searchRes.text();
+          const sHtml = await searchRes.text();
           let sMatch;
-          while ((sMatch = phoneRegex.exec(searchText)) !== null) {
+          while ((sMatch = phoneRegex.exec(sHtml)) !== null) {
             let candidate = sMatch[1].replace(/[\s\-\.]/g, '').trim();
             if (candidate.startsWith('+213')) candidate = '0' + candidate.substring(4);
-            if (candidate.length === 10 && candidate.startsWith('0')) {
+            if (candidate.length === 10 && candidate.startsWith('0') && !candidate.startsWith('000')) {
               phone = candidate;
               break;
             }
           }
         }
       } catch (e) {
-        console.warn('Google search phone fetch error:', e);
+        console.warn('Phone fetch fallback failed:', e);
       }
     }
 
@@ -169,7 +178,7 @@ export const onRequestGet: PagesFunction = async (context) => {
       }
     }
 
-    // 6. Extract Photos
+    // 6. Extract Real Photos from Google Maps (User photos & Place gallery)
     const photos: string[] = [];
 
     // Check og:image
@@ -178,7 +187,7 @@ export const onRequestGet: PagesFunction = async (context) => {
       photos.push(ogImageMatch[1]);
     }
 
-    // Check googleusercontent URLs in HTML
+    // Match all googleusercontent photos (e.g. AF1Qip...)
     const photoRegex = /https:\/\/[a-z0-9\.\_\/-]*googleusercontent\.com\/p\/[a-zA-Z0-9_\-]+/g;
     const foundPhotos = htmlText.match(photoRegex) || [];
     for (const pUrl of foundPhotos) {
@@ -188,10 +197,14 @@ export const onRequestGet: PagesFunction = async (context) => {
       }
     }
 
-    // If fewer than 3 photos, generate clean OpenStreetMap / Mapbox / Satellite location visual previews
-    if (photos.length === 0 && lat && lng) {
-      photos.push(`https://static-maps.yandex.ru/1.x/?ll=${lng},${lat}&size=600,400&z=16&l=sat,skl&pt=${lng},${lat},pm2rdm`);
-      photos.push(`https://static-maps.yandex.ru/1.x/?ll=${lng},${lat}&size=600,400&z=17&l=map&pt=${lng},${lat},pm2grm`);
+    // Also match googleusercontent photos without https prefix in JSON (e.g. //lh5.googleusercontent.com/p/...)
+    const relativePhotoRegex = /\/\/[a-z0-9\.\_\/-]*googleusercontent\.com\/p\/[a-zA-Z0-9_\-]+/g;
+    const foundRelPhotos = htmlText.match(relativePhotoRegex) || [];
+    for (const rUrl of foundRelPhotos) {
+      const fullUrl = 'https:' + rUrl.split('=')[0] + '=w800-h600-k-no';
+      if (!photos.includes(fullUrl) && photos.length < 3) {
+        photos.push(fullUrl);
+      }
     }
 
     return new Response(
