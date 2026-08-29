@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Phone, 
   MapPin, 
@@ -13,8 +13,10 @@ import {
   ExternalLink,
   ShieldCheck,
   Info,
+  ChevronRight,
+  ChevronLeft,
   Image as ImageIcon,
-  Eye
+  Maximize2
 } from 'lucide-react';
 import { CharityPoint, UserLocation } from '../types';
 import { AID_CATEGORIES_META } from '../data/wilayas';
@@ -31,9 +33,14 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
   userLocation,
   onClose,
 }) => {
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [copiedPhone, setCopiedPhone] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [selectedPhotoPreview, setSelectedPhotoPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    setCurrentImageIndex(0);
+  }, [point]);
 
   if (!point) return null;
 
@@ -42,7 +49,25 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
     : null;
 
   const googleMapsUrl = getGoogleMapsDirUrl(point.lat, point.lng, point.title);
-  const images = point.images || (point.imageUrl ? [point.imageUrl] : []);
+  const rawImages = point.images || (point.imageUrl ? [point.imageUrl] : []);
+  // If verified point has no images, fallback to high quality charity placeholder so the Google Maps style image widget always renders beautifully
+  const images = point.verified && rawImages.length === 0
+    ? ['https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=900&q=80']
+    : rawImages;
+
+  const handleNextImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (images.length > 1) {
+      setCurrentImageIndex((prev) => (prev + 1) % images.length);
+    }
+  };
+
+  const handlePrevImage = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    if (images.length > 1) {
+      setCurrentImageIndex((prev) => (prev - 1 + images.length) % images.length);
+    }
+  };
 
   const handleCopyPhone = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -71,16 +96,108 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
     <>
       <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs">
         <div 
-          className="bg-white border-t sm:border border-slate-200 rounded-t-3xl sm:rounded-2xl w-full max-w-lg shadow-2xl max-h-[88vh] flex flex-col animate-in slide-in-from-bottom duration-200"
+          className="bg-white border-t sm:border border-slate-200 rounded-t-3xl sm:rounded-2xl w-full max-w-lg shadow-2xl max-h-[88vh] flex flex-col animate-in slide-in-from-bottom duration-200 overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Mobile Drag Handle */}
-          <div className="w-full pt-2.5 pb-1 sm:hidden flex justify-center cursor-pointer" onClick={onClose}>
+          <div className="w-full pt-2.5 pb-1 sm:hidden flex justify-center cursor-pointer bg-white" onClick={onClose}>
             <div className="w-12 h-1.5 bg-slate-300 rounded-full"></div>
           </div>
 
-          {/* Header Bar */}
-          <div className="px-4 py-3 bg-slate-50/80 border-b border-slate-200 flex items-start justify-between gap-3">
+          {/* 🌟 Google Maps Style Photo Carousel Header Widget (With Arrow Navigation) */}
+          <div className="relative w-full h-44 sm:h-52 bg-slate-900 shrink-0 overflow-hidden group">
+            {point.verified && images.length > 0 ? (
+              <>
+                <img
+                  src={images[currentImageIndex]}
+                  alt={point.title}
+                  onClick={() => setSelectedPhotoPreview(images[currentImageIndex])}
+                  className="w-full h-full object-cover cursor-pointer transition-all duration-300 group-hover:scale-105"
+                />
+
+                {/* Dark gradient overlay for text readability */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+
+                {/* Left Navigation Arrow */}
+                {images.length > 1 && (
+                  <button
+                    onClick={handlePrevImage}
+                    className="absolute left-2.5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition active:scale-90 shadow-md backdrop-blur-xs"
+                    title="الصورة السابقة"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                )}
+
+                {/* Right Navigation Arrow */}
+                {images.length > 1 && (
+                  <button
+                    onClick={handleNextImage}
+                    className="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-black/60 hover:bg-black/80 text-white flex items-center justify-center transition active:scale-90 shadow-md backdrop-blur-xs"
+                    title="الصورة التالية"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                )}
+
+                {/* Top Controls: Close button & Fullscreen button */}
+                <div className="absolute top-2.5 left-2.5 right-2.5 z-10 flex items-center justify-between">
+                  <button
+                    onClick={() => setSelectedPhotoPreview(images[currentImageIndex])}
+                    className="p-1.5 rounded-full bg-black/50 hover:bg-black/75 text-white backdrop-blur-xs transition"
+                    title="تكبير الصورة"
+                  >
+                    <Maximize2 className="w-4 h-4" />
+                  </button>
+
+                  <button
+                    onClick={onClose}
+                    className="p-1.5 rounded-full bg-black/50 hover:bg-black/75 text-white backdrop-blur-xs transition"
+                  >
+                    <X className="w-4 h-4" />
+                  </button>
+                </div>
+
+                {/* Bottom Overlay: Image Counter Dots & Badge */}
+                <div className="absolute bottom-2.5 left-3 right-3 z-10 flex items-end justify-between">
+                  <div className="text-white">
+                    <span className="text-[11px] font-semibold bg-emerald-700/90 text-white px-2 py-0.5 rounded-md backdrop-blur-xs">
+                      ✓ موقع موثوق
+                    </span>
+                  </div>
+
+                  {images.length > 1 && (
+                    <div className="flex items-center gap-1.5 bg-black/60 backdrop-blur-xs px-2.5 py-1 rounded-full text-white text-[11px] font-mono">
+                      <span>{currentImageIndex + 1}</span>
+                      <span>/</span>
+                      <span>{images.length}</span>
+                    </div>
+                  )}
+                </div>
+              </>
+            ) : (
+              /* Unconfirmed or Pending Verification Widget Header */
+              <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center bg-gradient-to-br from-slate-900 to-slate-800 text-white relative">
+                <button
+                  onClick={onClose}
+                  className="absolute top-2.5 right-2.5 p-1.5 rounded-full bg-white/10 hover:bg-white/20 text-white transition"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+
+                <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 mb-2">
+                  <AlertTriangle className="w-6 h-6" />
+                </div>
+                <h4 className="text-sm font-bold text-white">موقع غير مؤكد رسمياً</h4>
+                <p className="text-xs text-slate-300 mt-1 max-w-xs leading-relaxed">
+                  الصور والمعلومات قيد التدقيق من طرف الإدارة. يرجى الاتصال هاتفياً قبل الذهاب.
+                </p>
+              </div>
+            )}
+          </div>
+
+          {/* Header Details Bar */}
+          <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-start justify-between gap-3">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1 flex-wrap">
                 {point.verified ? (
@@ -113,13 +230,6 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
                 <span>{point.wilayaNameAr} ({point.commune})</span>
               </div>
             </div>
-
-            <button
-              onClick={onClose}
-              className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 bg-white border border-slate-200 shrink-0"
-            >
-              <X className="w-5 h-5" />
-            </button>
           </div>
 
           {/* Content Body */}
@@ -133,39 +243,9 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
                     تنبيه: هذا الموقع غير مؤكد رسمياً بعد
                   </span>
                   <p className="text-xs leading-relaxed text-amber-700">
-                    يرجى الاتصال بالرقم أدناه والتأكد من توفر واستقبال المساعدات قبل التنقل.
+                    يرجى الاتصال بالرقم أدناه والتأكد من فتح المركز وتوفر الاستقبال قبل التنقل.
                   </p>
                 </div>
-              </div>
-            )}
-
-            {/* Photos Section: Only show to public if confirmed, otherwise state they are being checked */}
-            {images.length > 0 && (
-              <div className="space-y-1.5">
-                {point.verified ? (
-                  <div>
-                    <span className="text-xs font-semibold text-slate-700 block mb-1.5">صور المركز الموثقة:</span>
-                    <div className="flex items-center gap-2 overflow-x-auto pb-1">
-                      {images.map((imgUrl, i) => (
-                        <div
-                          key={i}
-                          onClick={() => setSelectedPhotoPreview(imgUrl)}
-                          className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-xl overflow-hidden border border-slate-200 shrink-0 cursor-pointer shadow-xs hover:opacity-90 transition group"
-                        >
-                          <img src={imgUrl} alt="Photo" className="w-full h-full object-cover" />
-                          <div className="absolute inset-0 bg-black/20 opacity-0 group-hover:opacity-100 flex items-center justify-center text-white transition">
-                            <Eye className="w-4 h-4" />
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                ) : (
-                  <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-xl flex items-center gap-2 text-slate-600 text-xs">
-                    <ImageIcon className="w-4 h-4 text-amber-600 shrink-0" />
-                    <span>الصور المرفقة ({images.length}) قيد المراجعة والتدقيق من طرف الإدارة</span>
-                  </div>
-                )}
               </div>
             )}
 
@@ -300,7 +380,7 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
       {/* Fullscreen Photo Lightbox Modal */}
       {selectedPhotoPreview && (
         <div 
-          className="fixed inset-0 z-60 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+          className="fixed inset-0 z-60 bg-black/95 backdrop-blur-md flex items-center justify-center p-4"
           onClick={() => setSelectedPhotoPreview(null)}
         >
           <button
