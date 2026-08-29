@@ -36,7 +36,7 @@ export function App() {
   const loadPoints = useCallback(() => {
     try {
       const loaded = getStoredPoints();
-      setPoints(loaded);
+      setPoints([...loaded]);
     } catch (e) {
       console.error('Error loading points:', e);
     }
@@ -85,18 +85,26 @@ export function App() {
   const handleAddPoint = (newPointData: Omit<CharityPoint, 'id' | 'createdAt'>) => {
     try {
       const created = saveNewPoint(newPointData);
-      setPoints(getStoredPoints());
+      const updatedList = getStoredPoints();
+      setPoints([...updatedList]);
+      
+      // Clear filters so new point is unconditionally visible on map
+      setSelectedWilaya(null);
+      setActiveCategoryFilter(null);
+      
+      // Focus and select the new point immediately
       setSelectedPoint(created);
-      showToast('تم تسجيل ونشر نقطة التبرع بنجاح');
+      showToast('تمت إضافة النقطة بنجاح وتظهر الآن على الخريطة');
     } catch (e) {
-      console.error(e);
+      console.error('Error adding point:', e);
     }
   };
 
   const handleUpdatePoint = (id: string, updates: Partial<CharityPoint>) => {
     try {
       saveUpdatedPoint(id, updates);
-      setPoints(getStoredPoints());
+      const updatedList = getStoredPoints();
+      setPoints([...updatedList]);
       if (selectedPoint?.id === id) {
         setSelectedPoint((prev) => (prev ? { ...prev, ...updates } : null));
       }
@@ -109,7 +117,8 @@ export function App() {
   const handleDeletePoint = (id: string) => {
     try {
       removePoint(id);
-      setPoints(getStoredPoints());
+      const updatedList = getStoredPoints();
+      setPoints([...updatedList]);
       if (selectedPoint?.id === id) {
         setSelectedPoint(null);
       }
@@ -154,7 +163,7 @@ export function App() {
         />
       </main>
 
-      {/* 4. Guaranteed Fixed Bottom Bar (Visible on all devices & resolutions) */}
+      {/* 4. Guaranteed Fixed Bottom Bar */}
       <footer className="fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 py-1.5 shadow-2xl safe-bottom-padding flex items-center justify-around">
         {/* Map tab */}
         <button

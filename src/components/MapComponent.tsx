@@ -63,21 +63,37 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     };
   }, []);
 
-  // Update Points Markers
+  // Update Points Markers with support for Burnt Zones
   useEffect(() => {
     if (!mapInstanceRef.current || !markersLayerRef.current) return;
 
     markersLayerRef.current.clearLayers();
 
     points.forEach((point) => {
+      const isBurntZone = point.pointType === 'burnt_zone';
       const isVerified = point.verified;
-      const bgColor = isVerified ? '#047857' : '#d97706';
+
+      // Color coding: Red for burnt zones, Green for verified charity hubs, Amber for unconfirmed
+      let bgColor = '#047857';
+      let borderColor = '#ffffff';
+
+      if (isBurntZone) {
+        bgColor = '#dc2626'; // Red for burnt zone
+        borderColor = '#fecaca';
+      } else if (!isVerified) {
+        bgColor = '#d97706'; // Amber for unconfirmed
+        borderColor = '#fef3c7';
+      }
 
       const markerHtml = `
         <div class="custom-pin-container">
-          <div class="custom-pin-body" style="background-color: ${bgColor}; border-color: ${isVerified ? '#ffffff' : '#fef3c7'};">
+          <div class="custom-pin-body" style="background-color: ${bgColor}; border-color: ${borderColor};">
             <span class="custom-pin-icon">
-              ${isVerified ? `
+              ${isBurntZone ? `
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+                </svg>
+              ` : isVerified ? `
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
                 </svg>
@@ -107,8 +123,10 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         onSelectPoint(point);
       });
 
-      const statusBadge = isVerified 
-        ? `<span style="color:#047857; font-weight:600;">✓ مؤكد</span>`
+      const statusBadge = isBurntZone
+        ? `<span style="color:#dc2626; font-weight:700;">🔥 منطقة متضررة من الحرائق</span>`
+        : isVerified 
+        ? `<span style="color:#047857; font-weight:600;">✓ موقع تبرع مؤكد</span>`
         : `<span style="color:#d97706; font-weight:600;">⚠️ غير مؤكد (اتصل قبل التنقل)</span>`;
 
       marker.bindTooltip(
@@ -147,7 +165,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         userMarkerRef.current.setLatLng([userLocation.lat, userLocation.lng]);
       }
 
-      // Smoothly zoom in on where user is
       mapInstanceRef.current.flyTo([userLocation.lat, userLocation.lng], 14, {
         duration: 1.5,
       });
@@ -217,14 +234,18 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       </div>
 
       {/* Map Legend */}
-      <div className="absolute bottom-16 sm:bottom-4 right-3 z-20 flex items-center gap-3 bg-white/95 border border-slate-200 px-3 py-1.5 rounded-xl text-xs text-slate-700 shadow-md">
+      <div className="absolute bottom-16 sm:bottom-4 right-3 z-20 flex flex-wrap items-center gap-2.5 bg-white/95 border border-slate-200 px-3 py-1.5 rounded-xl text-xs text-slate-700 shadow-md">
         <div className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded-full bg-emerald-700"></span>
-          <span>موقع مؤكد</span>
+          <span>نقطة تبرع</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded-full bg-red-600"></span>
+          <span>منطقة متضررة من الحرائق</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded-full bg-amber-600"></span>
-          <span>غير مؤكد (اتصل قبل الذهاب)</span>
+          <span>غير مؤكد</span>
         </div>
       </div>
 

@@ -1,8 +1,8 @@
 /**
- * Client-side photo compressor using HTML5 Canvas
- * Resizes and compresses image to lightweight base64 JPEG/WebP
+ * Highly optimized client-side photo compressor for mobile storage
+ * Keeps image size under 50KB so mobile localStorage never fills up
  */
-export async function compressImageFile(file: File, maxWidth = 1000, maxHeight = 1000, quality = 0.75): Promise<string> {
+export async function compressImageFile(file: File, maxWidth = 600, maxHeight = 600, quality = 0.65): Promise<string> {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.readAsDataURL(file);

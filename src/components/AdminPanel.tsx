@@ -19,9 +19,10 @@ import {
   Search, 
   Eye, 
   Sliders, 
-  Image as ImageIcon
+  Image as ImageIcon,
+  Flame
 } from 'lucide-react';
-import { CharityPoint, AidCategory, PointStatus } from '../types';
+import { CharityPoint, AidCategory, PointStatus, PointType } from '../types';
 import { WILAYAS, AID_CATEGORIES_META } from '../data/wilayas';
 import { parseGoogleMapsLinkOrCoords, getGoogleMapsDirUrl, isWithinAlgeriaBounds } from '../utils/geoParser';
 import { 
@@ -59,7 +60,21 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [selectedPhotoPreview, setSelectedPhotoPreview] = useState<string | null>(null);
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<'unconfirmed' | 'google_link' | 'manage_points' | 'settings'>('unconfirmed');
+  const [activeTab, setActiveTab] = useState<'unconfirmed' | 'add_burnt_zone' | 'google_link' | 'manage_points' | 'settings'>('unconfirmed');
+
+  // Burnt Zone Form State (Admin Exclusive)
+  const [burntTitle, setBurntTitle] = useState('');
+  const [burntWilaya, setBurntWilaya] = useState<number>(15); // Default Tizi Ouzou
+  const [burntCommune, setBurntCommune] = useState('');
+  const [burntAddress, setBurntAddress] = useState('');
+  const [burntPhone, setBurntPhone] = useState('');
+  const [burntCoordinator, setBurntCoordinator] = useState('');
+  const [burntNeeds, setBurntNeeds] = useState('');
+  const [burntCoordsInput, setBurntCoordsInput] = useState('');
+  const [burntLat, setBurntLat] = useState<number | null>(null);
+  const [burntLng, setBurntLng] = useState<number | null>(null);
+  const [burntSuccessMsg, setBurntSuccessMsg] = useState('');
+  const [burntError, setBurntError] = useState('');
 
   // Google Maps Quick Add State
   const [googleInput, setGoogleInput] = useState('');
@@ -134,31 +149,87 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 border-radius: 8px;
                 box-shadow: 0 10px 30px rgba(0,0,0,0.5);
               }
-              .toolbar {
-                margin-top: 15px;
-              }
-              .btn {
-                background: #047857;
-                color: white;
-                border: none;
-                padding: 8px 16px;
-                border-radius: 6px;
-                cursor: pointer;
-                text-decoration: none;
-                font-size: 14px;
-              }
             </style>
           </head>
           <body>
             <img src="${imgUrl}" alt="Charity point photo" />
-            <div class="toolbar">
-              <a href="${imgUrl}" download="donation-point-photo.jpg" class="btn">تحميل الصورة</a>
-            </div>
           </body>
         </html>
       `);
       newTab.document.close();
     }
+  };
+
+  // Parse Burnt Zone Coords
+  const handleParseBurntCoords = () => {
+    if (!burntCoordsInput.trim()) {
+      setBurntError('يرجى إدخال رابط أو إحداثيات موقع الحريق');
+      return;
+    }
+    const result = parseGoogleMapsLinkOrCoords(burntCoordsInput);
+    if (result && isWithinAlgeriaBounds(result.lat, result.lng)) {
+      setBurntLat(Number(result.lat.toFixed(6)));
+      setBurntLng(Number(result.lng.toFixed(6)));
+      setBurntError('');
+      const closest = WILAYAS.reduce((prev, curr) => {
+        const distPrev = Math.hypot(prev.lat - result.lat, prev.lng - result.lng);
+        const distCurr = Math.hypot(curr.lat - result.lat, curr.lng - result.lng);
+        return distCurr < distPrev ? curr : prev;
+      });
+      if (closest) setBurntWilaya(closest.code);
+    } else {
+      setBurntError('يرجى إدخال إحداثيات أو رابط صالح داخل الجزائر (مثال: 36.71, 4.04)');
+    }
+  };
+
+  // Submit Burnt Zone (Admin Exclusive)
+  const handleAddBurntZone = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!burntLat || !burntLng) {
+      setBurntError('يرجى استخراج وتحديد إحداثيات المنطقة أولاً');
+      return;
+    }
+
+    if (!burntTitle.trim() || !burntCommune.trim()) {
+      setBurntError('يرجى ملء اسم المنطقة والبلدية');
+      return;
+    }
+
+    const wilaya = WILAYAS.find((w) => w.code === burntWilaya) || WILAYAS[14];
+
+    onAddPoint({
+      title: `🔥 ${burntTitle.trim()}`,
+      organizer: burntCoordinator.trim() || 'خلية إغاثة المتضررين من الحرائق',
+      phone: burntPhone.trim() || '14',
+      wilayaCode: wilaya.code,
+      wilayaNameAr: wilaya.nameAr,
+      wilayaNameFr: wilaya.nameFr,
+      commune: burntCommune.trim(),
+      address: burntAddress.trim() || `${burntCommune}، ولاية ${wilaya.nameAr}`,
+      lat: burntLat,
+      lng: burntLng,
+      aidCategories: ['food_water', 'medical', 'blankets', 'shelter', 'clothes'],
+      status: 'urgent',
+      pointType: 'burnt_zone', // Burnt zone type
+      urgentDescription: burntNeeds.trim() || 'منطقة منكوبة ومتضررة من الحرائق بحاجة عاجلة لإغاثة ومساعدات.',
+      verified: true,
+      featured: true,
+      createdBy: 'admin',
+      googleMapsUrl: getGoogleMapsDirUrl(burntLat, burntLng),
+    });
+
+    setBurntSuccessMsg('تمت إضافة وتثبيت المنطقة المتضررة من الحرائق على الخريطة بنجاح.');
+    setTimeout(() => setBurntSuccessMsg(''), 4000);
+
+    setBurntTitle('');
+    setBurntCommune('');
+    setBurntAddress('');
+    setBurntPhone('');
+    setBurntCoordinator('');
+    setBurntNeeds('');
+    setBurntCoordsInput('');
+    setBurntLat(null);
+    setBurntLng(null);
   };
 
   const handleParseGoogleLink = () => {
@@ -227,6 +298,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       lng: parsedLng,
       aidCategories: quickCategories,
       status: quickUrgent ? 'urgent' : 'active',
+      pointType: 'charity_hub',
       urgentDescription: quickUrgentNote.trim() || undefined,
       verified: true,
       featured: false,
@@ -329,7 +401,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     Admin
                   </span>
                 </h2>
-                <p className="text-xs text-slate-500">توثيق وتأكيد النقاط المضافة، مراجعة الصور، الإدارة</p>
+                <p className="text-xs text-slate-500">إضافة أماكن الحرائق حصرياً، توثيق النقاط، الإدارة</p>
               </div>
             </div>
 
@@ -349,7 +421,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               </div>
               <h3 className="text-lg font-bold text-slate-900 mb-1">تسجيل دخول المشرف</h3>
               <p className="text-xs text-slate-500 mb-6">
-                أدخل كلمة المرور لإدارة وتأكيد نقاط التبرع
+                أدخل كلمة المرور لإدارة وتأكيد نقاط التبرع وإضافة أماكن الحرائق
               </p>
 
               <form onSubmit={handleLogin} className="w-full space-y-3">
@@ -401,6 +473,19 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   )}
                 </button>
 
+                {/* Exclusive Fire / Burnt Zone Tab */}
+                <button
+                  onClick={() => setActiveTab('add_burnt_zone')}
+                  className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition whitespace-nowrap ${
+                    activeTab === 'add_burnt_zone'
+                      ? 'bg-red-600 text-white shadow-xs'
+                      : 'text-red-700 hover:bg-red-50 bg-red-50/50'
+                  }`}
+                >
+                  <Flame className="w-4 h-4" />
+                  <span>إضافة منطقة حرائق (خاص بالمشرف)</span>
+                </button>
+
                 <button
                   onClick={() => setActiveTab('google_link')}
                   className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition whitespace-nowrap ${
@@ -448,7 +533,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     <div>
                       <h4 className="font-bold text-amber-900 text-sm">قائمة النقاط المضافة التي تحتاج لتأكيدك ({unconfirmedPoints.length})</h4>
                       <p className="text-xs text-amber-800 mt-1 leading-relaxed">
-                        يمكنك معاينة الصور المرفقة والتأكد من بيانات الموقع، أو فتح الصور في نافذة جديدة للتدقيق.
+                        يمكنك معاينة الصور المرفقة والتأكد من بيانات الموقع، ثم الضغط على "تأكيد وتوثيق".
                       </p>
                     </div>
                   </div>
@@ -558,6 +643,152 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       })
                     )}
                   </div>
+                </div>
+              )}
+
+              {/* Tab 0.5: Add Fire Affected / Burnt Zone (Exclusive to Admin) */}
+              {activeTab === 'add_burnt_zone' && (
+                <div className="p-4 sm:p-6 overflow-y-auto space-y-4 text-xs sm:text-sm flex-1">
+                  <div className="bg-red-50 border border-red-200 rounded-xl p-4 flex items-start gap-3">
+                    <div className="p-2 bg-red-100 text-red-700 rounded-lg shrink-0">
+                      <Flame className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <h4 className="font-bold text-red-900 text-sm">إضافة وتثبيت منطقة متضررة من الحرائق (خاص بالإدارة)</h4>
+                      <p className="text-xs text-red-800 mt-1 leading-relaxed">
+                        هذا القسم مخصص حصرياً للمشرف لإضافة المناطق المنكوبة والقرى المتضررة من الحرائق لتظهر بعلامة حمراء بارزة على الخريطة لتوجيه المساعدات إليها.
+                      </p>
+                    </div>
+                  </div>
+
+                  {burntSuccessMsg && (
+                    <div className="p-3 bg-emerald-50 border border-emerald-300 text-emerald-800 rounded-lg flex items-center gap-2 font-bold">
+                      <CheckCircle className="w-4 h-4 text-emerald-700 shrink-0" />
+                      <span>{burntSuccessMsg}</span>
+                    </div>
+                  )}
+
+                  <form onSubmit={handleAddBurntZone} className="bg-white border border-slate-200 rounded-xl p-4 sm:p-5 space-y-4">
+                    {burntError && (
+                      <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-xs font-semibold">
+                        {burntError}
+                      </div>
+                    )}
+
+                    {/* Coordinates & Google link */}
+                    <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+                      <label className="block text-slate-800 font-bold">1. موقع المنطقة المتضررة (رابط Google Maps أو إحداثيات): *</label>
+                      <div className="flex gap-2">
+                        <input
+                          type="text"
+                          dir="ltr"
+                          value={burntCoordsInput}
+                          onChange={(e) => setBurntCoordsInput(e.target.value)}
+                          placeholder="https://maps.app.goo.gl/... أو 36.7118, 4.0459"
+                          className="flex-1 bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-mono text-xs focus:ring-2 focus:ring-red-600"
+                        />
+                        <button
+                          type="button"
+                          onClick={handleParseBurntCoords}
+                          className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg text-xs transition shrink-0"
+                        >
+                          تحديد الإحداثيات
+                        </button>
+                      </div>
+
+                      {burntLat && burntLng && (
+                        <p className="text-[11px] text-emerald-700 font-semibold mt-1">
+                          ✓ تم تحديد الإحداثيات: {burntLat}, {burntLng}
+                        </p>
+                      )}
+                    </div>
+
+                    {/* Zone Details */}
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">اسم المنطقة / القرية المتضررة *</label>
+                        <input
+                          type="text"
+                          required
+                          value={burntTitle}
+                          onChange={(e) => setBurntTitle(e.target.value)}
+                          placeholder="مثال: قرية آث وغليس، غابات بني كسيلة..."
+                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-red-600"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">المشرف الميداني / لجنة الإغاثة</label>
+                        <input
+                          type="text"
+                          value={burntCoordinator}
+                          onChange={(e) => setBurntCoordinator(e.target.value)}
+                          placeholder="خلية أزمة البلدية، متطوعين..."
+                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-red-600"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">الولاية *</label>
+                        <select
+                          value={burntWilaya}
+                          onChange={(e) => setBurntWilaya(Number(e.target.value))}
+                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
+                        >
+                          {WILAYAS.map((w) => (
+                            <option key={w.code} value={w.code}>
+                              {w.code} - {w.nameAr}
+                            </option>
+                          ))}
+                        </select>
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">البلدية *</label>
+                        <input
+                          type="text"
+                          required
+                          value={burntCommune}
+                          onChange={(e) => setBurntCommune(e.target.value)}
+                          placeholder="البلدية المتضررة"
+                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">رقم الهاتف للتنسيق</label>
+                        <input
+                          type="tel"
+                          dir="ltr"
+                          value={burntPhone}
+                          onChange={(e) => setBurntPhone(e.target.value)}
+                          placeholder="0550123456"
+                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-mono"
+                        />
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-slate-700 font-semibold mb-1">الاحتياجات والمستلزمات العاجلة للمتضررين</label>
+                      <textarea
+                        rows={2}
+                        value={burntNeeds}
+                        onChange={(e) => setBurntNeeds(e.target.value)}
+                        placeholder="أفرشة، خيم إيواء، مياه شرب، أدوية ومطهرات، حليب أطفال..."
+                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-red-600"
+                      />
+                    </div>
+
+                    <button
+                      type="submit"
+                      className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-lg shadow transition flex items-center justify-center gap-2 text-sm"
+                    >
+                      <Flame className="w-4 h-4" />
+                      <span>نشر المنطقة المتضررة من الحرائق على الخريطة</span>
+                    </button>
+                  </form>
                 </div>
               )}
 
@@ -780,7 +1011,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             <div className="flex items-center gap-2 flex-wrap">
                               <span className="font-bold text-slate-900 text-sm">{point.title}</span>
                               <span className="text-slate-500 text-xs">({point.wilayaNameAr} - {point.commune})</span>
-                              {point.verified ? (
+                              {point.pointType === 'burnt_zone' ? (
+                                <span className="bg-red-100 text-red-800 text-[10px] font-bold px-1.5 py-0.5 rounded border border-red-300">
+                                  منطقة حرائق 🔥
+                                </span>
+                              ) : point.verified ? (
                                 <span className="bg-emerald-50 text-emerald-800 text-[10px] font-semibold px-1.5 py-0.5 rounded border border-emerald-200">
                                   مؤكد
                                 </span>
@@ -912,7 +1147,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       </div>
     </div>
 
-    {/* Fullscreen Photo Modal for Admin Inspection */}
+    {/* Fullscreen Photo Lightbox Modal */}
     {selectedPhotoPreview && (
       <div 
         className="fixed inset-0 z-60 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center p-4"
