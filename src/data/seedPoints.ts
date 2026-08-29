@@ -22,11 +22,6 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: true,
     createdBy: 'admin',
     createdAt: '2026-08-28T10:00:00Z',
-    images: [
-      'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=900&q=80',
-      'https://images.unsplash.com/photo-1532629345422-7515f3d16bb4?auto=format&fit=crop&w=900&q=80',
-      'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=900&q=80'
-    ]
   },
   {
     id: 'seed-2',
@@ -48,10 +43,6 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: true,
     createdBy: 'admin',
     createdAt: '2026-08-28T11:30:00Z',
-    images: [
-      'https://images.unsplash.com/photo-1532629345422-7515f3d16bb4?auto=format&fit=crop&w=900&q=80',
-      'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=900&q=80'
-    ]
   },
   {
     id: 'seed-3',
@@ -72,9 +63,6 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: false,
     createdBy: 'admin',
     createdAt: '2026-08-28T12:00:00Z',
-    images: [
-      'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=900&q=80'
-    ]
   },
   {
     id: 'seed-4',
@@ -96,10 +84,6 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: true,
     createdBy: 'admin',
     createdAt: '2026-08-28T13:00:00Z',
-    images: [
-      'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=900&q=80',
-      'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=900&q=80'
-    ]
   },
   {
     id: 'seed-5',
@@ -120,9 +104,6 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: false,
     createdBy: 'admin',
     createdAt: '2026-08-28T14:30:00Z',
-    images: [
-      'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=900&q=80'
-    ]
   },
   {
     id: 'seed-6',
@@ -143,9 +124,6 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: true,
     createdBy: 'admin',
     createdAt: '2026-08-28T15:00:00Z',
-    images: [
-      'https://images.unsplash.com/photo-1532629345422-7515f3d16bb4?auto=format&fit=crop&w=900&q=80'
-    ]
   },
   {
     id: 'seed-7',
@@ -166,9 +144,6 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: false,
     createdBy: 'admin',
     createdAt: '2026-08-28T16:00:00Z',
-    images: [
-      'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=900&q=80'
-    ]
   },
   {
     id: 'seed-8',
@@ -190,8 +165,5 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: true,
     createdBy: 'admin',
     createdAt: '2026-08-28T17:00:00Z',
-    images: [
-      'https://images.unsplash.com/photo-1584515979956-d9f6e5d09982?auto=format&fit=crop&w=900&q=80'
-    ]
   }
 ];
