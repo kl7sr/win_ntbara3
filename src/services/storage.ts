@@ -1,22 +1,51 @@
 import { CharityPoint } from '../types';
 import { SEED_CHARITY_POINTS } from '../data/seedPoints';
 
-const STORAGE_KEY = 'win_ntbara3_points_v2';
+const STORAGE_KEY = 'win_ntbara3_points_master';
+const LEGACY_STORAGE_KEYS = ['win_ntbara3_points_v1', 'win_ntbara3_points_v2'];
 const ADMIN_PASS_KEY = 'win_ntbara3_admin_pass';
 const DEFAULT_ADMIN_PASS = (import.meta as any).env?.VITE_ADMIN_PASSWORD || 'admin123';
 
+/**
+ * Loads all points while permanently preserving any user-added or custom points
+ */
 export function getStoredPoints(): CharityPoint[] {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) {
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(SEED_CHARITY_POINTS));
-      return SEED_CHARITY_POINTS;
+    let customPoints: CharityPoint[] = [];
+    let savedMaster = localStorage.getItem(STORAGE_KEY);
+
+    // Check legacy storage keys if master is empty
+    if (!savedMaster) {
+      for (const legKey of LEGACY_STORAGE_KEYS) {
+        const legData = localStorage.getItem(legKey);
+        if (legData) {
+          try {
+            const parsed = JSON.parse(legData);
+            if (Array.isArray(parsed)) {
+              // Extract user-created points from legacy storage
+              const userPoints = parsed.filter((p: CharityPoint) => p.id && (p.createdBy === 'user' || p.id.startsWith('point-')));
+              customPoints = [...customPoints, ...userPoints];
+            }
+          } catch (e) {
+            console.error('Error recovering legacy points', e);
+          }
+        }
+      }
+    } else {
+      try {
+        const parsed = JSON.parse(savedMaster);
+        if (Array.isArray(parsed)) {
+          return parsed;
+        }
+      } catch (e) {
+        console.error('Error parsing master points', e);
+      }
     }
-    const parsed = JSON.parse(raw);
-    if (Array.isArray(parsed) && parsed.length > 0) {
-      return parsed;
-    }
-    return SEED_CHARITY_POINTS;
+
+    // Merge recovered custom points with initial seed points
+    const finalPoints = [...customPoints, ...SEED_CHARITY_POINTS];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(finalPoints));
+    return finalPoints;
   } catch (err) {
     console.error('Failed to load points from localStorage', err);
     return SEED_CHARITY_POINTS;
@@ -64,8 +93,12 @@ export function deletePoint(id: string): boolean {
 }
 
 export function resetPointsToDefault(): CharityPoint[] {
-  savePoints(SEED_CHARITY_POINTS);
-  return SEED_CHARITY_POINTS;
+  // Preserve custom points even on reset
+  const current = getStoredPoints();
+  const customOnly = current.filter(p => p.createdBy === 'user' || p.id.startsWith('point-'));
+  const restored = [...customOnly, ...SEED_CHARITY_POINTS];
+  savePoints(restored);
+  return restored;
 }
 
 export function exportPointsJson(): string {
