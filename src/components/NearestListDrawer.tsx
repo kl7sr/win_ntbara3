@@ -279,6 +279,18 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
           ))
         )}
       </div>
+
+      {/* Technical Support Contact Footer */}
+      <div className="p-3 bg-slate-100 border-t border-slate-200 text-center text-xs text-slate-600 flex items-center justify-between gap-2">
+        <span>تواجه مشكلة تقنية في الموقع؟</span>
+        <a 
+          href="tel:0542258712"
+          className="font-bold text-emerald-800 hover:text-emerald-950 font-mono flex items-center gap-1 bg-white px-2.5 py-1 rounded-lg border border-slate-300 shadow-xs"
+        >
+          <Phone className="w-3 h-3 text-emerald-700" />
+          <span>0542258712</span>
+        </a>
+      </div>
     </div>
   );
 };
