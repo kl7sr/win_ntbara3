@@ -3,7 +3,7 @@ import { SEED_CHARITY_POINTS } from '../data/seedPoints';
 
 const STORAGE_KEY = 'win_ntbara3_points_v1';
 const ADMIN_PASS_KEY = 'win_ntbara3_admin_pass';
-const DEFAULT_ADMIN_PASS = import.meta.env.VITE_ADMIN_PASSWORD || 'admin123';
+const DEFAULT_ADMIN_PASS = (import.meta as any).env?.VITE_ADMIN_PASSWORD || 'admin123';
 
 export function getStoredPoints(): CharityPoint[] {
   try {
