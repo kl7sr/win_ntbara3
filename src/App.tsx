@@ -116,7 +116,7 @@ export function App() {
   });
 
   return (
-    <div className="h-screen w-screen flex flex-col bg-slate-50 text-slate-900 overflow-hidden font-sans">
+    <div className="h-[100dvh] w-full flex flex-col bg-slate-50 text-slate-900 overflow-hidden select-none">
       {/* 1. Helpline Header Banner */}
       <EmergencyBanner />
 
@@ -132,8 +132,8 @@ export function App() {
         totalPoints={displayedPoints.length}
       />
 
-      {/* 3. Main Full-Screen Map */}
-      <main className="flex-1 relative overflow-hidden">
+      {/* 3. Main Full-Screen Map (with padding for bottom bar) */}
+      <main className="flex-1 relative w-full h-full pb-16 sm:pb-0 overflow-hidden">
         <MapComponent
           points={displayedPoints}
           selectedPoint={selectedPoint}
@@ -144,43 +144,47 @@ export function App() {
         />
       </main>
 
-      {/* 4. Native-like Mobile Bottom Navigation Bar */}
-      <div className="sm:hidden z-30 bg-white border-t border-slate-200 px-2 py-1.5 flex items-center justify-around shadow-lg">
+      {/* 4. Guaranteed Fixed Bottom Bar (Visible on mobile & dynamic on all resolutions) */}
+      <footer className="fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 py-1.5 shadow-2xl safe-bottom-padding flex items-center justify-around">
+        {/* Map tab */}
         <button
           onClick={() => {
             setIsNearestDrawerOpen(false);
             setSelectedPoint(null);
           }}
-          className="flex flex-col items-center gap-1 py-1 px-3 text-slate-700 hover:text-emerald-700 active:scale-95 transition"
+          className="flex flex-col items-center justify-center gap-1 py-1 px-3 text-slate-700 hover:text-emerald-700 active:scale-90 transition"
         >
           <MapIcon className="w-5 h-5 text-emerald-700" />
-          <span className="text-[10px] font-bold">الخريطة</span>
+          <span className="text-[11px] font-bold">الخريطة</span>
         </button>
 
+        {/* Nearest tab */}
         <button
           onClick={() => setIsNearestDrawerOpen(true)}
-          className="flex flex-col items-center gap-1 py-1 px-3 text-slate-700 hover:text-emerald-700 active:scale-95 transition"
+          className="flex flex-col items-center justify-center gap-1 py-1 px-3 text-slate-700 hover:text-emerald-700 active:scale-90 transition"
         >
           <Compass className="w-5 h-5 text-slate-600" />
-          <span className="text-[10px] font-medium">الأقرب لي</span>
+          <span className="text-[11px] font-medium">الأقرب لي</span>
         </button>
 
+        {/* Big Add Point CTA button */}
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center gap-1 bg-emerald-700 text-white py-2 px-3.5 rounded-xl shadow-md font-bold text-xs active:scale-95 transition -mt-3 border-2 border-white"
+          className="flex items-center gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white py-2 px-4 rounded-2xl shadow-lg font-bold text-xs active:scale-95 transition -mt-5 border-2 border-white"
         >
           <Plus className="w-4 h-4" />
           <span>أضف نقطة</span>
         </button>
 
+        {/* Admin tab */}
         <button
           onClick={() => setIsAdminOpen(true)}
-          className="flex flex-col items-center gap-1 py-1 px-3 text-slate-700 hover:text-emerald-700 active:scale-95 transition"
+          className="flex flex-col items-center justify-center gap-1 py-1 px-3 text-slate-700 hover:text-emerald-700 active:scale-90 transition"
         >
           <ShieldCheck className="w-5 h-5 text-slate-600" />
-          <span className="text-[10px] font-medium">الإدارة</span>
+          <span className="text-[11px] font-medium">الإدارة</span>
         </button>
-      </div>
+      </footer>
 
       {/* 5. Google Maps Style Mobile Bottom Sheet Widget */}
       <PointDetailModal
@@ -197,7 +201,7 @@ export function App() {
         initialCoords={userLocation ? { lat: userLocation.lat, lng: userLocation.lng } : null}
       />
 
-      {/* 7. Nearest Points Drawer (Strictly 50km filtered internally) */}
+      {/* 7. Nearest Points Drawer */}
       <NearestListDrawer
         isOpen={isNearestDrawerOpen}
         onClose={() => setIsNearestDrawerOpen(false)}
@@ -212,7 +216,7 @@ export function App() {
         onSelectWilaya={setSelectedWilaya}
       />
 
-      {/* 8. Admin Dashboard & Google Maps Link Parser */}
+      {/* 8. Admin Dashboard */}
       <AdminPanel
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
