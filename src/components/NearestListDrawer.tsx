@@ -6,9 +6,11 @@ import {
   Phone, 
   Compass, 
   LocateFixed, 
-  ChevronLeft,
-  Info,
-  Navigation
+  ChevronLeft, 
+  Info, 
+  Navigation,
+  AlertTriangle,
+  ShieldCheck
 } from 'lucide-react';
 import { CharityPoint, UserLocation, AidCategory } from '../types';
 import { WILAYAS } from '../data/wilayas';
@@ -37,6 +39,7 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [categoryFilter, setCategoryFilter] = useState<AidCategory | 'all'>('all');
+  const [verificationFilter, setVerificationFilter] = useState<'all' | 'verified' | 'unconfirmed'>('all');
 
   if (!isOpen) return null;
 
@@ -52,6 +55,10 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
   const filtered = pointsWithDistance.filter((p) => {
     if (selectedWilaya && p.wilayaCode !== selectedWilaya) return false;
     if (categoryFilter !== 'all' && !p.aidCategories.includes(categoryFilter)) return false;
+
+    // Verification filter
+    if (verificationFilter === 'verified' && !p.verified) return false;
+    if (verificationFilter === 'unconfirmed' && p.verified) return false;
 
     // Hard limit strictly to 50 km
     if (userLocation && p.distance !== null && p.distance > 50) {
@@ -79,7 +86,7 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
 
   return (
     <div className="fixed inset-0 sm:inset-y-0 sm:right-0 sm:left-auto z-40 w-full sm:max-w-md bg-white border-t sm:border-l border-slate-200 shadow-2xl flex flex-col animate-in slide-in-from-bottom sm:slide-in-from-right duration-200">
-      {/* Mobile Swipe / Drag Handle */}
+      {/* Mobile Swipe Handle */}
       <div className="w-full pt-2.5 pb-1 sm:hidden flex justify-center cursor-pointer bg-slate-50" onClick={onClose}>
         <div className="w-12 h-1.5 bg-slate-300 rounded-full"></div>
       </div>
@@ -107,7 +114,7 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
         </button>
       </div>
 
-      {/* GPS Activate Button if location is off */}
+      {/* GPS Activate helper if not active */}
       {!userLocation && (
         <div className="p-3 bg-emerald-50 border-b border-emerald-200 flex items-center justify-between gap-2 text-xs">
           <span className="text-emerald-900 font-medium">لتحديد النقاط القريبة منك:</span>
@@ -121,8 +128,45 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
         </div>
       )}
 
-      {/* Search & Wilaya Controls */}
+      {/* Verification filter tabs & Search */}
       <div className="p-3 border-b border-slate-200 space-y-2 bg-white">
+        <div className="flex items-center gap-1 text-xs">
+          <button
+            onClick={() => setVerificationFilter('all')}
+            className={`flex-1 py-1.5 px-2 rounded-lg font-semibold transition ${
+              verificationFilter === 'all'
+                ? 'bg-slate-900 text-white shadow-xs'
+                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+            }`}
+          >
+            الكل
+          </button>
+
+          <button
+            onClick={() => setVerificationFilter('verified')}
+            className={`flex-1 py-1.5 px-2 rounded-lg font-semibold transition flex items-center justify-center gap-1 ${
+              verificationFilter === 'verified'
+                ? 'bg-emerald-700 text-white shadow-xs'
+                : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'
+            }`}
+          >
+            <ShieldCheck className="w-3.5 h-3.5" />
+            <span>مؤكدة</span>
+          </button>
+
+          <button
+            onClick={() => setVerificationFilter('unconfirmed')}
+            className={`flex-1 py-1.5 px-2 rounded-lg font-semibold transition flex items-center justify-center gap-1 ${
+              verificationFilter === 'unconfirmed'
+                ? 'bg-amber-700 text-white shadow-xs'
+                : 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200'
+            }`}
+          >
+            <AlertTriangle className="w-3.5 h-3.5" />
+            <span>غير مؤكدة</span>
+          </button>
+        </div>
+
         <div className="relative">
           <input
             type="text"
@@ -153,7 +197,7 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
         {filtered.length === 0 ? (
           <div className="text-center py-12 px-4 text-slate-500 text-sm">
             <Info className="w-8 h-8 text-slate-400 mx-auto mb-2" />
-            <p className="font-semibold text-slate-700">لا توجد نقاط تبرع قريبة</p>
+            <p className="font-semibold text-slate-700">لا توجد نقاط تبرع مطابقة</p>
             <p className="text-xs text-slate-500 mt-1">
               يمكنك اختيار ولايتك من القائمة أعلاه لعرض النقاط المتاحة
             </p>
@@ -168,9 +212,13 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
               <div className="flex items-start justify-between gap-2 mb-1.5">
                 <div className="flex-1">
                   <div className="flex items-center gap-1.5 flex-wrap">
-                    {point.verified && (
+                    {point.verified ? (
                       <span className="bg-emerald-50 text-emerald-800 text-[10px] font-semibold px-1.5 py-0.5 rounded border border-emerald-200">
-                        موثوق
+                        موقع مؤكد
+                      </span>
+                    ) : (
+                      <span className="bg-amber-50 text-amber-800 text-[10px] font-semibold px-1.5 py-0.5 rounded border border-amber-300">
+                        غير مؤكد (اتصل قبل الذهاب)
                       </span>
                     )}
                     <span className="text-[11px] text-slate-500">
@@ -200,7 +248,9 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
                 <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
                   <a
                     href={`tel:${point.phone}`}
-                    className="p-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl shadow-xs transition active:scale-95"
+                    className={`p-2 text-white rounded-xl shadow-xs transition active:scale-95 ${
+                      point.verified ? 'bg-emerald-700 hover:bg-emerald-800' : 'bg-amber-700 hover:bg-amber-800'
+                    }`}
                     title="اتصال مباشر"
                   >
                     <Phone className="w-3.5 h-3.5" />

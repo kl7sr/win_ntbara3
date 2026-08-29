@@ -42,11 +42,10 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       minZoom: 5.5,
       maxZoom: 18,
       maxBounds: algeriaBounds,
-      maxBoundsViscosity: 1.0, // Hard lock inside Algeria bounds
+      maxBoundsViscosity: 1.0,
       zoomControl: false,
     });
 
-    // Clean OpenStreetMap standard tiles (Zero API key required)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
       maxZoom: 19,
@@ -71,16 +70,25 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     markersLayerRef.current.clearLayers();
 
     points.forEach((point) => {
-      const isUrgent = point.status === 'urgent';
-      const bgColor = isUrgent ? '#dc2626' : '#047857';
+      const isVerified = point.verified;
+      // Green for verified, Amber/Orange for unconfirmed
+      const bgColor = isVerified ? '#047857' : '#d97706';
 
       const markerHtml = `
         <div class="custom-pin-container">
-          <div class="custom-pin-body" style="background-color: ${bgColor};">
+          <div class="custom-pin-body" style="background-color: ${bgColor}; border-color: ${isVerified ? '#ffffff' : '#fef3c7'};">
             <span class="custom-pin-icon">
-              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
-              </svg>
+              ${isVerified ? `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M19 14c1.49-1.46 3-3.21 3-5.5A5.5 5.5 0 0 0 16.5 3c-1.76 0-3 .5-4.5 2-1.5-1.5-2.74-2-4.5-2A5.5 5.5 0 0 0 2 8.5c0 2.3 1.5 4.05 3 5.5l7 7Z"/>
+                </svg>
+              ` : `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="12" y1="8" x2="12" y2="12"></line>
+                  <line x1="12" y1="16" x2="12.01" y2="16"></line>
+                </svg>
+              `}
             </span>
           </div>
         </div>
@@ -100,8 +108,14 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         onSelectPoint(point);
       });
 
+      const statusBadge = isVerified 
+        ? `<span style="color:#047857; font-weight:600;">✓ مؤكد</span>`
+        : `<span style="color:#d97706; font-weight:600;">⚠️ غير مؤكد (اتصل قبل التنقل)</span>`;
+
       marker.bindTooltip(
-        `<div style="font-weight:700; color:#0f172a;">${point.title}</div><div style="font-size:11px; color:#047857;">${point.organizer} (${point.wilayaNameAr})</div>`,
+        `<div style="font-weight:700; color:#0f172a;">${point.title}</div>
+         <div style="font-size:11px; color:#64748b;">${point.organizer} (${point.wilayaNameAr})</div>
+         <div style="font-size:10px; margin-top:2px;">${statusBadge}</div>`,
         { direction: 'top', offset: [0, -28], opacity: 1 }
       );
 
@@ -189,7 +203,19 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         </button>
       </div>
 
-      {/* Zoom Controls (Bottom Left) */}
+      {/* Map Legend (Bottom Right on Desktop, Bottom Left on mobile above nav) */}
+      <div className="absolute bottom-16 sm:bottom-4 right-3 z-20 flex items-center gap-3 bg-white/95 border border-slate-200 px-3 py-1.5 rounded-xl text-xs text-slate-700 shadow-md">
+        <div className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded-full bg-emerald-700"></span>
+          <span>موقع مؤكد</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded-full bg-amber-600"></span>
+          <span>غير مؤكد (اتصل قبل الذهاب)</span>
+        </div>
+      </div>
+
+      {/* Zoom Controls (Desktop) */}
       <div className="absolute bottom-6 left-3 z-20 hidden sm:flex flex-col gap-1.5">
         <button
           onClick={handleZoomIn}

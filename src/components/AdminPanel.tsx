@@ -6,7 +6,6 @@ import {
   KeyRound, 
   Plus, 
   Trash2, 
-  Edit3, 
   CheckCircle, 
   AlertTriangle, 
   Download, 
@@ -19,7 +18,8 @@ import {
   ExternalLink,
   Search,
   Eye,
-  Sliders
+  Sliders,
+  Clock
 } from 'lucide-react';
 import { CharityPoint, AidCategory, PointStatus } from '../types';
 import { WILAYAS, AID_CATEGORIES_META } from '../data/wilayas';
@@ -58,7 +58,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [authError, setAuthError] = useState('');
 
   // Active Tab
-  const [activeTab, setActiveTab] = useState<'google_link' | 'manage_points' | 'settings'>('google_link');
+  const [activeTab, setActiveTab] = useState<'unconfirmed' | 'google_link' | 'manage_points' | 'settings'>('unconfirmed');
 
   // Google Maps Quick Add State
   const [googleInput, setGoogleInput] = useState('');
@@ -90,6 +90,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
   if (!isOpen) return null;
 
+  const unconfirmedPoints = points.filter((p) => !p.verified);
+
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     const correctPass = getAdminPasscode();
@@ -99,6 +101,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     } else {
       setAuthError('كلمة المرور غير صحيحة (الافتراضية: admin123)');
     }
+  };
+
+  const handleConfirmPoint = (point: CharityPoint) => {
+    onUpdatePoint(point.id, { verified: true });
   };
 
   const handleParseGoogleLink = () => {
@@ -121,7 +127,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       setParseStatus('success');
       setParseError('');
 
-      // Auto-detect closest wilaya from coords
       const closest = WILAYAS.reduce((prev, curr) => {
         const distPrev = Math.hypot(prev.lat - result.lat, prev.lng - result.lng);
         const distCurr = Math.hypot(curr.lat - result.lat, curr.lng - result.lng);
@@ -170,7 +175,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       status: quickUrgent ? 'urgent' : 'active',
       urgentDescription: quickUrgentNote.trim() || undefined,
       hours: quickHours.trim(),
-      verified: true,
+      verified: true, // Points added directly by admin are verified
       featured: false,
       createdBy: 'admin',
       googleMapsUrl: googleInput.startsWith('http') ? googleInput : getGoogleMapsDirUrl(parsedLat, parsedLng),
@@ -179,7 +184,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setQuickSuccessMsg('تمت إضافة وتوثيق نقطة التبرع بنجاح.');
     setTimeout(() => setQuickSuccessMsg(''), 4000);
 
-    // Reset quick form
     setGoogleInput('');
     setParsedLat(null);
     setParsedLng(null);
@@ -271,7 +275,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   Admin
                 </span>
               </h2>
-              <p className="text-xs text-slate-500">إضافة النقاط عبر رابط Google Maps، التوثيق، إدارة البيانات</p>
+              <p className="text-xs text-slate-500">توثيق وتأكيد النقاط المضافة، الإدارة، النسخ الاحتياطي</p>
             </div>
           </div>
 
@@ -291,7 +295,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             </div>
             <h3 className="text-lg font-bold text-slate-900 mb-1">تسجيل دخول المشرف</h3>
             <p className="text-xs text-slate-500 mb-6">
-              أدخل كلمة المرور لإدارة وتوثيق نقاط التبرع
+              أدخل كلمة المرور لإدارة وتأكيد نقاط التبرع
             </p>
 
             <form onSubmit={handleLogin} className="w-full space-y-3">
@@ -300,7 +304,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   type="password"
                   value={passInput}
                   onChange={(e) => setPassInput(e.target.value)}
-                  placeholder="كلمة المرور (الافتراضية: admin123)"
+                  placeholder="كلمة المرور"
                   className="w-full bg-white border border-slate-300 rounded-lg px-4 py-2.5 text-slate-900 text-center tracking-widest focus:outline-none focus:ring-2 focus:ring-emerald-600"
                   autoFocus
                 />
@@ -317,10 +321,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               >
                 دخول
               </button>
-
-              <p className="text-[11px] text-slate-400 pt-2">
-                كلمة المرور الافتراضية: <code className="text-slate-600 font-mono">admin123</code>
-              </p>
             </form>
           </div>
         ) : (
@@ -329,8 +329,27 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             {/* Tabs Navigation */}
             <div className="flex items-center gap-1 p-2 bg-slate-50 border-b border-slate-200 text-xs sm:text-sm overflow-x-auto">
               <button
+                onClick={() => setActiveTab('unconfirmed')}
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition whitespace-nowrap ${
+                  activeTab === 'unconfirmed'
+                    ? 'bg-amber-700 text-white shadow-xs'
+                    : 'text-slate-700 hover:bg-slate-100'
+                }`}
+              >
+                <AlertTriangle className="w-4 h-4" />
+                <span>المواقع غير المؤكدة</span>
+                {unconfirmedPoints.length > 0 && (
+                  <span className={`px-1.5 py-0.2 rounded-full text-[10px] font-bold ${
+                    activeTab === 'unconfirmed' ? 'bg-amber-900 text-white' : 'bg-amber-100 text-amber-900'
+                  }`}>
+                    {unconfirmedPoints.length}
+                  </span>
+                )}
+              </button>
+
+              <button
                 onClick={() => setActiveTab('google_link')}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition whitespace-nowrap ${
                   activeTab === 'google_link'
                     ? 'bg-emerald-700 text-white shadow-xs'
                     : 'text-slate-700 hover:bg-slate-100'
@@ -342,19 +361,19 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
               <button
                 onClick={() => setActiveTab('manage_points')}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition whitespace-nowrap ${
                   activeTab === 'manage_points'
                     ? 'bg-emerald-700 text-white shadow-xs'
                     : 'text-slate-700 hover:bg-slate-100'
                 }`}
               >
                 <MapPin className="w-4 h-4" />
-                <span>إدارة وتوثيق النقاط ({points.length})</span>
+                <span>جميع النقاط ({points.length})</span>
               </button>
 
               <button
                 onClick={() => setActiveTab('settings')}
-                className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition ${
+                className={`flex items-center gap-2 px-3 py-2 rounded-lg font-semibold transition whitespace-nowrap ${
                   activeTab === 'settings'
                     ? 'bg-emerald-700 text-white shadow-xs'
                     : 'text-slate-700 hover:bg-slate-100'
@@ -364,6 +383,94 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <span>النسخ الاحتياطي والإعدادات</span>
               </button>
             </div>
+
+            {/* Tab 0: Unconfirmed / Pending Points */}
+            {activeTab === 'unconfirmed' && (
+              <div className="p-4 sm:p-6 overflow-y-auto space-y-4 text-xs sm:text-sm flex-1">
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
+                  <div className="p-2 bg-amber-100 text-amber-800 rounded-lg shrink-0">
+                    <AlertTriangle className="w-5 h-5" />
+                  </div>
+                  <div>
+                    <h4 className="font-bold text-amber-900 text-sm">قائمة النقاط المضافة التي تحتاج لتأكيدك ({unconfirmedPoints.length})</h4>
+                    <p className="text-xs text-amber-800 mt-1 leading-relaxed">
+                      هذه النقاط تظهر حالياً على الخريطة بعلامة صفراء مع تنبيه للمستخدم بالاتصال قبل الذهاب. يمكنك تأكيدها فوراً بضغطة زر لتتحول إلى نقاط موثوقة خضراء، أو حذفها.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="space-y-3">
+                  {unconfirmedPoints.length === 0 ? (
+                    <div className="text-center py-12 text-slate-500 bg-slate-50 rounded-xl border border-slate-200">
+                      <ShieldCheck className="w-10 h-10 text-emerald-600 mx-auto mb-2" />
+                      <p className="font-bold text-slate-800">رائع! جميع المواقع مؤكدة وموثوقة</p>
+                      <p className="text-xs text-slate-500 mt-1">أي نقطة يضيفها المستخدمون ستظهر هنا للمراجعة والتأكيد</p>
+                    </div>
+                  ) : (
+                    unconfirmedPoints.map((point) => (
+                      <div
+                        key={point.id}
+                        className="p-4 bg-white border border-amber-300 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs"
+                      >
+                        <div className="space-y-1.5 flex-1">
+                          <div className="flex items-center gap-2 flex-wrap">
+                            <span className="font-bold text-slate-900 text-sm sm:text-base">{point.title}</span>
+                            <span className="bg-amber-100 text-amber-900 text-[10px] font-bold px-2 py-0.5 rounded border border-amber-300">
+                              غير مؤكد
+                            </span>
+                            <span className="text-slate-500 text-xs">({point.wilayaNameAr} - {point.commune})</span>
+                          </div>
+
+                          <div className="flex items-center gap-4 text-xs text-slate-700 flex-wrap">
+                            <span>المشرف: <strong className="text-slate-900">{point.organizer}</strong></span>
+                            <span>الهاتف: <a href={`tel:${point.phone}`} className="text-emerald-700 font-bold font-mono underline" dir="ltr">{point.phone}</a></span>
+                          </div>
+
+                          <p className="text-xs text-slate-500">{point.address}</p>
+                        </div>
+
+                        {/* Actions */}
+                        <div className="flex items-center gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
+                          {/* Confirm & Verify button */}
+                          <button
+                            onClick={() => handleConfirmPoint(point)}
+                            className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition active:scale-95"
+                          >
+                            <Check className="w-4 h-4" />
+                            <span>تأكيد وتوثيق الموقع</span>
+                          </button>
+
+                          {/* Center on map */}
+                          <button
+                            onClick={() => {
+                              onSelectPointOnMap(point);
+                              onClose();
+                            }}
+                            className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-200 transition"
+                            title="معاينة على الخريطة"
+                          >
+                            <Eye className="w-4 h-4" />
+                          </button>
+
+                          {/* Delete */}
+                          <button
+                            onClick={() => {
+                              if (confirm(`هل تريد حذف "${point.title}"؟`)) {
+                                onDeletePoint(point.id);
+                              }
+                            }}
+                            className="p-2 bg-red-50 hover:bg-red-100 text-red-600 rounded-xl border border-red-200 transition"
+                            title="حذف النقطة"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))
+                  )}
+                </div>
+              </div>
+            )}
 
             {/* Tab 1: Google Maps Link / Location Adder */}
             {activeTab === 'google_link' && (
@@ -375,7 +482,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   <div>
                     <h4 className="font-bold text-slate-900 text-sm">إضافة نقطة فورية داخل الجزائر عبر Google Maps</h4>
                     <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                      الصق رابط مشاركة من تطبيق Google Maps أو أدخل الإحداثيات (مثال: <code className="text-emerald-800 font-mono">36.7538, 3.0588</code>). النظام يقبل المواقع داخل التراب الجزائري حصراً.
+                      الصق رابط مشاركة من تطبيق Google Maps أو أدخل الإحداثيات (مثال: <code className="text-emerald-800 font-mono">36.7538, 3.0588</code>).
                     </p>
                   </div>
                 </div>
@@ -549,7 +656,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-lg shadow transition flex items-center justify-center gap-2 text-sm"
                     >
                       <CheckCircle className="w-4 h-4" />
-                      <span>حفظ ونشر نقطة التبرع على الخريطة</span>
+                      <span>حفظ ونشر وتأكيد نقطة التبرع فوراً</span>
                     </button>
                   </form>
                 )}
@@ -598,9 +705,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           <div className="flex items-center gap-2 flex-wrap">
                             <span className="font-bold text-slate-900 text-sm">{point.title}</span>
                             <span className="text-slate-500 text-xs">({point.wilayaNameAr} - {point.commune})</span>
-                            {point.verified && (
+                            {point.verified ? (
                               <span className="bg-emerald-50 text-emerald-800 text-[10px] font-semibold px-1.5 py-0.5 rounded border border-emerald-200">
-                                موثوق
+                                مؤكد
+                              </span>
+                            ) : (
+                              <span className="bg-amber-50 text-amber-800 text-[10px] font-semibold px-1.5 py-0.5 rounded border border-amber-300">
+                                غير مؤكد
                               </span>
                             )}
                           </div>
@@ -621,11 +732,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             className={`p-1.5 px-2.5 rounded-lg text-xs font-semibold border transition ${
                               point.verified
                                 ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                                : 'bg-slate-100 text-slate-700 border-slate-300'
+                                : 'bg-amber-50 text-amber-800 border-amber-300'
                             }`}
-                            title={point.verified ? 'إلغاء التوثيق' : 'توثيق النقطة'}
+                            title={point.verified ? 'إلغاء التوثيق' : 'تأكيد وتوثيق'}
                           >
-                            {point.verified ? 'موثوق ✓' : 'توثيق'}
+                            {point.verified ? 'مؤكد ✓' : 'تأكيد الآن'}
                           </button>
 
                           <button

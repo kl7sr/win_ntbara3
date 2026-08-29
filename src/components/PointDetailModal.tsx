@@ -5,7 +5,7 @@ import {
   Navigation, 
   Share2, 
   CheckCircle2, 
-  AlertCircle, 
+  AlertTriangle, 
   Clock, 
   Copy, 
   Check, 
@@ -48,8 +48,8 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
   };
 
   const handleShareWhatsApp = () => {
-    const text = `نقطة جمع التبرعات:%0A` +
-      `*${encodeURIComponent(point.title)}*%0A` +
+    const statusText = point.verified ? 'موقع تبرع مؤكد' : 'موقع تبرع (يرجى الاتصال للتأكد قبل التنقل)';
+    const text = `*${encodeURIComponent(point.title)}* (${statusText}):%0A` +
       `المشرف: ${encodeURIComponent(point.organizer)}%0A` +
       `الهاتف: ${point.phone}%0A` +
       `الولاية: ${encodeURIComponent(point.wilayaNameAr)} - ${encodeURIComponent(point.commune)}%0A` +
@@ -78,12 +78,18 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
         <div className="px-4 py-3 bg-slate-50/80 border-b border-slate-200 flex items-start justify-between gap-3">
           <div className="flex-1">
             <div className="flex items-center gap-2 mb-1 flex-wrap">
-              {point.verified && (
+              {point.verified ? (
                 <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-300 text-[10px] font-semibold px-2 py-0.5 rounded-md">
                   <ShieldCheck className="w-3 h-3 text-emerald-700" />
-                  مركز موثوق
+                  موقع مؤكد وموثوق
+                </span>
+              ) : (
+                <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-800 border border-amber-300 text-[10px] font-semibold px-2 py-0.5 rounded-md">
+                  <AlertTriangle className="w-3 h-3 text-amber-600" />
+                  غير مؤكد رسمياً (اتصل قبل الذهاب)
                 </span>
               )}
+
               {distance !== null && (
                 <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 text-[10px] font-semibold px-2 py-0.5 rounded-md border border-slate-300">
                   <Navigation className="w-3 h-3 text-slate-600" />
@@ -113,10 +119,25 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
 
         {/* Content Body */}
         <div className="p-4 overflow-y-auto space-y-3.5 text-xs sm:text-sm">
-          {/* Urgent Note */}
+          {/* Prominent Warning Callout for Unconfirmed Locations */}
+          {!point.verified && (
+            <div className="p-3 bg-amber-50 border border-amber-300 rounded-xl flex items-start gap-2.5 text-amber-900">
+              <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
+              <div>
+                <span className="font-bold text-xs block text-amber-800 mb-0.5">
+                  تنبيه: هذا الموقع غير مؤكد رسمياً بعد
+                </span>
+                <p className="text-xs leading-relaxed text-amber-700">
+                  يرجى الاتصال بالرقم أدناه والتأكد من فتح المركز وتوفره قبل التنقل.
+                </p>
+              </div>
+            </div>
+          )}
+
+          {/* Urgent Note if any */}
           {point.urgentDescription && (
             <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-red-900">
-              <AlertCircle className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
+              <Info className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
               <div>
                 <span className="font-bold text-xs block text-red-800 mb-0.5">احتياجات ذات أولوية:</span>
                 <p className="text-xs leading-relaxed">{point.urgentDescription}</p>
@@ -180,15 +201,19 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
 
           {/* Primary Mobile Action Buttons */}
           <div className="pt-2 space-y-2 pb-2">
-            {/* Direct Call Button */}
+            {/* Direct Call Button (Highlighted) */}
             <div className="flex items-center gap-2">
               <a
                 href={`tel:${point.phone}`}
-                className="flex-1 flex items-center justify-center gap-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold py-3 px-4 rounded-xl shadow-md transition text-sm text-center active:scale-[0.98]"
+                className={`flex-1 flex items-center justify-center gap-2 text-white font-bold py-3 px-4 rounded-xl shadow-md transition text-sm text-center active:scale-[0.98] ${
+                  point.verified 
+                    ? 'bg-emerald-700 hover:bg-emerald-800' 
+                    : 'bg-amber-700 hover:bg-amber-800'
+                }`}
               >
                 <Phone className="w-4 h-4 text-white" />
-                <span>اتصل بالمنسق:</span>
-                <span dir="ltr" className="font-mono tracking-wider font-extrabold bg-emerald-900/40 px-2 py-0.5 rounded">
+                <span>{point.verified ? 'اتصل بالمنسق:' : 'اتصل للتأكد قبل التنقل:'}</span>
+                <span dir="ltr" className="font-mono tracking-wider font-extrabold bg-black/20 px-2 py-0.5 rounded">
                   {point.phone}
                 </span>
               </a>
