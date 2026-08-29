@@ -44,13 +44,18 @@ export const Navbar: React.FC<NavbarProps> = ({
           className="flex items-center gap-2 cursor-pointer shrink-0" 
           onClick={() => onSelectWilaya(null)}
         >
-          <div className="w-8 h-8 rounded-lg bg-emerald-700 text-white flex items-center justify-center">
-            <HeartHandshake className="w-4 h-4 text-white" />
-          </div>
+          <img 
+            src="/win-ntbara3-icon.svg" 
+            alt="وين نتبرع" 
+            className="w-9 h-9 object-contain rounded-xl shadow-xs" 
+          />
           <div>
-            <h1 className="text-base font-bold text-slate-900 leading-tight">
-              وين نتبرع
+            <h1 className="text-base font-extrabold text-slate-900 leading-tight flex items-center gap-1">
+              <span>وين نتبرع</span>
             </h1>
+            <span className="text-[10px] text-emerald-800 font-semibold hidden sm:block">
+              المنصة الوطنية للتبرعات والإغاثة
+            </span>
           </div>
         </div>
 
