@@ -110,7 +110,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     const correctPass = getAdminPasscode();
-    if (passInput === correctPass || passInput === 'admin123' || passInput === 'admin') {
+    if (passInput.trim() === correctPass.trim()) {
       setIsAuthenticated(true);
       setAuthError('');
     } else {

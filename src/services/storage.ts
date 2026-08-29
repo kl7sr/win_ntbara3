@@ -3,7 +3,9 @@ import { SEED_CHARITY_POINTS } from '../data/seedPoints';
 
 const STORAGE_KEY = 'win_ntbara3_points_unified_v7';
 const ADMIN_PASS_KEY = 'win_ntbara3_admin_pass';
-const DEFAULT_ADMIN_PASS = (import.meta as any).env?.VITE_ADMIN_PASSWORD || 'admin123';
+
+// Cloudflare Pages Secret / Environment Variable
+export const ENV_ADMIN_PASS = import.meta.env.VITE_ADMIN_PASSWORD;
 
 /**
  * Recovers all custom user-added points while keeping official fire zones updated
@@ -49,7 +51,7 @@ export function getStoredPoints(): CharityPoint[] {
       }
     }
 
-    // 3. Merge: latest official points (with grey extinguished fire status) + recovered custom points
+    // 3. Merge: latest official points + recovered custom points
     const pointsMap = new Map<string, CharityPoint>();
 
     SEED_CHARITY_POINTS.forEach((p) => pointsMap.set(p.id, p));
@@ -141,7 +143,7 @@ export function importPointsJson(jsonStr: string): CharityPoint[] | null {
 }
 
 export function getAdminPasscode(): string {
-  return localStorage.getItem(ADMIN_PASS_KEY) || DEFAULT_ADMIN_PASS;
+  return localStorage.getItem(ADMIN_PASS_KEY) || ENV_ADMIN_PASS || 'admin123';
 }
 
 export function setAdminPasscode(newPass: string): void {

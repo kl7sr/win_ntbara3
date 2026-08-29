@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
-import { 
-  X, 
-  Search, 
-  MapPin, 
-  Phone, 
-  Compass, 
-  LocateFixed, 
-  ChevronLeft, 
-  Info, 
+import {
+  X,
+  Search,
+  MapPin,
+  Phone,
+  Compass,
+  LocateFixed,
+  ChevronLeft,
+  Info,
   Navigation,
   AlertTriangle,
   ShieldCheck
@@ -133,22 +133,20 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
         <div className="flex items-center gap-1 text-xs">
           <button
             onClick={() => setVerificationFilter('all')}
-            className={`flex-1 py-1.5 px-2 rounded-lg font-semibold transition ${
-              verificationFilter === 'all'
-                ? 'bg-slate-900 text-white shadow-xs'
-                : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
-            }`}
+            className={`flex-1 py-1.5 px-2 rounded-lg font-semibold transition ${verificationFilter === 'all'
+              ? 'bg-slate-900 text-white shadow-xs'
+              : 'bg-slate-100 text-slate-700 hover:bg-slate-200'
+              }`}
           >
             الكل
           </button>
 
           <button
             onClick={() => setVerificationFilter('verified')}
-            className={`flex-1 py-1.5 px-2 rounded-lg font-semibold transition flex items-center justify-center gap-1 ${
-              verificationFilter === 'verified'
-                ? 'bg-emerald-700 text-white shadow-xs'
-                : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'
-            }`}
+            className={`flex-1 py-1.5 px-2 rounded-lg font-semibold transition flex items-center justify-center gap-1 ${verificationFilter === 'verified'
+              ? 'bg-emerald-700 text-white shadow-xs'
+              : 'bg-emerald-50 text-emerald-800 hover:bg-emerald-100 border border-emerald-200'
+              }`}
           >
             <ShieldCheck className="w-3.5 h-3.5" />
             <span>مؤكدة</span>
@@ -156,11 +154,10 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
 
           <button
             onClick={() => setVerificationFilter('unconfirmed')}
-            className={`flex-1 py-1.5 px-2 rounded-lg font-semibold transition flex items-center justify-center gap-1 ${
-              verificationFilter === 'unconfirmed'
-                ? 'bg-amber-700 text-white shadow-xs'
-                : 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200'
-            }`}
+            className={`flex-1 py-1.5 px-2 rounded-lg font-semibold transition flex items-center justify-center gap-1 ${verificationFilter === 'unconfirmed'
+              ? 'bg-amber-700 text-white shadow-xs'
+              : 'bg-amber-50 text-amber-800 hover:bg-amber-100 border border-amber-200'
+              }`}
           >
             <AlertTriangle className="w-3.5 h-3.5" />
             <span>غير مؤكدة</span>
@@ -248,9 +245,8 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
                 <div className="flex items-center gap-1.5 shrink-0" onClick={(e) => e.stopPropagation()}>
                   <a
                     href={`tel:${point.phone}`}
-                    className={`p-2 text-white rounded-xl shadow-xs transition active:scale-95 ${
-                      point.verified ? 'bg-emerald-700 hover:bg-emerald-800' : 'bg-amber-700 hover:bg-amber-800'
-                    }`}
+                    className={`p-2 text-white rounded-xl shadow-xs transition active:scale-95 ${point.verified ? 'bg-emerald-700 hover:bg-emerald-800' : 'bg-amber-700 hover:bg-amber-800'
+                      }`}
                     title="اتصال مباشر"
                   >
                     <Phone className="w-3.5 h-3.5" />
@@ -283,7 +279,7 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
       {/* Technical Support Contact Footer */}
       <div className="p-3 bg-slate-100 border-t border-slate-200 text-center text-xs text-slate-600 flex items-center justify-between gap-2">
         <span>تواجه مشكلة تقنية في الموقع؟</span>
-        <a 
+        <a
           href="tel:0542258712"
           className="font-bold text-emerald-800 hover:text-emerald-950 font-mono flex items-center gap-1 bg-white px-2.5 py-1 rounded-lg border border-slate-300 shadow-xs"
         >
