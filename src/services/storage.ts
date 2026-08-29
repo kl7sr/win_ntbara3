@@ -1,8 +1,14 @@
 import { CharityPoint } from '../types';
 import { SEED_CHARITY_POINTS } from '../data/seedPoints';
 
-const STORAGE_KEY = 'win_ntbara3_points_live_v4';
-const LEGACY_KEYS = ['win_ntbara3_master_v3', 'win_ntbara3_points_master', 'win_ntbara3_points_v2', 'win_ntbara3_points_v1'];
+const STORAGE_KEY = 'win_ntbara3_points_live_v6';
+const LEGACY_KEYS = [
+  'win_ntbara3_points_live_v4',
+  'win_ntbara3_master_v3',
+  'win_ntbara3_points_master',
+  'win_ntbara3_points_v2',
+  'win_ntbara3_points_v1'
+];
 const ADMIN_PASS_KEY = 'win_ntbara3_admin_pass';
 const DEFAULT_ADMIN_PASS = (import.meta as any).env?.VITE_ADMIN_PASSWORD || 'admin123';
 
@@ -16,7 +22,7 @@ export function getStoredPoints(): CharityPoint[] {
       }
     }
 
-    // Try recovering custom points from any legacy storage
+    // Recover custom points from any legacy storage
     let recovered: CharityPoint[] = [];
     for (const legKey of LEGACY_KEYS) {
       const legacyRaw = localStorage.getItem(legKey);
@@ -24,7 +30,9 @@ export function getStoredPoints(): CharityPoint[] {
         try {
           const parsedLegacy = JSON.parse(legacyRaw);
           if (Array.isArray(parsedLegacy)) {
-            const userOnly = parsedLegacy.filter((p: CharityPoint) => p.id && (p.createdBy === 'user' || p.id.startsWith('point-')));
+            const userOnly = parsedLegacy.filter((p: CharityPoint) => 
+              p.id && (p.createdBy === 'user' || p.id.startsWith('point-'))
+            );
             recovered = [...recovered, ...userOnly];
           }
         } catch (e) {
@@ -33,6 +41,7 @@ export function getStoredPoints(): CharityPoint[] {
       }
     }
 
+    // Merge recovered custom submissions with the complete updated seed points (including fire zones)
     const merged = [...recovered, ...SEED_CHARITY_POINTS];
     localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
     return merged;
