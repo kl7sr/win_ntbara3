@@ -32,10 +32,14 @@ export function App() {
   // Notification Toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Load points on mount
+  // Load points safely on mount
   const loadPoints = useCallback(() => {
-    const loaded = getStoredPoints();
-    setPoints(loaded);
+    try {
+      const loaded = getStoredPoints();
+      setPoints(loaded);
+    } catch (e) {
+      console.error('Error loading points:', e);
+    }
   }, []);
 
   useEffect(() => {
@@ -47,66 +51,72 @@ export function App() {
     setTimeout(() => setToastMessage(null), 4000);
   };
 
-  // Request user location (GPS)
+  // Request user location safely (GPS)
   const requestUserLocation = () => {
-    if (!navigator.geolocation) {
-      showToast('خاصية تحديد الموقع غير مدعومة على هذا الجهاز');
-      return;
-    }
+    try {
+      if (!navigator.geolocation) {
+        showToast('خاصية تحديد الموقع غير مدعومة على هذا الجهاز');
+        return;
+      }
 
-    navigator.geolocation.getCurrentPosition(
-      (pos) => {
-        const coords: UserLocation = {
-          lat: pos.coords.latitude,
-          lng: pos.coords.longitude,
-          accuracy: pos.coords.accuracy,
-          timestamp: pos.timestamp,
-        };
-        setUserLocation(coords);
-        showToast('تم تحديد موقعك الحالي بنجاح');
-      },
-      (err) => {
-        console.warn('Geolocation error:', err);
-        showToast('يرجى تفعيل الـ GPS في الهاتف لتحديد المراكز القريبة');
-      },
-      { enableHighAccuracy: true, timeout: 8000 }
-    );
+      navigator.geolocation.getCurrentPosition(
+        (pos) => {
+          const coords: UserLocation = {
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            accuracy: pos.coords.accuracy,
+            timestamp: pos.timestamp,
+          };
+          setUserLocation(coords);
+          showToast('تم تحديد موقعك الحالي بنجاح');
+        },
+        (err) => {
+          console.warn('Geolocation error:', err);
+          showToast('يرجى تفعيل الـ GPS في الهاتف لتحديد المراكز القريبة');
+        },
+        { enableHighAccuracy: true, timeout: 8000 }
+      );
+    } catch (e) {
+      console.warn('Geolocation invocation failed:', e);
+    }
   };
-
-  useEffect(() => {
-    if (navigator.geolocation && 'permissions' in navigator) {
-      navigator.permissions.query({ name: 'geolocation' as PermissionName }).then((result) => {
-        if (result.state === 'granted') {
-          requestUserLocation();
-        }
-      });
-    }
-  }, []);
 
   // Handlers for points CRUD
   const handleAddPoint = (newPointData: Omit<CharityPoint, 'id' | 'createdAt'>) => {
-    const created = saveNewPoint(newPointData);
-    setPoints(getStoredPoints());
-    setSelectedPoint(created);
-    showToast('تم تسجيل ونشر نقطة التبرع بنجاح');
+    try {
+      const created = saveNewPoint(newPointData);
+      setPoints(getStoredPoints());
+      setSelectedPoint(created);
+      showToast('تم تسجيل ونشر نقطة التبرع بنجاح');
+    } catch (e) {
+      console.error(e);
+    }
   };
 
   const handleUpdatePoint = (id: string, updates: Partial<CharityPoint>) => {
-    saveUpdatedPoint(id, updates);
-    setPoints(getStoredPoints());
-    if (selectedPoint?.id === id) {
-      setSelectedPoint((prev) => (prev ? { ...prev, ...updates } : null));
+    try {
+      saveUpdatedPoint(id, updates);
+      setPoints(getStoredPoints());
+      if (selectedPoint?.id === id) {
+        setSelectedPoint((prev) => (prev ? { ...prev, ...updates } : null));
+      }
+      showToast('تم تحديث بيانات النقطة');
+    } catch (e) {
+      console.error(e);
     }
-    showToast('تم تحديث بيانات النقطة');
   };
 
   const handleDeletePoint = (id: string) => {
-    removePoint(id);
-    setPoints(getStoredPoints());
-    if (selectedPoint?.id === id) {
-      setSelectedPoint(null);
+    try {
+      removePoint(id);
+      setPoints(getStoredPoints());
+      if (selectedPoint?.id === id) {
+        setSelectedPoint(null);
+      }
+      showToast('تم حذف النقطة');
+    } catch (e) {
+      console.error(e);
     }
-    showToast('تم حذف النقطة');
   };
 
   const displayedPoints = points.filter((p) => {
@@ -116,7 +126,7 @@ export function App() {
   });
 
   return (
-    <div className="h-[100dvh] w-full flex flex-col bg-slate-50 text-slate-900 overflow-hidden select-none">
+    <div className="min-h-[100dvh] h-[100dvh] w-full flex flex-col bg-slate-50 text-slate-900 overflow-hidden select-none relative">
       {/* 1. Helpline Header Banner */}
       <EmergencyBanner />
 
@@ -132,8 +142,8 @@ export function App() {
         totalPoints={displayedPoints.length}
       />
 
-      {/* 3. Main Full-Screen Map (with padding for bottom bar) */}
-      <main className="flex-1 relative w-full h-full pb-16 sm:pb-0 overflow-hidden">
+      {/* 3. Main Full-Screen Map */}
+      <main className="flex-1 relative w-full h-full pb-16 overflow-hidden">
         <MapComponent
           points={displayedPoints}
           selectedPoint={selectedPoint}
@@ -144,7 +154,7 @@ export function App() {
         />
       </main>
 
-      {/* 4. Guaranteed Fixed Bottom Bar (Visible on mobile & dynamic on all resolutions) */}
+      {/* 4. Guaranteed Fixed Bottom Bar (Visible on all devices & resolutions) */}
       <footer className="fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 py-1.5 shadow-2xl safe-bottom-padding flex items-center justify-around">
         {/* Map tab */}
         <button
