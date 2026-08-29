@@ -5,7 +5,7 @@ const STORAGE_KEY = 'win_ntbara3_points_unified_v7';
 const ADMIN_PASS_KEY = 'win_ntbara3_admin_pass';
 
 // Cloudflare Pages Secret / Environment Variable
-export const ENV_ADMIN_PASS = import.meta.env.VITE_ADMIN_PASSWORD;
+export const ENV_ADMIN_PASS: string | undefined = (import.meta as any).env?.VITE_ADMIN_PASSWORD;
 
 /**
  * Recovers all custom user-added points while keeping official fire zones updated
