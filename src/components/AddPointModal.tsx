@@ -391,40 +391,6 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
             </div>
           )}
 
-          {/* Quick Auto-Fill from Google Maps Link */}
-          <div className="bg-emerald-50/90 border border-emerald-300 rounded-2xl p-3 space-y-2">
-            <div className="flex items-center justify-between">
-              <label className="text-emerald-950 font-bold text-xs flex items-center gap-1.5">
-                <LinkIcon className="w-4 h-4 text-emerald-700" />
-                <span>عندك رابط Google Maps؟ الصقه هنا لملء البيانات تلقائياً</span>
-              </label>
-              {linkSuccess && (
-                <span className="text-[11px] text-emerald-800 font-bold flex items-center gap-1">
-                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
-                  <span>تم استخراج البيانات!</span>
-                </span>
-              )}
-            </div>
-            <div className="flex gap-2">
-              <input
-                type="text"
-                dir="ltr"
-                value={googleLinkInput}
-                onChange={(e) => setGoogleLinkInput(e.target.value)}
-                placeholder="https://maps.app.goo.gl/... أو رابط خرائط قوقل"
-                className="flex-1 bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-emerald-600"
-              />
-              <button
-                type="button"
-                disabled={linkLoading || !googleLinkInput.trim()}
-                onClick={handleExtractFromGoogleLink}
-                className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center gap-1 shrink-0 transition active:scale-95"
-              >
-                {linkLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <span>ملء تلقائي</span>}
-              </button>
-            </div>
-          </div>
-
           {/* GPS Location Box */}
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2.5">
             <div className="flex flex-wrap items-center justify-between gap-2">

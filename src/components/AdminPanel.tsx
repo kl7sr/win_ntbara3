@@ -439,8 +439,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/50 backdrop-blur-xs overflow-y-auto">
-        <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-4xl shadow-xl overflow-hidden my-auto max-h-[94vh] flex flex-col">
+      <div 
+        className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto cursor-pointer"
+        onClick={onClose}
+      >
+        <div 
+          className="bg-white border border-slate-200 rounded-2xl w-full max-w-4xl shadow-xl overflow-hidden my-auto max-h-[94vh] flex flex-col cursor-default"
+          onClick={(e) => e.stopPropagation()}
+        >
           {/* Top Header */}
           <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
             <div className="flex items-center gap-2.5">
@@ -459,8 +465,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             </div>
 
             <button
+              type="button"
               onClick={onClose}
-              className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 transition"
+              className="p-2 rounded-xl text-slate-400 hover:text-slate-800 bg-white hover:bg-slate-100 border border-slate-200 shadow-xs transition"
+              title="إغلاق"
             >
               <X className="w-5 h-5" />
             </button>
@@ -494,12 +502,22 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   <p className="text-xs text-red-600 font-medium">{authError}</p>
                 )}
 
-                <button
-                  type="submit"
-                  className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-lg shadow transition"
-                >
-                  دخول
-                </button>
+                <div className="flex flex-col gap-2 pt-1">
+                  <button
+                    type="submit"
+                    className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-lg shadow transition"
+                  >
+                    دخول
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={onClose}
+                    className="w-full py-2 bg-slate-100 hover:bg-slate-200 text-slate-700 font-semibold rounded-lg transition text-xs"
+                  >
+                    إلغاء والعودة للخريطة
+                  </button>
+                </div>
               </form>
             </div>
           ) : (
