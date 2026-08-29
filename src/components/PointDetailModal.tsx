@@ -48,11 +48,11 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
     : null;
 
   const googleMapsUrl = getGoogleMapsDirUrl(point.lat, point.lng, point.title);
-  const images = point.images && point.images.length > 0
+  
+  // Strictly real uploaded images only (no AI, no placeholders)
+  const images = (point.images && point.images.length > 0)
     ? point.images
-    : point.imageUrl
-    ? [point.imageUrl]
-    : [];
+    : (point.imageUrl ? [point.imageUrl] : []);
 
   const handleNextImage = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -103,7 +103,7 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
             <div className="w-12 h-1.5 bg-slate-300 rounded-full"></div>
           </div>
 
-          {/* 🌟 Google Maps Style Photo Carousel Header (Only if pictures exist) */}
+          {/* Photo Carousel Header (Only if real pictures are attached) */}
           {images.length > 0 && (
             <div className="relative w-full h-48 sm:h-56 bg-slate-950 shrink-0 overflow-hidden group">
               <img
@@ -156,20 +156,14 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
                 </button>
               </div>
 
-              {/* Bottom Counter & Dots */}
-              <div className="absolute bottom-2.5 left-3 right-3 z-10 flex items-center justify-between">
-                <span className="text-[11px] font-semibold text-white/90 bg-black/40 px-2 py-0.5 rounded backdrop-blur-xs">
-                  {point.verified ? '✓ صور موثقة للمركز' : 'صور مرفقة من صاحب النقطة'}
-                </span>
-
-                {images.length > 1 && (
-                  <div className="flex items-center gap-1.5 bg-black/70 backdrop-blur-xs px-2.5 py-1 rounded-full text-white text-[11px] font-mono font-bold">
-                    <span>{currentImageIndex + 1}</span>
-                    <span>/</span>
-                    <span>{images.length}</span>
-                  </div>
-                )}
-              </div>
+              {/* Bottom Counter */}
+              {images.length > 1 && (
+                <div className="absolute bottom-2.5 left-3 z-10 flex items-center gap-1.5 bg-black/70 backdrop-blur-xs px-2.5 py-1 rounded-full text-white text-[11px] font-mono font-bold">
+                  <span>{currentImageIndex + 1}</span>
+                  <span>/</span>
+                  <span>{images.length}</span>
+                </div>
+              )}
             </div>
           )}
 
