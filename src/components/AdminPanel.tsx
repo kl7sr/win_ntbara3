@@ -92,10 +92,140 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [quickAddress, setQuickAddress] = useState('');
   const [quickCategories, setQuickCategories] = useState<AidCategory[]>(['food_water', 'clothes', 'medical']);
   const [quickUrgent, setQuickUrgent] = useState(false);
-  const [quickUrgentNote, setQuickUrgentNote] = useState('');
-  const [quickPhotos, setQuickPhotos] = useState<string[]>([]);
-  const [quickSuccessMsg, setQuickSuccessMsg] = useState('');
-  const [parsingLoading, setParsingLoading] = useState(false);
+  // Manage table filters
+  const [adminSearch, setAdminSearch] = useState('');
+  const [adminWilayaFilter, setAdminWilayaFilter] = useState<number | null>(null);
+
+  // Settings
+  const [newPass, setNewPass] = useState('');
+  const [passChangeMsg, setPassChangeMsg] = useState('');
+
+  const unconfirmedPoints = points.filter((p) => !p.verified);
+
+  const handleLogin = (e: React.FormEvent) => {
+    e.preventDefault();
+    const correctPass = getAdminPasscode();
+    if (passInput.trim() === correctPass.trim()) {
+      setIsAuthenticated(true);
+      setAuthError('');
+    } else {
+      setAuthError('كلمة المرور غير صحيحة');
+    }
+  };
+
+  const handleConfirmPoint = (point: CharityPoint) => {
+    onUpdatePoint(point.id, { verified: true });
+  };
+
+  const handleOpenPhotoInNewTab = (imgUrl: string) => {
+    const newTab = window.open();
+    if (newTab) {
+      newTab.document.write(`
+        <!DOCTYPE html>
+        <html lang="ar">
+          <head>
+            <title>معاينة صورة نقطة التبرع</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+              body {
+                margin: 0;
+                background-color: #0f172a;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+                font-family: sans-serif;
+              }
+              img {
+                max-width: 95vw;
+                max-height: 90vh;
+                object-fit: contain;
+                border-radius: 8px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+              }
+            </style>
+          </head>
+          <body>
+            <img src="${imgUrl}" alt="Charity point photo" />
+          </body>
+        </html>
+      `);
+      newTab.document.close();
+    }
+  };
+
+  // Parse Burnt Zone Coords
+  const handleParseBurntCoords = () => {
+    if (!burntCoordsInput.trim()) {
+      setBurntError('يرجى إدخال رابط أو إحداثيات موقع الحريق');
+      return;
+    }
+    const result = parseGoogleMapsLinkOrCoords(burntCoordsInput);
+    if (result && isWithinAlgeriaBounds(result.lat, result.lng)) {
+      setBurntLat(Number(result.lat.toFixed(6)));
+      setBurntLng(Number(result.lng.toFixed(6)));
+      setBurntError('');
+      const closest = WILAYAS.reduce((prev, curr) => {
+        const distPrev = Math.hypot(prev.lat - result.lat, prev.lng - result.lng);
+        const distCurr = Math.hypot(curr.lat - result.lat, curr.lng - result.lng);
+        return distCurr < distPrev ? curr : prev;
+      });
+      if (closest) setBurntWilaya(closest.code);
+    } else {
+      setBurntError('يرجى إدخال إحداثيات أو رابط صالح داخل الجزائر (مثال: 36.71, 4.04)');
+    }
+  };
+
+  // Submit Burnt Zone (Admin Exclusive)
+  const handleAddBurntZone = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!burntLat || !burntLng) {
+      setBurntError('يرجى استخراج وتحديد إحداثيات المنطقة أولاً');
+      return;
+    }
+
+    if (!burntTitle.trim() || !burntCommune.trim()) {
+      setBurntError('يرجى ملء اسم المنطقة والبلدية');
+      return;
+    }
+
+    const wilaya = WILAYAS.find((w) => w.code === burntWilaya) || WILAYAS[14];
+
+    onAddPoint({
+      title: `🔥 ${burntTitle.trim()}`,
+      organizer: burntCoordinator.trim() || 'خلية إغاثة المتضررين من الحرائق',
+      phone: burntPhone.trim() || '14',
+      wilayaCode: wilaya.code,
+      wilayaNameAr: wilaya.nameAr,
+      wilayaNameFr: wilaya.nameFr,
+      commune: burntCommune.trim(),
+      address: burntAddress.trim() || `${burntCommune}، ولاية ${wilaya.nameAr}`,
+      lat: burntLat,
+      lng: burntLng,
+      aidCategories: ['food_water', 'medical', 'blankets', 'shelter', 'clothes'],
+      status: 'urgent',
+      pointType: 'burnt_zone', // Burnt zone type
+      urgentDescription: burntNeeds.trim() || 'منطقة منكوبة ومتضررة من الحرائق بحاجة عاجلة لإغاثة ومساعدات.',
+      verified: true,
+      featured: true,
+      createdBy: 'admin',
+      googleMapsUrl: getGoogleMapsDirUrl(burntLat, burntLng),
+    });
+
+    setBurntSuccessMsg('تمت إضافة وتثبيت المنطقة المتضررة من الحرائق على الخريطة بنجاح.');
+    setTimeout(() => setBurntSuccessMsg(''), 4000);
+
+    setBurntTitle('');
+    setBurntCommune('');
+    setBurntAddress('');
+    setBurntPhone('');
+    setBurntCoordinator('');
+    setBurntNeeds('');
+    setBurntCoordsInput('');
+    setBurntLat(null);
+    setBurntLng(null);
+  };
 
   const handleParseGoogleLink = async () => {
     if (!googleInput.trim()) {
