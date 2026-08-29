@@ -24,11 +24,10 @@ import {
   Camera,
   Loader2,
   Edit,
-  Building2,
   HeartHandshake
 } from 'lucide-react';
 import { CharityPoint, AidCategory, PointStatus, PointType } from '../types';
-import { WILAYAS, AID_CATEGORIES_META } from '../data/wilayas';
+import { WILAYAS } from '../data/wilayas';
 import { parseGoogleMapsLinkOrCoords, getGoogleMapsDirUrl, isWithinAlgeriaBounds } from '../utils/geoParser';
 import { compressImageFile } from '../utils/imageCompressor';
 import { 
@@ -392,28 +391,28 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 bg-slate-950/90 backdrop-blur-md flex flex-col overflow-hidden animate-in fade-in duration-150">
-      {/* Fullscreen Header */}
-      <header className="px-4 sm:px-8 py-3.5 bg-slate-900 border-b border-slate-800 flex items-center justify-between shrink-0 shadow-lg">
+    <div className="fixed inset-0 z-50 bg-slate-900/60 backdrop-blur-xs flex flex-col overflow-hidden animate-in fade-in duration-150">
+      {/* Light Mode Clean Header */}
+      <header className="px-4 sm:px-8 py-3.5 bg-white border-b border-slate-200 flex items-center justify-between shrink-0 shadow-sm">
         <div className="flex items-center gap-3">
-          <div className="p-2 bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 rounded-xl">
+          <div className="p-2 bg-emerald-100 border border-emerald-200 text-emerald-800 rounded-xl shadow-xs">
             <ShieldCheck className="w-6 h-6" />
           </div>
           <div>
             <div className="flex items-center gap-2">
-              <h1 className="text-base sm:text-lg font-black text-white">لوحة تحكم المشرفين</h1>
-              <span className="text-[10px] bg-emerald-950 text-emerald-400 border border-emerald-800/60 px-2 py-0.5 rounded-full font-bold">
-                Admin Fullscreen
+              <h1 className="text-base sm:text-lg font-black text-slate-900">لوحة تحكم المشرفين</h1>
+              <span className="text-[10px] bg-emerald-50 text-emerald-800 border border-emerald-300 px-2 py-0.5 rounded-full font-bold">
+                Admin Panel
               </span>
             </div>
-            <p className="text-xs text-slate-400">إدارة وتعديل مراكز التبرع، مناطق الحرائق، والمزامنة السحابية</p>
+            <p className="text-xs text-slate-500">إدارة وتعديل مراكز التبرع، مناطق الحرائق، والمزامنة السحابية</p>
           </div>
         </div>
 
         <button
           type="button"
           onClick={onClose}
-          className="p-2 rounded-xl text-slate-400 hover:text-white bg-slate-800 hover:bg-slate-700 border border-slate-700 transition active:scale-95 flex items-center gap-1.5 text-xs font-bold"
+          className="p-2 rounded-xl text-slate-500 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition active:scale-95 flex items-center gap-1.5 text-xs font-bold"
           title="إغلاق والعودة للموقع"
         >
           <X className="w-5 h-5" />
@@ -421,17 +420,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
         </button>
       </header>
 
-      {/* Main Container */}
+      {/* Main Light Container */}
       <div className="flex-1 flex flex-col overflow-hidden max-w-7xl w-full mx-auto p-3 sm:p-6">
         {!isAuthenticated ? (
           <div className="flex-1 flex items-center justify-center p-4">
-            <div className="bg-slate-900 border border-slate-800 rounded-3xl p-8 sm:p-10 max-w-md w-full shadow-2xl text-center space-y-5">
-              <div className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center mx-auto shadow-inner">
+            <div className="bg-white border border-slate-200 rounded-3xl p-8 sm:p-10 max-w-md w-full shadow-2xl text-center space-y-5">
+              <div className="w-16 h-16 rounded-2xl bg-emerald-50 border border-emerald-200 text-emerald-700 flex items-center justify-center mx-auto shadow-xs">
                 <Lock className="w-8 h-8" />
               </div>
               <div>
-                <h3 className="text-lg font-bold text-white mb-1">تسجيل دخول الإدارة</h3>
-                <p className="text-xs text-slate-400">
+                <h3 className="text-lg font-bold text-slate-900 mb-1">تسجيل دخول الإدارة</h3>
+                <p className="text-xs text-slate-600">
                   أدخل كلمة المرور للوصول إلى أدوات تعديل النقاط وإدارة الحرائق
                 </p>
               </div>
@@ -443,17 +442,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     value={passInput}
                     onChange={(e) => setPassInput(e.target.value)}
                     placeholder="كلمة المرور"
-                    className="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-3 text-white text-center tracking-widest text-sm focus:outline-none focus:border-emerald-500"
+                    className="w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-900 text-center tracking-widest text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"
                     autoFocus
                   />
-                  <KeyRound className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <KeyRound className="w-4 h-4 text-slate-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
                 </div>
 
-                {authError && <p className="text-xs text-red-400 font-medium">{authError}</p>}
+                {authError && <p className="text-xs text-red-600 font-medium">{authError}</p>}
 
                 <button
                   type="submit"
-                  className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg transition active:scale-95 text-sm"
+                  className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl shadow-md transition active:scale-95 text-sm"
                 >
                   دخول لوحة التحكم
                 </button>
@@ -461,7 +460,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 <button
                   type="button"
                   onClick={onClose}
-                  className="w-full py-2.5 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl text-xs font-semibold transition"
+                  className="w-full py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-xs font-semibold transition"
                 >
                   إلغاء والعودة للخريطة
                 </button>
@@ -469,18 +468,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             </div>
           </div>
         ) : (
-          <div className="flex-1 flex flex-col bg-slate-900/90 border border-slate-800 rounded-3xl overflow-hidden shadow-2xl">
-            {/* Navigation Tabs */}
-            <div className="bg-slate-900 border-b border-slate-800 p-2 sm:p-3 flex items-center gap-1.5 sm:gap-2 overflow-x-auto shrink-0">
+          <div className="flex-1 flex flex-col bg-white border border-slate-200 rounded-3xl overflow-hidden shadow-xl">
+            {/* Clean Light Navigation Tabs */}
+            <div className="bg-slate-50 border-b border-slate-200 p-2 sm:p-3 flex items-center gap-1.5 sm:gap-2 overflow-x-auto shrink-0">
               <button
                 onClick={() => setActiveTab('charity_hubs')}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition shrink-0 ${
                   activeTab === 'charity_hubs'
-                    ? 'bg-emerald-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    ? 'bg-emerald-700 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
                 }`}
               >
-                <HeartHandshake className="w-4 h-4 text-emerald-300" />
+                <HeartHandshake className="w-4 h-4" />
                 <span>مراكز التبرع ({charityPoints.length})</span>
               </button>
 
@@ -488,11 +487,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 onClick={() => setActiveTab('fire_zones')}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition shrink-0 ${
                   activeTab === 'fire_zones'
-                    ? 'bg-red-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    ? 'bg-red-600 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
                 }`}
               >
-                <Flame className="w-4 h-4 text-red-300" />
+                <Flame className="w-4 h-4" />
                 <span>مناطق الحرائق ({firePoints.length})</span>
               </button>
 
@@ -500,8 +499,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 onClick={() => setActiveTab('quick_add')}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition shrink-0 ${
                   activeTab === 'quick_add'
-                    ? 'bg-teal-600 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    ? 'bg-teal-700 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
                 }`}
               >
                 <LinkIcon className="w-4 h-4" />
@@ -512,8 +511,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 onClick={() => setActiveTab('settings')}
                 className={`flex items-center gap-2 px-4 py-2.5 rounded-xl font-bold text-xs sm:text-sm transition shrink-0 ${
                   activeTab === 'settings'
-                    ? 'bg-slate-700 text-white shadow-md'
-                    : 'text-slate-400 hover:text-white hover:bg-slate-800'
+                    ? 'bg-slate-800 text-white shadow-sm'
+                    : 'text-slate-600 hover:text-slate-900 hover:bg-slate-200/70'
                 }`}
               >
                 <Sliders className="w-4 h-4" />
@@ -523,9 +522,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
             {/* Notification Toast */}
             {syncSuccessMsg && (
-              <div className="bg-emerald-900/80 border-b border-emerald-700 text-emerald-200 px-4 py-2 text-xs flex items-center justify-between">
-                <span className="font-semibold">{syncSuccessMsg}</span>
-                <button onClick={() => setSyncSuccessMsg('')} className="text-emerald-400 hover:text-white">✕</button>
+              <div className="bg-emerald-50 border-b border-emerald-300 text-emerald-900 px-4 py-2 text-xs flex items-center justify-between font-medium">
+                <span>{syncSuccessMsg}</span>
+                <button onClick={() => setSyncSuccessMsg('')} className="text-emerald-700 hover:text-emerald-900">✕</button>
               </div>
             )}
 
@@ -539,17 +538,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       value={adminSearch}
                       onChange={(e) => setAdminSearch(e.target.value)}
                       placeholder="بحث في مراكز التبرع بالاسم، المشرف، الهاتف..."
-                      className="w-full bg-slate-950 border border-slate-800 rounded-xl pl-3 pr-10 py-2.5 text-white text-xs sm:text-sm focus:outline-none focus:border-emerald-500"
+                      className="w-full bg-white border border-slate-300 rounded-xl pl-3 pr-10 py-2.5 text-slate-900 text-xs sm:text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600"
                     />
-                    <Search className="w-4 h-4 text-slate-500 absolute right-3.5 top-1/2 -translate-y-1/2" />
+                    <Search className="w-4 h-4 text-slate-400 absolute right-3.5 top-1/2 -translate-y-1/2" />
                   </div>
 
                   <select
                     value={adminWilayaFilter ?? ''}
                     onChange={(e) => setAdminWilayaFilter(e.target.value ? Number(e.target.value) : null)}
-                    className="w-full sm:w-auto bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-white text-xs"
+                    className="w-full sm:w-auto bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-800 text-xs"
                   >
-                    <option value="">جميع الولايات</option>
+                    <option value="">جميع الولايات (69 ولاية)</option>
                     {WILAYAS.map((w) => (
                       <option key={w.code} value={w.code}>
                         {w.code} - {w.nameAr}
@@ -560,29 +559,29 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
                 <div className="flex-1 overflow-y-auto space-y-3 pr-1">
                   {filterList(charityPoints).length === 0 ? (
-                    <div className="text-center py-16 text-slate-500">لا توجد مراكز تبرع مطابقة</div>
+                    <div className="text-center py-16 text-slate-400">لا توجد مراكز تبرع مطابقة</div>
                   ) : (
                     filterList(charityPoints).map((point) => (
                       <div
                         key={point.id}
-                        className="p-4 bg-slate-950 border border-slate-800 hover:border-slate-700 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition shadow-sm"
+                        className="p-4 bg-white border border-slate-200 hover:border-slate-300 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition shadow-xs"
                       >
-                        <div className="space-y-1.5 flex-1">
+                        <div className="space-y-1 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="font-bold text-white text-sm sm:text-base">{point.title}</span>
-                            <span className="text-slate-400 text-xs">({point.wilayaNameAr} - {point.commune})</span>
+                            <span className="font-bold text-slate-900 text-sm sm:text-base">{point.title}</span>
+                            <span className="text-slate-600 text-xs">({point.wilayaNameAr} - {point.commune})</span>
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                               point.verified
-                                ? 'bg-emerald-950 text-emerald-400 border-emerald-800'
-                                : 'bg-amber-950 text-amber-400 border-amber-800'
+                                ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
+                                : 'bg-amber-50 text-amber-800 border-amber-300'
                             }`}>
                               {point.verified ? 'مؤكد ✓' : 'غير مؤكد'}
                             </span>
                           </div>
 
-                          <div className="flex items-center gap-4 text-xs text-slate-400">
-                            <span>المشرف: <strong className="text-slate-200">{point.organizer}</strong></span>
-                            <span>الهاتف: <strong dir="ltr" className="font-mono text-emerald-400">{point.phone}</strong></span>
+                          <div className="flex items-center gap-4 text-xs text-slate-600">
+                            <span>المشرف: <strong className="text-slate-800">{point.organizer}</strong></span>
+                            <span>الهاتف: <strong dir="ltr" className="font-mono text-emerald-700">{point.phone}</strong></span>
                           </div>
 
                           {point.address && <p className="text-[11px] text-slate-500">{point.address}</p>}
@@ -594,10 +593,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           <button
                             type="button"
                             onClick={() => onEditPoint?.(point)}
-                            className="p-2 bg-slate-800 hover:bg-emerald-700 text-slate-200 hover:text-white rounded-xl border border-slate-700 transition flex items-center gap-1 text-xs font-semibold"
+                            className="p-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl border border-emerald-300 transition flex items-center gap-1 text-xs font-bold"
                             title="تعديل بيانات النقطة"
                           >
-                            <Edit className="w-3.5 h-3.5 text-emerald-400" />
+                            <Edit className="w-3.5 h-3.5" />
                             <span>تعديل</span>
                           </button>
 
@@ -606,10 +605,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             type="button"
                             onClick={() => handleResyncPoint(point)}
                             disabled={syncingPointId === point.id}
-                            className="p-2 bg-slate-800 hover:bg-slate-700 disabled:opacity-50 text-slate-300 rounded-xl border border-slate-700 transition"
+                            className="p-2 bg-slate-100 hover:bg-slate-200 disabled:opacity-50 text-slate-700 rounded-xl border border-slate-300 transition"
                             title="مزامنة مع خرائط Google"
                           >
-                            <RefreshCw className={`w-3.5 h-3.5 ${syncingPointId === point.id ? 'animate-spin text-emerald-400' : ''}`} />
+                            <RefreshCw className={`w-3.5 h-3.5 ${syncingPointId === point.id ? 'animate-spin text-emerald-700' : ''}`} />
                           </button>
 
                           {/* View on Map */}
@@ -619,7 +618,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                               onSelectPointOnMap(point);
                               onClose();
                             }}
-                            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700 transition"
+                            className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-300 transition"
                             title="عرض على الخريطة"
                           >
                             <Eye className="w-3.5 h-3.5" />
@@ -633,7 +632,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                                 onDeletePoint(point.id);
                               }
                             }}
-                            className="p-2 bg-red-950/60 hover:bg-red-900 text-red-400 rounded-xl border border-red-900 transition"
+                            className="p-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl border border-red-200 transition"
                             title="حذف المركز"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
@@ -652,8 +651,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 {/* Left: Fire Zones List */}
                 <div className="flex-1 flex flex-col overflow-hidden space-y-3">
                   <div className="flex items-center justify-between">
-                    <h3 className="font-bold text-white text-sm flex items-center gap-1.5">
-                      <Flame className="w-4 h-4 text-red-400" />
+                    <h3 className="font-bold text-slate-900 text-sm flex items-center gap-1.5">
+                      <Flame className="w-4 h-4 text-red-600" />
                       <span>المناطق المتضررة والحرائق المسجلة ({firePoints.length})</span>
                     </h3>
                   </div>
@@ -662,29 +661,29 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     {firePoints.map((point) => (
                       <div
                         key={point.id}
-                        className="p-3.5 bg-slate-950 border border-slate-800 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs"
+                        className="p-3.5 bg-white border border-slate-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs"
                       >
                         <div className="space-y-1 flex-1">
                           <div className="flex items-center gap-2">
-                            <span className="font-bold text-white text-sm">{point.title}</span>
+                            <span className="font-bold text-slate-900 text-sm">{point.title}</span>
                             <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
                               point.status === 'extinguished'
-                                ? 'bg-slate-800 text-slate-400 border-slate-700'
-                                : 'bg-red-950 text-red-400 border-red-800'
+                                ? 'bg-slate-100 text-slate-700 border-slate-300'
+                                : 'bg-red-50 text-red-700 border-red-200'
                             }`}>
                               {point.status === 'extinguished' ? '💨 تم الإخماد (رمادي)' : '🔥 حريق نشط'}
                             </span>
                           </div>
-                          <p className="text-xs text-slate-400">{point.wilayaNameAr} - {point.commune} ({point.address})</p>
+                          <p className="text-xs text-slate-600">{point.wilayaNameAr} - {point.commune} ({point.address})</p>
                         </div>
 
                         <div className="flex items-center gap-2 shrink-0">
                           <button
                             type="button"
                             onClick={() => onEditPoint?.(point)}
-                            className="p-1.5 px-2.5 bg-slate-800 hover:bg-slate-700 text-slate-200 rounded-xl text-xs font-semibold border border-slate-700 transition flex items-center gap-1"
+                            className="p-1.5 px-2.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-xl text-xs font-bold border border-emerald-300 transition flex items-center gap-1"
                           >
-                            <Edit className="w-3 h-3 text-emerald-400" />
+                            <Edit className="w-3 h-3 text-emerald-700" />
                             <span>تعديل</span>
                           </button>
                           <button
@@ -693,14 +692,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                               onSelectPointOnMap(point);
                               onClose();
                             }}
-                            className="p-2 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-xl border border-slate-700"
+                            className="p-2 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-300"
                           >
                             <Eye className="w-3.5 h-3.5" />
                           </button>
                           <button
                             type="button"
                             onClick={() => onDeletePoint(point.id)}
-                            className="p-2 bg-red-950/60 hover:bg-red-900 text-red-400 rounded-xl border border-red-900"
+                            className="p-2 bg-red-50 hover:bg-red-100 text-red-700 rounded-xl border border-red-200"
                           >
                             <Trash2 className="w-3.5 h-3.5" />
                           </button>
@@ -711,44 +710,44 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 </div>
 
                 {/* Right: Add Burnt Zone Form */}
-                <div className="w-full sm:w-96 bg-slate-950 border border-slate-800 rounded-2xl p-4 overflow-y-auto space-y-3.5">
-                  <h4 className="font-bold text-white text-xs border-b border-slate-800 pb-2 flex items-center gap-1.5">
-                    <Plus className="w-4 h-4 text-red-400" />
+                <div className="w-full sm:w-96 bg-slate-50 border border-slate-200 rounded-2xl p-4 overflow-y-auto space-y-3.5">
+                  <h4 className="font-bold text-slate-900 text-xs border-b border-slate-200 pb-2 flex items-center gap-1.5">
+                    <Plus className="w-4 h-4 text-red-600" />
                     <span>إضافة منطقة حرائق أو إخماد جديدة</span>
                   </h4>
 
                   {burntSuccessMsg && (
-                    <div className="p-2.5 bg-emerald-950 border border-emerald-800 rounded-xl text-emerald-300 text-xs font-bold">
+                    <div className="p-2.5 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs font-bold">
                       {burntSuccessMsg}
                     </div>
                   )}
 
                   {burntError && (
-                    <div className="p-2.5 bg-red-950 border border-red-800 rounded-xl text-red-300 text-xs">
+                    <div className="p-2.5 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs">
                       {burntError}
                     </div>
                   )}
 
                   <form onSubmit={handleAddBurntZone} className="space-y-3 text-xs">
                     <div>
-                      <label className="block text-slate-300 font-semibold mb-1">اسم المنطقة / الغابة *</label>
+                      <label className="block text-slate-700 font-semibold mb-1">اسم المنطقة / الغابة *</label>
                       <input
                         type="text"
                         required
                         value={burntTitle}
                         onChange={(e) => setBurntTitle(e.target.value)}
                         placeholder="مثال: غابة تاكسنة، قرية آيت هشام..."
-                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                        className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
                       />
                     </div>
 
                     <div className="grid grid-cols-2 gap-2">
                       <div>
-                        <label className="block text-slate-300 font-semibold mb-1">الولاية *</label>
+                        <label className="block text-slate-700 font-semibold mb-1">الولاية *</label>
                         <select
                           value={burntWilaya}
                           onChange={(e) => setBurntWilaya(Number(e.target.value))}
-                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-white"
+                          className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-2 text-slate-900"
                         >
                           {WILAYAS.map((w) => (
                             <option key={w.code} value={w.code}>
@@ -759,24 +758,24 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       </div>
 
                       <div>
-                        <label className="block text-slate-300 font-semibold mb-1">البلدية *</label>
+                        <label className="block text-slate-700 font-semibold mb-1">البلدية *</label>
                         <input
                           type="text"
                           required
                           value={burntCommune}
                           onChange={(e) => setBurntCommune(e.target.value)}
                           placeholder="البلدية"
-                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-white"
+                          className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-2 text-slate-900"
                         />
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-slate-300 font-semibold mb-1">حالة الحريق</label>
+                      <label className="block text-slate-700 font-semibold mb-1">حالة الحريق</label>
                       <select
                         value={burntStatus}
                         onChange={(e) => setBurntStatus(e.target.value as PointStatus)}
-                        className="w-full bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-2 text-white font-bold"
+                        className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-2 text-slate-900 font-bold"
                       >
                         <option value="urgent">🔥 حريق نشط / بحاجة لإغاثة عاجلة (أحمر)</option>
                         <option value="extinguished">💨 تم إخماد الحريق والسيطرة عليه (رمادي)</option>
@@ -784,7 +783,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     </div>
 
                     <div>
-                      <label className="block text-slate-300 font-semibold mb-1">رابط Google Maps أو الإحداثيات *</label>
+                      <label className="block text-slate-700 font-semibold mb-1">رابط Google Maps أو الإحداثيات *</label>
                       <div className="flex gap-1.5">
                         <input
                           type="text"
@@ -792,18 +791,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           value={burntCoordsInput}
                           onChange={(e) => setBurntCoordsInput(e.target.value)}
                           placeholder="36.6583, 5.7924 أو رابط قوقل"
-                          className="flex-1 bg-slate-900 border border-slate-700 rounded-lg px-2.5 py-1.5 text-white font-mono text-[11px]"
+                          className="flex-1 bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-slate-900 font-mono text-[11px]"
                         />
                         <button
                           type="button"
                           onClick={handleBurntCoordsParse}
-                          className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-700 text-white rounded-lg font-bold text-[11px]"
+                          className="px-2.5 py-1.5 bg-slate-800 hover:bg-slate-900 text-white rounded-lg font-bold text-[11px]"
                         >
                           استخراج
                         </button>
                       </div>
                       {burntLat && burntLng && (
-                        <p className="text-[10px] text-emerald-400 font-mono mt-1">
+                        <p className="text-[10px] text-emerald-700 font-mono mt-1 font-semibold">
                           ✓ تم استخراج: {burntLat}, {burntLng}
                         </p>
                       )}
@@ -811,7 +810,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
                     <button
                       type="submit"
-                      className="w-full py-2.5 bg-red-600 hover:bg-red-500 text-white font-bold rounded-xl transition"
+                      className="w-full py-2.5 bg-red-600 hover:bg-red-700 text-white font-bold rounded-xl shadow-md transition"
                     >
                       تثبيت منطقة الحرائق
                     </button>
@@ -823,13 +822,13 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             {/* TAB 3: QUICK GOOGLE MAPS ADD */}
             {activeTab === 'quick_add' && (
               <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-4">
-                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-4 sm:p-6 space-y-4">
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-4 sm:p-6 space-y-4">
                   <div>
-                    <h3 className="font-bold text-white text-sm sm:text-base flex items-center gap-2">
-                      <LinkIcon className="w-5 h-5 text-emerald-400" />
+                    <h3 className="font-bold text-slate-900 text-sm sm:text-base flex items-center gap-2">
+                      <LinkIcon className="w-5 h-5 text-emerald-700" />
                       <span>إضافة مركز بالرابط المباشر من Google Maps</span>
                     </h3>
-                    <p className="text-xs text-slate-400 mt-1">
+                    <p className="text-xs text-slate-600 mt-1">
                       الصق رابط المركز (`maps.app.goo.gl/...`) لاستخراج الإحداثيات والاسم والبلدية تلقائياً
                     </p>
                   </div>
@@ -841,28 +840,28 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       value={googleInput}
                       onChange={(e) => setGoogleInput(e.target.value)}
                       placeholder="https://maps.app.goo.gl/..."
-                      className="flex-1 bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white font-mono text-xs focus:outline-none focus:border-emerald-500"
+                      className="flex-1 bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-emerald-600"
                     />
                     <button
                       type="button"
                       onClick={handleParseGoogleLink}
                       disabled={parsingLoading || !googleInput.trim()}
-                      className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 transition"
+                      className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition"
                     >
                       {parsingLoading ? <Loader2 className="w-4 h-4 animate-spin" /> : <span>استخراج الموقع</span>}
                     </button>
                   </div>
 
-                  {parseError && <p className="text-xs text-red-400">{parseError}</p>}
-                  {quickSuccessMsg && <p className="text-xs text-emerald-400 font-bold">{quickSuccessMsg}</p>}
+                  {parseError && <p className="text-xs text-red-600">{parseError}</p>}
+                  {quickSuccessMsg && <p className="text-xs text-emerald-700 font-bold">{quickSuccessMsg}</p>}
 
                   {parsedLat && parsedLng && (
-                    <form onSubmit={handleAddQuickPoint} className="pt-4 border-t border-slate-800 space-y-4 text-xs">
+                    <form onSubmit={handleAddQuickPoint} className="pt-4 border-t border-slate-200 space-y-4 text-xs">
                       {/* Photos */}
-                      <div className="p-3 bg-slate-900 border border-slate-800 rounded-xl space-y-2">
+                      <div className="p-3 bg-white border border-slate-200 rounded-xl space-y-2">
                         <div className="flex items-center justify-between">
-                          <label className="text-slate-300 font-semibold flex items-center gap-1.5">
-                            <ImageIcon className="w-4 h-4 text-emerald-400" />
+                          <label className="text-slate-800 font-semibold flex items-center gap-1.5">
+                            <ImageIcon className="w-4 h-4 text-emerald-700" />
                             <span>صور المركز ({quickPhotos.length}/3):</span>
                           </label>
 
@@ -879,9 +878,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                               type="button"
                               onClick={() => quickFileInputRef.current?.click()}
                               disabled={quickImageLoading || quickPhotos.length >= 3}
-                              className="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 rounded-lg text-xs font-semibold flex items-center gap-1 transition"
+                              className="px-2.5 py-1 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1 transition"
                             >
-                              {quickImageLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Camera className="w-3 h-3 text-emerald-400" />}
+                              {quickImageLoading ? <Loader2 className="w-3 h-3 animate-spin" /> : <Camera className="w-3 h-3 text-emerald-700" />}
                               <span>رفع صورة</span>
                             </button>
                           </div>
@@ -890,7 +889,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         {quickPhotos.length > 0 && (
                           <div className="flex items-center gap-2 overflow-x-auto pb-1">
                             {quickPhotos.map((p, idx) => (
-                              <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden border border-slate-700 shrink-0">
+                              <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden border border-slate-200 shrink-0 shadow-xs">
                                 <img src={p} alt={`Photo ${idx}`} className="w-full h-full object-cover" />
                                 <button
                                   type="button"
@@ -907,29 +906,29 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
-                          <label className="block text-slate-300 font-semibold mb-1">اسم المركز *</label>
+                          <label className="block text-slate-700 font-semibold mb-1">اسم المركز *</label>
                           <input
                             type="text"
                             required
                             value={quickTitle}
                             onChange={(e) => setQuickTitle(e.target.value)}
-                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                            className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
                           />
                         </div>
                         <div>
-                          <label className="block text-slate-300 font-semibold mb-1">المشرف / الجمعية</label>
+                          <label className="block text-slate-700 font-semibold mb-1">المشرف / الجمعية</label>
                           <input
                             type="text"
                             value={quickOrganizer}
                             onChange={(e) => setQuickOrganizer(e.target.value)}
-                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                            className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
                           />
                         </div>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                         <div>
-                          <label className="block text-slate-300 font-semibold mb-1">الهاتف الرئيسي *</label>
+                          <label className="block text-slate-700 font-semibold mb-1">الهاتف الرئيسي *</label>
                           <input
                             type="tel"
                             required
@@ -937,16 +936,16 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             value={quickPhone}
                             onChange={(e) => setQuickPhone(e.target.value)}
                             placeholder="0550123456"
-                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white font-mono"
+                            className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 font-mono"
                           />
                         </div>
 
                         <div>
-                          <label className="block text-slate-300 font-semibold mb-1">الولاية *</label>
+                          <label className="block text-slate-700 font-semibold mb-1">الولاية *</label>
                           <select
                             value={quickWilaya}
                             onChange={(e) => setQuickWilaya(Number(e.target.value))}
-                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                            className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
                           >
                             {WILAYAS.map((w) => (
                               <option key={w.code} value={w.code}>
@@ -957,30 +956,30 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         </div>
 
                         <div>
-                          <label className="block text-slate-300 font-semibold mb-1">البلدية *</label>
+                          <label className="block text-slate-700 font-semibold mb-1">البلدية *</label>
                           <input
                             type="text"
                             required
                             value={quickCommune}
                             onChange={(e) => setQuickCommune(e.target.value)}
-                            className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                            className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
                           />
                         </div>
                       </div>
 
                       <div>
-                        <label className="block text-slate-300 font-semibold mb-1">العنوان التفصيلي</label>
+                        <label className="block text-slate-700 font-semibold mb-1">العنوان التفصيلي</label>
                         <input
                           type="text"
                           value={quickAddress}
                           onChange={(e) => setQuickAddress(e.target.value)}
-                          className="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-white"
+                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
                         />
                       </div>
 
                       <button
                         type="submit"
-                        className="w-full py-3 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl shadow-lg transition"
+                        className="w-full py-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl shadow-md transition"
                       >
                         حفظ ونشر وتأكيد المركز فوراً
                       </button>
@@ -994,20 +993,20 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             {activeTab === 'settings' && (
               <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-6 max-w-2xl text-xs sm:text-sm">
                 {/* Change Passcode */}
-                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4">
-                  <h4 className="font-bold text-white text-sm">تغيير كلمة مرور المشرف</h4>
-                  {passChangeMsg && <p className="text-xs text-emerald-400 font-bold">{passChangeMsg}</p>}
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
+                  <h4 className="font-bold text-slate-900 text-sm">تغيير كلمة مرور المشرف</h4>
+                  {passChangeMsg && <p className="text-xs text-emerald-700 font-bold">{passChangeMsg}</p>}
                   <form onSubmit={handleChangePass} className="space-y-3">
                     <input
                       type="password"
                       value={newPass}
                       onChange={(e) => setNewPass(e.target.value)}
                       placeholder="كلمة المرور الجديدة"
-                      className="w-full bg-slate-900 border border-slate-700 rounded-xl px-4 py-2.5 text-white"
+                      className="w-full bg-white border border-slate-300 rounded-xl px-4 py-2.5 text-slate-900"
                     />
                     <button
                       type="submit"
-                      className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white font-bold rounded-xl transition"
+                      className="px-5 py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl shadow-sm transition"
                     >
                       حفظ كلمة المرور الجديدة
                     </button>
@@ -1015,9 +1014,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 </div>
 
                 {/* Backups */}
-                <div className="bg-slate-950 border border-slate-800 rounded-2xl p-5 space-y-4">
-                  <h4 className="font-bold text-white text-sm">النسخ الاحتياطي واستعادة البيانات</h4>
-                  <p className="text-slate-400 text-xs">
+                <div className="bg-slate-50 border border-slate-200 rounded-2xl p-5 space-y-4">
+                  <h4 className="font-bold text-slate-900 text-sm">النسخ الاحتياطي واستعادة البيانات</h4>
+                  <p className="text-slate-600 text-xs">
                     تصدير قاعدة بيانات نقاط التبرع والحرائق كملف JSON آمن للنسخ الاحتياطي.
                   </p>
                   <div className="flex gap-2">
@@ -1032,9 +1031,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         a.download = `win-ntbara3-backup-${new Date().toISOString().slice(0, 10)}.json`;
                         a.click();
                       }}
-                      className="px-4 py-2.5 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl border border-slate-700 flex items-center gap-2 transition"
+                      className="px-4 py-2.5 bg-white hover:bg-slate-100 text-slate-800 font-bold rounded-xl border border-slate-300 flex items-center gap-2 shadow-xs transition"
                     >
-                      <Download className="w-4 h-4 text-emerald-400" />
+                      <Download className="w-4 h-4 text-emerald-700" />
                       <span>تحميل النسخة الاحتياطية</span>
                     </button>
 
@@ -1046,7 +1045,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           onReloadPoints();
                         }
                       }}
-                      className="px-4 py-2.5 bg-red-950/50 hover:bg-red-900 text-red-400 font-bold rounded-xl border border-red-900 transition"
+                      className="px-4 py-2.5 bg-red-50 hover:bg-red-100 text-red-700 font-bold rounded-xl border border-red-200 transition"
                     >
                       استعادة البيانات الافتراضية
                     </button>

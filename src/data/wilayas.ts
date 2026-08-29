@@ -58,7 +58,18 @@ export const WILAYAS: Wilaya[] = [
   { code: 55, nameAr: 'تقرت', nameFr: 'Touggourt', lat: 33.1053, lng: 6.0581, zoom: 10 },
   { code: 56, nameAr: 'جانت', nameFr: 'Djanet', lat: 24.5550, lng: 9.4850, zoom: 9 },
   { code: 57, nameAr: 'المغير', nameFr: 'El M\'Ghair', lat: 33.9500, lng: 5.9167, zoom: 10 },
-  { code: 58, nameAr: 'المنيعة', nameFr: 'El Meniaa', lat: 30.5833, lng: 2.8833, zoom: 9 }
+  { code: 58, nameAr: 'المنيعة', nameFr: 'El Meniaa', lat: 30.5833, lng: 2.8833, zoom: 9 },
+  { code: 59, nameAr: 'آفلو', nameFr: 'Aflou', lat: 34.1167, lng: 2.1000, zoom: 10 },
+  { code: 60, nameAr: 'بريكة', nameFr: 'Barika', lat: 35.3889, lng: 5.3658, zoom: 10 },
+  { code: 61, nameAr: 'القنطرة', nameFr: 'El Kantara', lat: 35.2247, lng: 5.7025, zoom: 10 },
+  { code: 62, nameAr: 'بئر العاتر', nameFr: 'Bir El Ater', lat: 34.7478, lng: 8.0589, zoom: 10 },
+  { code: 63, nameAr: 'العريشة', nameFr: 'El Aricha', lat: 34.2253, lng: -1.3828, zoom: 10 },
+  { code: 64, nameAr: 'قصر الشلالة', nameFr: 'Ksar Chellala', lat: 35.2153, lng: 2.3192, zoom: 10 },
+  { code: 65, nameAr: 'عين وسارة', nameFr: 'Aïn Oussara', lat: 35.4508, lng: 2.9056, zoom: 10 },
+  { code: 66, nameAr: 'مسعد', nameFr: 'Messaad', lat: 34.1611, lng: 3.5033, zoom: 10 },
+  { code: 67, nameAr: 'قصر البخاري', nameFr: 'Ksar El Boukhari', lat: 35.8864, lng: 2.7533, zoom: 10 },
+  { code: 68, nameAr: 'بوسعادة', nameFr: 'Bou Saâda', lat: 35.2833, lng: 4.1833, zoom: 10 },
+  { code: 69, nameAr: 'الأبيض سيدي الشيخ', nameFr: 'El Abiodh Sidi Cheikh', lat: 32.8944, lng: 0.5489, zoom: 10 }
 ];
 
 export const AID_CATEGORIES_META: Record<string, { labelAr: string; labelFr: string; type: string }> = {
