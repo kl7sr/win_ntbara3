@@ -1,7 +1,9 @@
-import { CharityPoint, PointType, PointStatus } from '../types';
+import { CharityPoint, PointType, PointStatus, AidCategory } from '../types';
 import { WILAYAS } from '../data/wilayas';
 
 const GOOGLE_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbz1VnmYpQUD_iJ-cLKF9ZQfgulWL6BWF8ynoiIltvrChpuOOwc1DW_v9SCF-m86GG20zQ/exec';
+
+const DEFAULT_CATEGORIES: AidCategory[] = ['food_water', 'clothes', 'medical', 'blankets'];
 
 /**
  * Fetch all points live from Google Sheets
@@ -22,7 +24,7 @@ export async function fetchPointsFromGoogleSheet(): Promise<CharityPoint[]> {
     const rows = await response.json();
     if (!Array.isArray(rows)) return [];
 
-    const mappedPoints: CharityPoint[] = rows.map((row: any, index: number) => {
+    const mappedPoints: CharityPoint[] = rows.map((row: any, index: number): CharityPoint => {
       const wilayaCode = Number(row.wilayaCode) || 16;
       const wilaya = WILAYAS.find(w => w.code === wilayaCode) || WILAYAS[15];
       
@@ -45,7 +47,7 @@ export async function fetchPointsFromGoogleSheet(): Promise<CharityPoint[]> {
         address: row.address || `${row.commune || wilaya.nameAr}، ولاية ${wilaya.nameAr}`,
         lat: Number(row.lat) || wilaya.lat,
         lng: Number(row.lng) || wilaya.lng,
-        aidCategories: ['food_water', 'clothes', 'medical', 'blankets'],
+        aidCategories: DEFAULT_CATEGORIES,
         status: status,
         pointType: pointType,
         urgentDescription: row.needs || row.urgentDescription || undefined,
@@ -53,7 +55,7 @@ export async function fetchPointsFromGoogleSheet(): Promise<CharityPoint[]> {
         createdBy: 'user',
         createdAt: new Date().toISOString(),
       };
-    }).filter((p: CharityPoint) => p.title && p.lat && p.lng);
+    }).filter((p: CharityPoint) => Boolean(p.title && p.lat && p.lng));
 
     return mappedPoints;
   } catch (err) {
@@ -81,7 +83,6 @@ export async function syncPointToGoogleSheet(point: Omit<CharityPoint, 'id' | 'c
       status: point.status || 'active',
     };
 
-    // Use mode 'no-cors' if standard post has CORS header issues from Google Script
     await fetch(GOOGLE_SCRIPT_URL, {
       method: 'POST',
       mode: 'no-cors',
@@ -91,7 +92,7 @@ export async function syncPointToGoogleSheet(point: Omit<CharityPoint, 'id' | 'c
       body: JSON.stringify(payload),
     });
 
-    console.log('Successfully dispatched point to Google Sheet sync');
+    console.log('Successfully synced point to Google Sheets');
     return true;
   } catch (err) {
     console.error('Failed to sync point to Google Sheet:', err);
