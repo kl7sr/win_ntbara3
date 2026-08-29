@@ -1,50 +1,70 @@
 import { CharityPoint } from '../types';
 import { SEED_CHARITY_POINTS } from '../data/seedPoints';
 
-const STORAGE_KEY = 'win_ntbara3_points_live_v6';
-const LEGACY_KEYS = [
-  'win_ntbara3_points_live_v4',
-  'win_ntbara3_master_v3',
-  'win_ntbara3_points_master',
-  'win_ntbara3_points_v2',
-  'win_ntbara3_points_v1'
-];
+const STORAGE_KEY = 'win_ntbara3_points_unified_master';
 const ADMIN_PASS_KEY = 'win_ntbara3_admin_pass';
 const DEFAULT_ADMIN_PASS = (import.meta as any).env?.VITE_ADMIN_PASSWORD || 'admin123';
 
+/**
+ * Recovers all custom user-added points from ANY local storage key ever used
+ */
 export function getStoredPoints(): CharityPoint[] {
   try {
-    const saved = localStorage.getItem(STORAGE_KEY);
-    if (saved) {
-      const parsed = JSON.parse(saved);
-      if (Array.isArray(parsed) && parsed.length > 0) {
-        return parsed;
-      }
-    }
+    const customPointsMap = new Map<string, CharityPoint>();
 
-    // Recover custom points from any legacy storage
-    let recovered: CharityPoint[] = [];
-    for (const legKey of LEGACY_KEYS) {
-      const legacyRaw = localStorage.getItem(legKey);
-      if (legacyRaw) {
+    // 1. Scan ALL localStorage keys to recover every single custom point ever submitted on this device
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('win_ntbara3')) {
         try {
-          const parsedLegacy = JSON.parse(legacyRaw);
-          if (Array.isArray(parsedLegacy)) {
-            const userOnly = parsedLegacy.filter((p: CharityPoint) => 
-              p.id && (p.createdBy === 'user' || p.id.startsWith('point-'))
-            );
-            recovered = [...recovered, ...userOnly];
+          const raw = localStorage.getItem(key);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              parsed.forEach((p: CharityPoint) => {
+                if (p && p.id && (p.createdBy === 'user' || p.id.startsWith('point-'))) {
+                  customPointsMap.set(p.id, p);
+                }
+              });
+            }
           }
         } catch (e) {
-          console.warn('Error reading legacy storage:', e);
+          // Skip invalid JSON
         }
       }
     }
 
-    // Merge recovered custom submissions with the complete updated seed points (including fire zones)
-    const merged = [...recovered, ...SEED_CHARITY_POINTS];
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
-    return merged;
+    const recoveredCustomPoints = Array.from(customPointsMap.values());
+
+    // 2. Read current stored points if any
+    const saved = localStorage.getItem(STORAGE_KEY);
+    let currentMaster: CharityPoint[] = [];
+    if (saved) {
+      try {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          currentMaster = parsed;
+        }
+      } catch (e) {
+        console.warn('Error reading master storage:', e);
+      }
+    }
+
+    // 3. Merge: recovered custom points + latest official seed points (without duplicates)
+    const pointsMap = new Map<string, CharityPoint>();
+
+    // First add seed points (including all new fire zones)
+    SEED_CHARITY_POINTS.forEach((p) => pointsMap.set(p.id, p));
+
+    // Then add current master points
+    currentMaster.forEach((p) => pointsMap.set(p.id, p));
+
+    // Finally add any recovered custom points so user points are never lost
+    recoveredCustomPoints.forEach((p) => pointsMap.set(p.id, p));
+
+    const finalPoints = Array.from(pointsMap.values());
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(finalPoints));
+    return finalPoints;
   } catch (err) {
     console.error('Failed to load points from localStorage', err);
     return SEED_CHARITY_POINTS;
@@ -76,7 +96,7 @@ export function addPoint(point: Omit<CharityPoint, 'id' | 'createdAt'>): Charity
   };
 
   const current = getStoredPoints();
-  const updated = [newPoint, ...current];
+  const updated = [newPoint, ...current.filter(p => p.id !== newPoint.id)];
   savePoints(updated);
   return newPoint;
 }
