@@ -81,18 +81,22 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
     setTimeout(() => setCopiedPhone(false), 2000);
   };
 
+  const websiteShareUrl = typeof window !== 'undefined'
+    ? `${window.location.origin}${window.location.pathname}?point=${encodeURIComponent(point.id)}`
+    : `https://win-ntbara3.pages.dev/?point=${encodeURIComponent(point.id)}`;
+
   const handleShareWhatsApp = () => {
     const statusText = point.verified ? 'موقع تبرع مؤكد' : 'موقع تبرع (يرجى الاتصال للتأكد قبل التنقل)';
     const text = `*${encodeURIComponent(point.title)}* (${statusText}):%0A` +
       `المشرف: ${encodeURIComponent(point.organizer)}%0A` +
       `الهاتف: ${point.phone}%0A` +
       `الولاية: ${encodeURIComponent(point.wilayaNameAr)} - ${encodeURIComponent(point.commune)}%0A` +
-      `الموقع على خرائط Google: ${encodeURIComponent(googleMapsUrl)}`;
+      `رابط الموقع على منصة وين نتبرع: ${encodeURIComponent(websiteShareUrl)}`;
     window.open(`https://api.whatsapp.com/send?text=${text}`, '_blank');
   };
 
   const handleCopyShareLink = () => {
-    navigator.clipboard.writeText(googleMapsUrl);
+    navigator.clipboard.writeText(websiteShareUrl);
     setCopiedLink(true);
     setTimeout(() => setCopiedLink(false), 2000);
   };

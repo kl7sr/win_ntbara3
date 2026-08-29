@@ -63,6 +63,35 @@ export function App() {
     loadPoints();
   }, [loadPoints]);
 
+  // Handle URL deep linking (e.g. win-ntbara3.pages.dev/?point=cra-national-hq)
+  useEffect(() => {
+    if (points.length === 0) return;
+    try {
+      const params = new URLSearchParams(window.location.search);
+      const pointIdFromUrl = params.get('point') || (window.location.hash.startsWith('#point-') ? window.location.hash.replace('#point-', '') : null);
+      if (pointIdFromUrl) {
+        const target = points.find((p) => p.id === pointIdFromUrl);
+        if (target) {
+          setSelectedPoint(target);
+        }
+      }
+    } catch {}
+  }, [points]);
+
+  // Sync selected point with browser URL query
+  useEffect(() => {
+    try {
+      if (selectedPoint) {
+        const newUrl = `${window.location.pathname}?point=${encodeURIComponent(selectedPoint.id)}`;
+        window.history.replaceState(null, '', newUrl);
+      } else {
+        if (window.location.search.includes('point=')) {
+          window.history.replaceState(null, '', window.location.pathname);
+        }
+      }
+    } catch {}
+  }, [selectedPoint]);
+
   const showToast = (msg: string) => {
     setToastMessage(msg);
     setTimeout(() => setToastMessage(null), 4000);
