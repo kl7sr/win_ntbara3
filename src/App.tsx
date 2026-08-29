@@ -9,12 +9,17 @@ import { AdminPanel } from './components/AdminPanel';
 import { CharityPoint, UserLocation } from './types';
 import { 
   getStoredPoints, 
-  addPoint as saveNewPoint, 
-  updatePoint as saveUpdatedPoint, 
-  deletePoint as removePoint 
+  addPoint as saveNewPointLocal, 
+  updatePoint as saveUpdatedPointLocal, 
+  deletePoint as removePointLocal 
 } from './services/storage';
-import { fetchPointsFromGoogleSheet, syncPointToGoogleSheet } from './services/googleSheetsService';
-import { CheckCircle2, Plus, Compass, Map as MapIcon, ShieldCheck, RefreshCw } from 'lucide-react';
+import { 
+  fetchLivePointsFromD1, 
+  createLivePointInD1, 
+  updateLivePointInD1, 
+  deleteLivePointFromD1 
+} from './services/apiService';
+import { CheckCircle2, Plus, Compass, Map as MapIcon, ShieldCheck } from 'lucide-react';
 
 export function App() {
   const [points, setPoints] = useState<CharityPoint[]>([]);
@@ -33,23 +38,17 @@ export function App() {
   // Notification Toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Load points safely from local storage AND live Google Sheets cloud
+  // Load points directly from Cloudflare D1 Database (with instant local fallback)
   const loadPoints = useCallback(async () => {
     try {
-      // 1. Initial instant load from local master
-      const localLoaded = getStoredPoints();
-      setPoints([...localLoaded]);
+      // 1. Instant local render so there is 0 delay
+      const initial = getStoredPoints();
+      setPoints([...initial]);
 
-      // 2. Fetch live data from Google Sheets in background
-      const sheetPoints = await fetchPointsFromGoogleSheet();
-      if (sheetPoints.length > 0) {
-        // Merge without duplicates
-        const map = new Map<string, CharityPoint>();
-        localLoaded.forEach(p => map.set(p.id, p));
-        sheetPoints.forEach(p => map.set(p.id, p));
-
-        const merged = Array.from(map.values());
-        setPoints(merged);
+      // 2. Fetch fresh live points from Cloudflare D1 Database
+      const livePoints = await fetchLivePointsFromD1();
+      if (livePoints && livePoints.length > 0) {
+        setPoints([...livePoints]);
       }
     } catch (e) {
       console.error('Error loading points:', e);
@@ -95,11 +94,11 @@ export function App() {
     }
   };
 
-  // Handlers for points CRUD with Google Sheets cloud synchronization
+  // Handlers for points CRUD with Cloudflare D1 real-time sync
   const handleAddPoint = async (newPointData: Omit<CharityPoint, 'id' | 'createdAt'>) => {
     try {
-      // 1. Save locally and update UI instantly
-      const created = saveNewPoint(newPointData);
+      // 1. Instant UI update & local save
+      const created = saveNewPointLocal(newPointData);
       setPoints((prev) => [created, ...prev.filter(p => p.id !== created.id)]);
       
       // Clear filters so new point is unconditionally visible on map
@@ -108,36 +107,42 @@ export function App() {
       
       // Focus and select the new point immediately
       setSelectedPoint(created);
-      showToast('تمت إضافة النقطة وحفظها في Google Sheets بنجاح');
+      showToast('تم حفظ النقطة في قاعدة البيانات ونشرها بنجاح');
 
-      // 2. Sync to live Google Sheet in background
-      syncPointToGoogleSheet(newPointData);
+      // 2. Persist to Cloudflare D1 Database in real-time
+      await createLivePointInD1(newPointData);
     } catch (e) {
       console.error('Error adding point:', e);
     }
   };
 
-  const handleUpdatePoint = (id: string, updates: Partial<CharityPoint>) => {
+  const handleUpdatePoint = async (id: string, updates: Partial<CharityPoint>) => {
     try {
-      saveUpdatedPoint(id, updates);
+      saveUpdatedPointLocal(id, updates);
       setPoints((prev) => prev.map(p => p.id === id ? { ...p, ...updates } : p));
       if (selectedPoint?.id === id) {
         setSelectedPoint((prev) => (prev ? { ...prev, ...updates } : null));
       }
       showToast('تم تحديث بيانات النقطة');
+
+      // Sync update to Cloudflare D1
+      await updateLivePointInD1(id, updates);
     } catch (e) {
       console.error(e);
     }
   };
 
-  const handleDeletePoint = (id: string) => {
+  const handleDeletePoint = async (id: string) => {
     try {
-      removePoint(id);
+      removePointLocal(id);
       setPoints((prev) => prev.filter(p => p.id !== id));
       if (selectedPoint?.id === id) {
         setSelectedPoint(null);
       }
       showToast('تم حذف النقطة');
+
+      // Delete from Cloudflare D1
+      await deleteLivePointFromD1(id);
     } catch (e) {
       console.error(e);
     }
