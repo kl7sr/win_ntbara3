@@ -183,45 +183,39 @@ export function App() {
         />
       </main>
 
-      {/* 4. Guaranteed Fixed Bottom Bar */}
-      <footer className="fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 py-1.5 shadow-2xl safe-bottom-padding flex items-center justify-around">
-        {/* Map tab */}
+      {/* 4. Bottom Navigation Bar (Centered Add CTA) */}
+      <footer className="fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-6 py-2 shadow-2xl safe-bottom-padding flex items-center justify-between max-w-lg mx-auto sm:rounded-t-2xl">
+        {/* 1. Map Tab */}
         <button
           onClick={() => {
             setIsNearestDrawerOpen(false);
             setSelectedPoint(null);
           }}
-          className="flex flex-col items-center justify-center gap-1 py-1 px-3 text-slate-700 hover:text-emerald-700 active:scale-90 transition"
+          className="flex flex-col items-center justify-center gap-1 py-1 px-4 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
         >
           <MapIcon className="w-5 h-5 text-emerald-700" />
           <span className="text-[11px] font-bold">الخريطة</span>
         </button>
 
-        {/* Nearest tab */}
+        {/* 2. Centered Prominent Add Point Button (Plus on Top of Text) */}
+        <div className="flex-1 flex justify-center -mt-6">
+          <button
+            onClick={() => setIsAddModalOpen(true)}
+            className="flex flex-col items-center justify-center w-15 h-15 rounded-full bg-gradient-to-tr from-emerald-800 to-emerald-600 text-white shadow-xl hover:shadow-2xl border-4 border-white active:scale-95 transition transform"
+            title="إضافة نقطة تبرع جديدة"
+          >
+            <Plus className="w-5 h-5 stroke-[2.8]" />
+            <span className="text-[10px] font-extrabold -mt-0.5 leading-tight">أضف نقطة</span>
+          </button>
+        </div>
+
+        {/* 3. Nearest Tab */}
         <button
           onClick={() => setIsNearestDrawerOpen(true)}
-          className="flex flex-col items-center justify-center gap-1 py-1 px-3 text-slate-700 hover:text-emerald-700 active:scale-90 transition"
+          className="flex flex-col items-center justify-center gap-1 py-1 px-4 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
         >
           <Compass className="w-5 h-5 text-slate-600" />
-          <span className="text-[11px] font-medium">الأقرب لي</span>
-        </button>
-
-        {/* Big Add Point CTA button */}
-        <button
-          onClick={() => setIsAddModalOpen(true)}
-          className="flex items-center gap-1.5 bg-emerald-700 hover:bg-emerald-800 text-white py-2 px-4 rounded-2xl shadow-lg font-bold text-xs active:scale-95 transition -mt-5 border-2 border-white"
-        >
-          <Plus className="w-4 h-4" />
-          <span>أضف نقطة</span>
-        </button>
-
-        {/* Admin tab */}
-        <button
-          onClick={() => setIsAdminOpen(true)}
-          className="flex flex-col items-center justify-center gap-1 py-1 px-3 text-slate-700 hover:text-emerald-700 active:scale-90 transition"
-        >
-          <ShieldCheck className="w-5 h-5 text-slate-600" />
-          <span className="text-[11px] font-medium">الإدارة</span>
+          <span className="text-[11px] font-bold">الأقرب لي</span>
         </button>
       </footer>
 
