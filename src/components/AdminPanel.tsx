@@ -54,6 +54,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   onReloadPoints,
   onSelectPointOnMap,
 }) => {
+  if (!isOpen) return null;
+
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [passInput, setPassInput] = useState('');
   const [authError, setAuthError] = useState('');

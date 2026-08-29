@@ -10,7 +10,8 @@ import {
   CheckCircle2,
   Camera,
   Image as ImageIcon,
-  Trash2
+  Trash2,
+  Link as LinkIcon
 } from 'lucide-react';
 import { CharityPoint, AidCategory, PointStatus } from '../types';
 import { WILAYAS, AID_CATEGORIES_META } from '../data/wilayas';
@@ -42,6 +43,11 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
   const [status, setStatus] = useState<PointStatus>('active');
   const [urgentDescription, setUrgentDescription] = useState('');
   const [notes, setNotes] = useState('');
+
+  // Quick Google Link Auto-Fill
+  const [googleLinkInput, setGoogleLinkInput] = useState('');
+  const [linkLoading, setLinkLoading] = useState(false);
+  const [linkSuccess, setLinkSuccess] = useState(false);
 
   // Images state
   const [attachedImages, setAttachedImages] = useState<string[]>([]);
@@ -239,6 +245,50 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
     }
   };
 
+  const handleExtractFromGoogleLink = async () => {
+    if (!googleLinkInput.trim()) return;
+    setLinkLoading(true);
+    setErrorMessage('');
+
+    try {
+      const res = await fetch(`/api/resolve-google-maps?url=${encodeURIComponent(googleLinkInput.trim())}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.lat && data.lng) {
+          if (!isWithinAlgeriaBounds(data.lat, data.lng)) {
+            setErrorMessage('الموقع يقع خارج حدود الجزائر.');
+            setLinkLoading(false);
+            return;
+          }
+
+          setLat(Number(data.lat.toFixed(6)));
+          setLng(Number(data.lng.toFixed(6)));
+          if (data.title) setTitle(data.title);
+          if (data.phone) setPhone(data.phone);
+          if (data.address) setAddress(data.address);
+          if (data.photos && data.photos.length > 0) setAttachedImages(data.photos);
+
+          const closest = WILAYAS.reduce((prev, curr) => {
+            const distPrev = Math.hypot(prev.lat - data.lat, prev.lng - data.lng);
+            const distCurr = Math.hypot(curr.lat - data.lat, curr.lng - data.lng);
+            return distCurr < distPrev ? curr : prev;
+          });
+          if (closest) {
+            setSelectedWilayaCode(closest.code);
+            setCommune(closest.nameAr);
+          }
+
+          setLinkSuccess(true);
+          setTimeout(() => setLinkSuccess(false), 4000);
+        }
+      }
+    } catch (err) {
+      console.warn('Link extract error:', err);
+    } finally {
+      setLinkLoading(false);
+    }
+  };
+
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -296,6 +346,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
     setAltPhone('');
     setCommune('');
     setAddress('');
+    setGoogleLinkInput('');
     setAttachedImages([]);
     setErrorMessage('');
 
@@ -339,6 +390,40 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
               <span>{errorMessage}</span>
             </div>
           )}
+
+          {/* Quick Auto-Fill from Google Maps Link */}
+          <div className="bg-emerald-50/90 border border-emerald-300 rounded-2xl p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-emerald-950 font-bold text-xs flex items-center gap-1.5">
+                <LinkIcon className="w-4 h-4 text-emerald-700" />
+                <span>عندك رابط Google Maps؟ الصقه هنا لملء البيانات تلقائياً</span>
+              </label>
+              {linkSuccess && (
+                <span className="text-[11px] text-emerald-800 font-bold flex items-center gap-1">
+                  <CheckCircle2 className="w-3.5 h-3.5 text-emerald-600" />
+                  <span>تم استخراج البيانات!</span>
+                </span>
+              )}
+            </div>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                dir="ltr"
+                value={googleLinkInput}
+                onChange={(e) => setGoogleLinkInput(e.target.value)}
+                placeholder="https://maps.app.goo.gl/... أو رابط خرائط قوقل"
+                className="flex-1 bg-white border border-emerald-300 rounded-xl px-3 py-2 text-xs font-mono text-slate-900 focus:ring-2 focus:ring-emerald-600"
+              />
+              <button
+                type="button"
+                disabled={linkLoading || !googleLinkInput.trim()}
+                onClick={handleExtractFromGoogleLink}
+                className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-bold rounded-xl text-xs flex items-center gap-1 shrink-0 transition active:scale-95"
+              >
+                {linkLoading ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <span>ملء تلقائي</span>}
+              </button>
+            </div>
+          </div>
 
           {/* GPS Location Box */}
           <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2.5">

@@ -1,5 +1,5 @@
 // Cloudflare Pages Function: /api/resolve-google-maps
-// Deeply resolves shortened Google Maps links (maps.app.goo.gl), extracts place name, phone, address, and photos
+// Resolves Google Maps links (maps.app.goo.gl / google.com/maps), extracts clean place name, coords, phone, address, and photos
 
 export const onRequestGet: PagesFunction = async (context) => {
   const urlParam = new URL(context.request.url).searchParams.get('url');
@@ -17,13 +17,13 @@ export const onRequestGet: PagesFunction = async (context) => {
       targetUrl = 'https://' + targetUrl;
     }
 
-    // Follow redirect on Cloudflare server-side (Bypasses CORS restrictions)
+    // Follow redirect on server (Bypasses CORS restrictions)
     const response = await fetch(targetUrl, {
       method: 'GET',
       redirect: 'follow',
       headers: {
         'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
-        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
         'Accept-Language': 'fr-FR,fr;q=0.9,ar;q=0.8,en;q=0.7',
       },
     });
@@ -31,30 +31,27 @@ export const onRequestGet: PagesFunction = async (context) => {
     const finalUrl = response.url;
     let htmlText = await response.text();
 
-    // Decode unicode escape sequences in HTML text
-    htmlText = htmlText.replace(/\\u003d/g, '=').replace(/\\u0026/g, '&').replace(/\\u002F/g, '/');
-
-    // 1. Extract Coordinates
+    // 1. Extract Clean Coordinates
     let lat: number | null = null;
     let lng: number | null = null;
 
-    // Match @lat,lng
-    const atMatch = finalUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
-    if (atMatch) {
-      lat = parseFloat(atMatch[1]);
-      lng = parseFloat(atMatch[2]);
+    // Match !3dlat!4dlng (Most accurate Google Maps Place pin format)
+    const placeMatch = finalUrl.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
+    if (placeMatch) {
+      lat = parseFloat(placeMatch[1]);
+      lng = parseFloat(placeMatch[2]);
     }
 
-    // Match !3dlat!4dlng (Google Maps Place format)
+    // Match @lat,lng
     if (!lat || !lng) {
-      const placeMatch = finalUrl.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
-      if (placeMatch) {
-        lat = parseFloat(placeMatch[1]);
-        lng = parseFloat(placeMatch[2]);
+      const atMatch = finalUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
+      if (atMatch) {
+        lat = parseFloat(atMatch[1]);
+        lng = parseFloat(atMatch[2]);
       }
     }
 
-    // Match ?q=lat,lng or ll=lat,lng
+    // Match ?q=lat,lng
     if (!lat || !lng) {
       const qMatch = finalUrl.match(/[?&](?:q|ll)=(-?\d+\.\d+),(-?\d+\.\d+)/);
       if (qMatch) {
@@ -63,28 +60,25 @@ export const onRequestGet: PagesFunction = async (context) => {
       }
     }
 
-    // Match within HTML source if still not found
-    if (!lat || !lng) {
-      const htmlCoordMatch = htmlText.match(/\[null,null,(-?\d+\.\d+),(-?\d+\.\d+)\]/);
-      if (htmlCoordMatch) {
-        lat = parseFloat(htmlCoordMatch[1]);
-        lng = parseFloat(htmlCoordMatch[2]);
-      }
-    }
-
-    // 2. Extract Place Name / Title
+    // 2. Extract Clean Place Name (French & Arabic)
     let title: string = '';
 
-    // A. Priority: Extract from URL slug (Most reliable for Google Maps place URLs)
+    // Extract from URL slug with multi-pass decoding to remove '+' and '%XX'
     const placeSlugMatch = finalUrl.match(/\/maps\/place\/([^/@?]+)/);
     if (placeSlugMatch && placeSlugMatch[1]) {
-      const decodedSlug = decodeURIComponent(placeSlugMatch[1].replace(/\+/g, ' ')).trim();
-      if (decodedSlug && !decodedSlug.toLowerCase().includes('google maps') && !decodedSlug.includes('خرائط')) {
-        title = decodedSlug;
+      let rawSlug = placeSlugMatch[1].replace(/\+/g, ' ');
+      try {
+        rawSlug = decodeURIComponent(rawSlug);
+        rawSlug = decodeURIComponent(rawSlug); // Double decode for safety
+      } catch {}
+
+      const cleanSlug = rawSlug.trim();
+      if (cleanSlug && !cleanSlug.toLowerCase().includes('google maps') && !cleanSlug.includes('خرائط')) {
+        title = cleanSlug;
       }
     }
 
-    // B. If not found from slug, check og:title and <title>
+    // Fallback: og:title
     if (!title) {
       const ogTitleMatch = htmlText.match(/<meta\s+(?:property|name)="og:title"\s+content="([^"]+)"/i) 
         || htmlText.match(/<title>([^<]+)<\/title>/i);
@@ -101,9 +95,8 @@ export const onRequestGet: PagesFunction = async (context) => {
       }
     }
 
-    // 3. Extract Algerian Phone Number (05xx, 06xx, 07xx, 02xx, +213)
+    // 3. Extract Algerian Phone Number
     let phone: string = '';
-    // Look for Algerian phone format in HTML
     const phoneMatch = htmlText.match(/(?:tel:|\"|\s)(\+?213\s*[5672][0-9\s]{7,11}|0[5672][0-9\s]{8,12})(?:\"|\s|<)/);
     if (phoneMatch && phoneMatch[1]) {
       phone = phoneMatch[1].replace(/[\s\-\.]/g, '').trim();
@@ -117,39 +110,24 @@ export const onRequestGet: PagesFunction = async (context) => {
     const addressMetaMatch = htmlText.match(/<meta\s+(?:property|name)="og:description"\s+content="([^"]+)"/i);
     if (addressMetaMatch && addressMetaMatch[1] && !addressMetaMatch[1].toLowerCase().includes('find local businesses')) {
       const candidateAddr = addressMetaMatch[1].replace(/^·\s*/, '').trim();
-      if (candidateAddr.length > 5) {
+      if (candidateAddr.length > 3) {
         address = candidateAddr;
       }
     }
 
     // 5. Extract Photos
     const photos: string[] = [];
-
-    // OG Image
     const ogImageMatch = htmlText.match(/<meta\s+(?:property|name)="og:image"\s+content="([^"]+)"/i);
     if (ogImageMatch && !ogImageMatch[1].includes('maps_preview') && !ogImageMatch[1].includes('staticmap')) {
       photos.push(ogImageMatch[1]);
     }
 
-    // Find all googleusercontent photo URLs inside HTML
     const photoRegex = /https:\/\/lh[3-6]\.googleusercontent\.com\/p\/[a-zA-Z0-9_\-]+/g;
     const foundPhotos = htmlText.match(photoRegex) || [];
     for (const pUrl of foundPhotos) {
-      const cleanUrl = pUrl.split('=')[0] + '=w800-h600-k-no'; // High quality image parameter
+      const cleanUrl = pUrl.split('=')[0] + '=w800-h600-k-no';
       if (!photos.includes(cleanUrl) && photos.length < 3) {
         photos.push(cleanUrl);
-      }
-    }
-
-    // Fallback: ggpht photo matches
-    if (photos.length < 3) {
-      const ggphtRegex = /https:\/\/[a-z0-9]+\.ggpht\.com\/p\/[a-zA-Z0-9_\-]+/g;
-      const foundGgpht = htmlText.match(ggphtRegex) || [];
-      for (const gUrl of foundGgpht) {
-        const cleanUrl = gUrl.split('=')[0] + '=w800-h600-k-no';
-        if (!photos.includes(cleanUrl) && photos.length < 3) {
-          photos.push(cleanUrl);
-        }
       }
     }
 
