@@ -109,6 +109,60 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     onUpdatePoint(point.id, { verified: true });
   };
 
+  const handleOpenPhotoInNewTab = (imgUrl: string) => {
+    const newTab = window.open();
+    if (newTab) {
+      newTab.document.write(`
+        <!DOCTYPE html>
+        <html lang="ar">
+          <head>
+            <title>معاينة صورة نقطة التبرع</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+              body {
+                margin: 0;
+                background-color: #0f172a;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                min-height: 100vh;
+                font-family: sans-serif;
+              }
+              img {
+                max-width: 95vw;
+                max-height: 90vh;
+                object-fit: contain;
+                border-radius: 8px;
+                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+              }
+              .toolbar {
+                margin-top: 15px;
+              }
+              .btn {
+                background: #047857;
+                color: white;
+                border: none;
+                padding: 8px 16px;
+                border-radius: 6px;
+                cursor: pointer;
+                text-decoration: none;
+                font-size: 14px;
+              }
+            </style>
+          </head>
+          <body>
+            <img src="${imgUrl}" alt="Charity point photo" />
+            <div class="toolbar">
+              <a href="${imgUrl}" download="donation-point-photo.jpg" class="btn">تحميل الصورة الأصيلة</a>
+            </div>
+          </body>
+        </html>
+      `);
+      newTab.document.close();
+    }
+  };
+
   const handleParseGoogleLink = () => {
     if (!googleInput.trim()) {
       setParseStatus('error');
@@ -397,7 +451,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     <div>
                       <h4 className="font-bold text-amber-900 text-sm">قائمة النقاط المضافة التي تحتاج لتأكيدك ({unconfirmedPoints.length})</h4>
                       <p className="text-xs text-amber-800 mt-1 leading-relaxed">
-                        يمكنك معاينة الصور المرفقة والتأكد من بيانات الموقع، ثم الضغط على "تأكيد وتوثيق" لنشر النقطة والصور للعامة.
+                        يمكنك معاينة الصور المرفقة والتأكد من بيانات الموقع، أو فتح الصور في نافذة جديدة للتدقيق.
                       </p>
                     </div>
                   </div>
@@ -473,16 +527,30 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                               <div className="pt-2 border-t border-slate-100">
                                 <span className="text-xs text-slate-600 font-semibold block mb-1.5 flex items-center gap-1">
                                   <ImageIcon className="w-3.5 h-3.5 text-amber-700" />
-                                  <span>الصور المرفقة من المستخدم ({imgs.length}):</span>
+                                  <span>الصور المرفقة ({imgs.length}) - اضغط للمعاينة أو الفتح في تبويب جديد:</span>
                                 </span>
                                 <div className="flex items-center gap-2 overflow-x-auto pb-1">
                                   {imgs.map((imgSrc, i) => (
                                     <div
                                       key={i}
-                                      onClick={() => setSelectedPhotoPreview(imgSrc)}
-                                      className="relative w-16 h-16 rounded-lg overflow-hidden border border-slate-300 cursor-pointer hover:opacity-90 shadow-xs"
+                                      className="relative group w-20 h-20 rounded-xl overflow-hidden border border-slate-300 shrink-0 shadow-xs"
                                     >
-                                      <img src={imgSrc} alt="Inspection" className="w-full h-full object-cover" />
+                                      <img 
+                                        src={imgSrc} 
+                                        alt="Inspection" 
+                                        onClick={() => setSelectedPhotoPreview(imgSrc)}
+                                        className="w-full h-full object-cover cursor-pointer hover:scale-105 transition" 
+                                      />
+                                      <button
+                                        onClick={(e) => {
+                                          e.stopPropagation();
+                                          handleOpenPhotoInNewTab(imgSrc);
+                                        }}
+                                        className="absolute bottom-1 right-1 bg-black/75 hover:bg-black text-white p-1 rounded-md text-[10px] flex items-center gap-0.5 shadow transition"
+                                        title="فتح في تبويب جديد"
+                                      >
+                                        <ExternalLink className="w-3 h-3" />
+                                      </button>
                                     </div>
                                   ))}
                                 </div>
@@ -863,19 +931,31 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     {/* Fullscreen Photo Lightbox Modal for Admin Inspection */}
     {selectedPhotoPreview && (
       <div 
-        className="fixed inset-0 z-60 bg-black/90 backdrop-blur-sm flex items-center justify-center p-4"
+        className="fixed inset-0 z-60 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center p-4"
         onClick={() => setSelectedPhotoPreview(null)}
       >
-        <button
-          onClick={() => setSelectedPhotoPreview(null)}
-          className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/40 text-white rounded-full transition"
-        >
-          <X className="w-6 h-6" />
-        </button>
+        <div className="absolute top-4 right-4 flex items-center gap-2" onClick={(e) => e.stopPropagation()}>
+          <button
+            onClick={() => handleOpenPhotoInNewTab(selectedPhotoPreview)}
+            className="flex items-center gap-1.5 px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-semibold rounded-xl transition shadow"
+          >
+            <ExternalLink className="w-4 h-4" />
+            <span>فتح في نافذة جديدة</span>
+          </button>
+
+          <button
+            onClick={() => setSelectedPhotoPreview(null)}
+            className="p-1.5 bg-white/20 hover:bg-white/40 text-white rounded-full transition"
+          >
+            <X className="w-6 h-6" />
+          </button>
+        </div>
+
         <img 
           src={selectedPhotoPreview} 
           alt="Inspection Preview" 
           className="max-w-full max-h-[85vh] rounded-2xl object-contain shadow-2xl"
+          onClick={(e) => e.stopPropagation()}
         />
       </div>
     )}
