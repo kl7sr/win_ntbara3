@@ -85,8 +85,9 @@ export function App() {
   const handleAddPoint = (newPointData: Omit<CharityPoint, 'id' | 'createdAt'>) => {
     try {
       const created = saveNewPoint(newPointData);
-      const updatedList = getStoredPoints();
-      setPoints([...updatedList]);
+      
+      // Update state directly for instant UI update
+      setPoints((prev) => [created, ...prev.filter(p => p.id !== created.id)]);
       
       // Clear filters so new point is unconditionally visible on map
       setSelectedWilaya(null);
@@ -103,8 +104,7 @@ export function App() {
   const handleUpdatePoint = (id: string, updates: Partial<CharityPoint>) => {
     try {
       saveUpdatedPoint(id, updates);
-      const updatedList = getStoredPoints();
-      setPoints([...updatedList]);
+      setPoints((prev) => prev.map(p => p.id === id ? { ...p, ...updates } : p));
       if (selectedPoint?.id === id) {
         setSelectedPoint((prev) => (prev ? { ...prev, ...updates } : null));
       }
@@ -117,8 +117,7 @@ export function App() {
   const handleDeletePoint = (id: string) => {
     try {
       removePoint(id);
-      const updatedList = getStoredPoints();
-      setPoints([...updatedList]);
+      setPoints((prev) => prev.filter(p => p.id !== id));
       if (selectedPoint?.id === id) {
         setSelectedPoint(null);
       }

@@ -1,40 +1,31 @@
 import { CharityPoint } from '../types';
 import { SEED_CHARITY_POINTS } from '../data/seedPoints';
 
-const STORAGE_KEY = 'win_ntbara3_master_v3';
-const LEGACY_STORAGE_KEYS = ['win_ntbara3_points_master', 'win_ntbara3_points_v2', 'win_ntbara3_points_v1'];
+const STORAGE_KEY = 'win_ntbara3_points_live_v4';
+const LEGACY_KEYS = ['win_ntbara3_master_v3', 'win_ntbara3_points_master', 'win_ntbara3_points_v2', 'win_ntbara3_points_v1'];
 const ADMIN_PASS_KEY = 'win_ntbara3_admin_pass';
 const DEFAULT_ADMIN_PASS = (import.meta as any).env?.VITE_ADMIN_PASSWORD || 'admin123';
 
-// In-memory runtime cache for guaranteed instant availability
-let memoryPointsCache: CharityPoint[] | null = null;
-
 export function getStoredPoints(): CharityPoint[] {
-  if (memoryPointsCache && memoryPointsCache.length > 0) {
-    return memoryPointsCache;
-  }
-
   try {
-    let customPoints: CharityPoint[] = [];
     const saved = localStorage.getItem(STORAGE_KEY);
-
     if (saved) {
       const parsed = JSON.parse(saved);
       if (Array.isArray(parsed) && parsed.length > 0) {
-        memoryPointsCache = parsed;
         return parsed;
       }
     }
 
-    // Try recovering from any legacy storage
-    for (const legKey of LEGACY_STORAGE_KEYS) {
-      const legData = localStorage.getItem(legKey);
-      if (legData) {
+    // Try recovering custom points from any legacy storage
+    let recovered: CharityPoint[] = [];
+    for (const legKey of LEGACY_KEYS) {
+      const legacyRaw = localStorage.getItem(legKey);
+      if (legacyRaw) {
         try {
-          const parsed = JSON.parse(legData);
-          if (Array.isArray(parsed)) {
-            const userPoints = parsed.filter((p: CharityPoint) => p.id && (p.createdBy === 'user' || p.id.startsWith('point-')));
-            customPoints = [...customPoints, ...userPoints];
+          const parsedLegacy = JSON.parse(legacyRaw);
+          if (Array.isArray(parsedLegacy)) {
+            const userOnly = parsedLegacy.filter((p: CharityPoint) => p.id && (p.createdBy === 'user' || p.id.startsWith('point-')));
+            recovered = [...recovered, ...userOnly];
           }
         } catch (e) {
           console.warn('Error reading legacy storage:', e);
@@ -42,29 +33,24 @@ export function getStoredPoints(): CharityPoint[] {
       }
     }
 
-    const merged = [...customPoints, ...SEED_CHARITY_POINTS];
-    memoryPointsCache = merged;
-    savePoints(merged);
+    const merged = [...recovered, ...SEED_CHARITY_POINTS];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(merged));
     return merged;
   } catch (err) {
     console.error('Failed to load points from localStorage', err);
-    memoryPointsCache = SEED_CHARITY_POINTS;
     return SEED_CHARITY_POINTS;
   }
 }
 
 export function savePoints(points: CharityPoint[]): void {
-  memoryPointsCache = points;
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(points));
   } catch (err: any) {
-    console.warn('LocalStorage save failed, stripping heavy images to fit quota:', err);
+    console.warn('LocalStorage save warning, trimming photos to fit quota:', err);
     try {
-      // Fallback: strip heavy images if quota exceeded so data is NEVER lost
       const trimmed = points.map(p => ({
         ...p,
         images: p.images ? p.images.slice(0, 1) : undefined,
-        imageUrl: p.imageUrl
       }));
       localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
     } catch (e) {
@@ -79,6 +65,7 @@ export function addPoint(point: Omit<CharityPoint, 'id' | 'createdAt'>): Charity
     id: 'point-' + Date.now() + '-' + Math.random().toString(36).substring(2, 7),
     createdAt: new Date().toISOString(),
   };
+
   const current = getStoredPoints();
   const updated = [newPoint, ...current];
   savePoints(updated);

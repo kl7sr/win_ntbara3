@@ -47,7 +47,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
   const [attachedImages, setAttachedImages] = useState<string[]>([]);
   const [imageLoading, setImageLoading] = useState(false);
 
-  // GPS Coordinates
+  // GPS Coordinates (Default: Algiers)
   const [lat, setLat] = useState<number>(initialCoords?.lat || 36.7538);
   const [lng, setLng] = useState<number>(initialCoords?.lng || 3.0588);
   const [gpsLoading, setGpsLoading] = useState(false);
@@ -61,6 +61,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
+      setErrorMessage('');
       if (initialCoords && isWithinAlgeriaBounds(initialCoords.lat, initialCoords.lng)) {
         setLat(initialCoords.lat);
         setLng(initialCoords.lng);
@@ -72,11 +73,18 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
         if (closest) {
           setSelectedWilayaCode(closest.code);
         }
-      } else {
-        detectCurrentLocation();
       }
     }
   }, [isOpen, initialCoords]);
+
+  // When selected wilaya changes and user didn't move pin, auto center mini-map to wilaya center
+  useEffect(() => {
+    const wilaya = WILAYAS.find((w) => w.code === selectedWilayaCode);
+    if (wilaya && !initialCoords) {
+      setLat(wilaya.lat);
+      setLng(wilaya.lng);
+    }
+  }, [selectedWilayaCode, initialCoords]);
 
   useEffect(() => {
     if (!isOpen || !miniMapContainerRef.current) return;
@@ -159,7 +167,10 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
   }, [lat, lng]);
 
   const detectCurrentLocation = () => {
-    if (!navigator.geolocation) return;
+    if (!navigator.geolocation) {
+      setErrorMessage('تحديد الموقع غير مدعوم على متصفحك.');
+      return;
+    }
     setGpsLoading(true);
     setErrorMessage('');
     navigator.geolocation.getCurrentPosition(
@@ -187,8 +198,9 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
           setSelectedWilayaCode(closest.code);
         }
       },
-      () => {
+      (err) => {
         setGpsLoading(false);
+        console.warn('GPS error in modal:', err);
       },
       { enableHighAccuracy: true, timeout: 8000 }
     );
@@ -202,7 +214,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
     try {
       const newImages: string[] = [];
       for (let i = 0; i < Math.min(files.length, 3); i++) {
-        const compressed = await compressImageFile(files[i], 1200, 1200, 0.85);
+        const compressed = await compressImageFile(files[i], 500, 500, 0.65);
         newImages.push(compressed);
       }
       setAttachedImages((prev) => [...prev, ...newImages].slice(0, 3));
@@ -230,33 +242,40 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!isWithinAlgeriaBounds(lat, lng)) {
-      setErrorMessage('عذراً، يجب أن يكون موقع نقطة التبرع داخل الحدود الجغرافية للجزائر فقط.');
-      return;
-    }
-
-    if (!title.trim() || !phone.trim() || !commune.trim()) {
-      setErrorMessage('يرجى ملء اسم النقطة، رقم الهاتف، والبلدية.');
-      return;
-    }
-
+    // Auto fix coords if out of bounds
     const wilaya = WILAYAS.find((w) => w.code === selectedWilayaCode) || WILAYAS[15];
+    let finalLat = lat;
+    let finalLng = lng;
+
+    if (!isWithinAlgeriaBounds(finalLat, finalLng)) {
+      finalLat = wilaya.lat;
+      finalLng = wilaya.lng;
+    }
+
+    if (!title.trim()) {
+      setErrorMessage('يرجى إدخال اسم نقطة التبرع أو المركز.');
+      return;
+    }
+
+    const finalPhone = phone.trim() || '0550000000';
+    const finalCommune = commune.trim() || wilaya.nameAr;
     const organizerName = organizer.trim() || 'فاعل خير / متطوعين';
 
-    onAddPoint({
+    const newPointData: Omit<CharityPoint, 'id' | 'createdAt'> = {
       title: title.trim(),
       organizer: organizerName,
-      phone: phone.trim(),
+      phone: finalPhone,
       altPhone: altPhone.trim() || undefined,
       wilayaCode: wilaya.code,
       wilayaNameAr: wilaya.nameAr,
       wilayaNameFr: wilaya.nameFr,
-      commune: commune.trim(),
-      address: address.trim() || `${commune}، ولاية ${wilaya.nameAr}`,
-      lat,
-      lng,
-      aidCategories: selectedCategories,
-      status,
+      commune: finalCommune,
+      address: address.trim() || `${finalCommune}، ولاية ${wilaya.nameAr}`,
+      lat: finalLat,
+      lng: finalLng,
+      aidCategories: selectedCategories.length > 0 ? selectedCategories : ['food_water', 'clothes'],
+      status: 'active',
+      pointType: 'charity_hub',
       urgentDescription: urgentDescription.trim() || undefined,
       notes: notes.trim() || undefined,
       verified: false,
@@ -265,7 +284,20 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
       accuracyMeters: gpsAccuracy || undefined,
       images: attachedImages.length > 0 ? attachedImages : undefined,
       imageUrl: attachedImages.length > 0 ? attachedImages[0] : undefined,
-    });
+    };
+
+    console.log('Publishing new point from mobile:', newPointData);
+    onAddPoint(newPointData);
+
+    // Reset form
+    setTitle('');
+    setOrganizer('');
+    setPhone('');
+    setAltPhone('');
+    setCommune('');
+    setAddress('');
+    setAttachedImages([]);
+    setErrorMessage('');
 
     onClose();
   };
@@ -338,7 +370,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
             <div className="relative rounded-lg overflow-hidden border border-slate-300 h-32 w-full">
               <div ref={miniMapContainerRef} className="w-full h-full" />
               <div className="absolute bottom-1.5 right-1.5 z-[400] bg-white/95 text-slate-700 text-[10px] px-2 py-0.5 rounded border border-slate-200 shadow-sm">
-                داخل حدود الجزائر فقط
+                داخل حدود الجزائر
               </div>
             </div>
           </div>
@@ -432,11 +464,10 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
 
             <div>
               <label className="block text-slate-700 font-semibold mb-1">
-                البلدية <span className="text-red-600">*</span>
+                البلدية <span className="text-slate-400 font-normal">(اختياري)</span>
               </label>
               <input
                 type="text"
-                required
                 value={commune}
                 onChange={(e) => setCommune(e.target.value)}
                 placeholder="البلدية أو الحي"
