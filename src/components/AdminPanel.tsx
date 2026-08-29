@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useRef } from 'react';
 import { 
   X, 
   ShieldCheck, 
@@ -20,11 +20,14 @@ import {
   Eye, 
   Sliders, 
   Image as ImageIcon,
-  Flame
+  Flame,
+  Camera,
+  Loader2
 } from 'lucide-react';
 import { CharityPoint, AidCategory, PointStatus, PointType } from '../types';
 import { WILAYAS, AID_CATEGORIES_META } from '../data/wilayas';
 import { parseGoogleMapsLinkOrCoords, getGoogleMapsDirUrl, isWithinAlgeriaBounds } from '../utils/geoParser';
+import { compressImageFile } from '../utils/imageCompressor';
 import { 
   getAdminPasscode, 
   setAdminPasscode, 
@@ -99,6 +102,28 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [quickPhotos, setQuickPhotos] = useState<string[]>([]);
   const [quickSuccessMsg, setQuickSuccessMsg] = useState('');
   const [parsingLoading, setParsingLoading] = useState(false);
+  const [quickImageLoading, setQuickImageLoading] = useState(false);
+  const quickFileInputRef = useRef<HTMLInputElement>(null);
+
+  const handleQuickImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setQuickImageLoading(true);
+    try {
+      const newImages: string[] = [];
+      for (let i = 0; i < Math.min(files.length, 3); i++) {
+        const compressed = await compressImageFile(files[i], 800, 600, 0.7);
+        newImages.push(compressed);
+      }
+      setQuickPhotos((prev) => [...prev, ...newImages].slice(0, 3));
+    } catch (err) {
+      console.error('Image upload failed:', err);
+    } finally {
+      setQuickImageLoading(false);
+      if (quickFileInputRef.current) quickFileInputRef.current.value = '';
+    }
+  };
 
   // Manage table filters
   const [adminSearch, setAdminSearch] = useState('');
@@ -1007,17 +1032,44 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         2. تفاصيل ومعلومات المركز:
                       </h4>
 
-                      {/* Extracted Google Maps Photos Preview */}
-                      {quickPhotos.length > 0 && (
-                        <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                      {/* Photos & Images Attachment */}
+                      <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2.5">
+                        <div className="flex items-center justify-between">
                           <label className="block text-slate-800 font-semibold text-xs flex items-center gap-1.5">
                             <ImageIcon className="w-4 h-4 text-emerald-700" />
-                            <span>الصور المستخرجة تلقائياً من خرائط Google ({quickPhotos.length}):</span>
+                            <span>صور المركز ({quickPhotos.length}/3):</span>
                           </label>
+
+                          <div className="flex items-center gap-2">
+                            <input
+                              type="file"
+                              ref={quickFileInputRef}
+                              accept="image/*"
+                              multiple
+                              onChange={handleQuickImageUpload}
+                              className="hidden"
+                            />
+                            <button
+                              type="button"
+                              onClick={() => quickFileInputRef.current?.click()}
+                              disabled={quickImageLoading || quickPhotos.length >= 3}
+                              className="px-2.5 py-1 bg-white hover:bg-slate-100 disabled:opacity-50 text-slate-700 border border-slate-300 rounded-lg text-xs font-semibold flex items-center gap-1 shadow-xs transition"
+                            >
+                              {quickImageLoading ? (
+                                <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                              ) : (
+                                <Camera className="w-3.5 h-3.5 text-emerald-700" />
+                              )}
+                              <span>إضافة صور</span>
+                            </button>
+                          </div>
+                        </div>
+
+                        {quickPhotos.length > 0 ? (
                           <div className="flex items-center gap-2.5 overflow-x-auto pb-1">
                             {quickPhotos.map((photoUrl, idx) => (
                               <div key={idx} className="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-300 shrink-0 shadow-xs group">
-                                <img src={photoUrl} alt={`Extracted ${idx}`} className="w-full h-full object-cover" />
+                                <img src={photoUrl} alt={`Photo ${idx}`} className="w-full h-full object-cover" />
                                 <button
                                   type="button"
                                   onClick={() => setQuickPhotos(prev => prev.filter((_, i) => i !== idx))}
@@ -1029,8 +1081,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                               </div>
                             ))}
                           </div>
-                        </div>
-                      )}
+                        ) : (
+                          <p className="text-[11px] text-slate-500">
+                            يمكنك التقاط أو رفع صور واجهة المركز لتسهيل وصول المتبرعين.
+                          </p>
+                        )}
+                      </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
