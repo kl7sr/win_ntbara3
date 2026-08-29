@@ -19,7 +19,6 @@ import {
   Search, 
   Eye, 
   Sliders, 
-  Clock,
   Image as ImageIcon
 } from 'lucide-react';
 import { CharityPoint, AidCategory, PointStatus } from '../types';
@@ -79,7 +78,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [quickCategories, setQuickCategories] = useState<AidCategory[]>(['food_water', 'clothes', 'medical']);
   const [quickUrgent, setQuickUrgent] = useState(false);
   const [quickUrgentNote, setQuickUrgentNote] = useState('');
-  const [quickHours, setQuickHours] = useState('08:30 - 19:00');
   const [quickSuccessMsg, setQuickSuccessMsg] = useState('');
 
   // Manage table filters
@@ -154,7 +152,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           <body>
             <img src="${imgUrl}" alt="Charity point photo" />
             <div class="toolbar">
-              <a href="${imgUrl}" download="donation-point-photo.jpg" class="btn">تحميل الصورة الأصيلة</a>
+              <a href="${imgUrl}" download="donation-point-photo.jpg" class="btn">تحميل الصورة</a>
             </div>
           </body>
         </html>
@@ -230,7 +228,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       aidCategories: quickCategories,
       status: quickUrgent ? 'urgent' : 'active',
       urgentDescription: quickUrgentNote.trim() || undefined,
-      hours: quickHours.trim(),
       verified: true,
       featured: false,
       createdBy: 'admin',
@@ -441,7 +438,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 </button>
               </div>
 
-              {/* Tab 0: Unconfirmed Points with Photo Inspection */}
+              {/* Tab 0: Unconfirmed Points */}
               {activeTab === 'unconfirmed' && (
                 <div className="p-4 sm:p-6 overflow-y-auto space-y-4 text-xs sm:text-sm flex-1">
                   <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
@@ -527,7 +524,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                               <div className="pt-2 border-t border-slate-100">
                                 <span className="text-xs text-slate-600 font-semibold block mb-1.5 flex items-center gap-1">
                                   <ImageIcon className="w-3.5 h-3.5 text-amber-700" />
-                                  <span>الصور المرفقة ({imgs.length}) - اضغط للمعاينة أو الفتح في تبويب جديد:</span>
+                                  <span>الصور المرفقة ({imgs.length}):</span>
                                 </span>
                                 <div className="flex items-center gap-2 overflow-x-auto pb-1">
                                   {imgs.map((imgSrc, i) => (
@@ -718,28 +715,15 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         </div>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-slate-700 font-semibold mb-1">العنوان التفصيلي</label>
-                          <input
-                            type="text"
-                            value={quickAddress}
-                            onChange={(e) => setQuickAddress(e.target.value)}
-                            placeholder="المكان بدقة"
-                            className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
-                          />
-                        </div>
-
-                        <div>
-                          <label className="block text-slate-700 font-semibold mb-1">أوقات العمل</label>
-                          <input
-                            type="text"
-                            value={quickHours}
-                            onChange={(e) => setQuickHours(e.target.value)}
-                            placeholder="08:30 - 19:00"
-                            className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
-                          />
-                        </div>
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">العنوان التفصيلي</label>
+                        <input
+                          type="text"
+                          value={quickAddress}
+                          onChange={(e) => setQuickAddress(e.target.value)}
+                          placeholder="المكان بدقة"
+                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
+                        />
                       </div>
 
                       <button
@@ -928,7 +912,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       </div>
     </div>
 
-    {/* Fullscreen Photo Lightbox Modal for Admin Inspection */}
+    {/* Fullscreen Photo Modal for Admin Inspection */}
     {selectedPhotoPreview && (
       <div 
         className="fixed inset-0 z-60 bg-black/90 backdrop-blur-sm flex flex-col items-center justify-center p-4"

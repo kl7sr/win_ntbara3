@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { createPortal } from 'react-dom';
 import { 
   Phone, 
   MapPin, 
@@ -15,7 +16,8 @@ import {
   Info,
   ChevronRight,
   ChevronLeft,
-  Maximize2
+  Maximize2,
+  Download
 } from 'lucide-react';
 import { CharityPoint, UserLocation } from '../types';
 import { AID_CATEGORIES_META } from '../data/wilayas';
@@ -39,6 +41,7 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
 
   useEffect(() => {
     setCurrentImageIndex(0);
+    setSelectedPhotoPreview(null);
   }, [point]);
 
   if (!point) return null;
@@ -49,7 +52,7 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
 
   const googleMapsUrl = getGoogleMapsDirUrl(point.lat, point.lng, point.title);
   
-  // Strictly real uploaded images only (no AI, no placeholders)
+  // Real uploaded images
   const images = (point.images && point.images.length > 0)
     ? point.images
     : (point.imageUrl ? [point.imageUrl] : []);
@@ -91,6 +94,29 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
+  const handleOpenPhotoInNewTab = (imgUrl: string) => {
+    const newTab = window.open();
+    if (newTab) {
+      newTab.document.write(`
+        <!DOCTYPE html>
+        <html lang="ar">
+          <head>
+            <title>صورة المركز</title>
+            <meta name="viewport" content="width=device-width, initial-scale=1.0">
+            <style>
+              body { margin: 0; background: #000; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+              img { max-width: 100vw; max-height: 100vh; object-fit: contain; }
+            </style>
+          </head>
+          <body>
+            <img src="${imgUrl}" alt="Photo" />
+          </body>
+        </html>
+      `);
+      newTab.document.close();
+    }
+  };
+
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs">
@@ -109,8 +135,11 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
               <img
                 src={images[currentImageIndex]}
                 alt={point.title}
-                onClick={() => setSelectedPhotoPreview(images[currentImageIndex])}
-                className="w-full h-full object-cover cursor-pointer transition-all duration-300"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  setSelectedPhotoPreview(images[currentImageIndex]);
+                }}
+                className="w-full h-full object-cover cursor-pointer transition-all duration-300 active:scale-95"
               />
 
               {/* Gradient Overlay */}
@@ -121,7 +150,7 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
                 <button
                   type="button"
                   onClick={handlePrevImage}
-                  className="absolute left-2.5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition active:scale-90 shadow-md"
+                  className="absolute left-2.5 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center transition active:scale-90 shadow-lg"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
@@ -132,7 +161,7 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
                 <button
                   type="button"
                   onClick={handleNextImage}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 w-8 h-8 rounded-full bg-black/60 hover:bg-black/90 text-white flex items-center justify-center transition active:scale-90 shadow-md"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 z-10 w-9 h-9 rounded-full bg-black/70 hover:bg-black text-white flex items-center justify-center transition active:scale-90 shadow-lg"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>
@@ -141,29 +170,41 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
               {/* Top Controls */}
               <div className="absolute top-2.5 left-2.5 right-2.5 z-10 flex items-center justify-between">
                 <button
-                  onClick={() => setSelectedPhotoPreview(images[currentImageIndex])}
-                  className="p-1.5 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-xs transition"
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedPhotoPreview(images[currentImageIndex]);
+                  }}
+                  className="p-1.5 rounded-full bg-black/60 hover:bg-black text-white backdrop-blur-xs transition flex items-center gap-1 text-xs px-2.5"
                   title="تكبير الصورة"
                 >
-                  <Maximize2 className="w-4 h-4" />
+                  <Maximize2 className="w-3.5 h-3.5" />
+                  <span>تكبير</span>
                 </button>
 
                 <button
+                  type="button"
                   onClick={onClose}
-                  className="p-1.5 rounded-full bg-black/50 hover:bg-black/80 text-white backdrop-blur-xs transition"
+                  className="p-1.5 rounded-full bg-black/60 hover:bg-black text-white backdrop-blur-xs transition"
                 >
                   <X className="w-4 h-4" />
                 </button>
               </div>
 
               {/* Bottom Counter */}
-              {images.length > 1 && (
-                <div className="absolute bottom-2.5 left-3 z-10 flex items-center gap-1.5 bg-black/70 backdrop-blur-xs px-2.5 py-1 rounded-full text-white text-[11px] font-mono font-bold">
-                  <span>{currentImageIndex + 1}</span>
-                  <span>/</span>
-                  <span>{images.length}</span>
-                </div>
-              )}
+              <div className="absolute bottom-2.5 left-3 right-3 z-10 flex items-center justify-between pointer-events-none">
+                <span className="text-[11px] font-semibold text-white/90 bg-black/50 px-2 py-0.5 rounded backdrop-blur-xs">
+                  {point.verified ? '✓ صور للمركز' : 'صور مرفقة من صاحب النقطة'}
+                </span>
+
+                {images.length > 1 && (
+                  <div className="flex items-center gap-1.5 bg-black/70 backdrop-blur-xs px-2.5 py-1 rounded-full text-white text-[11px] font-mono font-bold">
+                    <span>{currentImageIndex + 1}</span>
+                    <span>/</span>
+                    <span>{images.length}</span>
+                  </div>
+                )}
+              </div>
             </div>
           )}
 
@@ -252,27 +293,14 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
               </div>
             </div>
 
-            {/* Operating Hours / Notes */}
-            {(point.hours || point.notes) && (
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-xs">
-                {point.hours && (
-                  <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-slate-500 shrink-0" />
-                    <div>
-                      <span className="text-slate-500 block text-[10px]">أوقات الاستقبال:</span>
-                      <span className="font-medium text-slate-800">{point.hours}</span>
-                    </div>
-                  </div>
-                )}
-                {point.notes && (
-                  <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex items-center gap-2">
-                    <Info className="w-4 h-4 text-slate-500 shrink-0" />
-                    <div>
-                      <span className="text-slate-500 block text-[10px]">ملاحظات:</span>
-                      <span className="font-medium text-slate-800">{point.notes}</span>
-                    </div>
-                  </div>
-                )}
+            {/* Notes if any */}
+            {point.notes && (
+              <div className="bg-slate-50 p-2.5 rounded-xl border border-slate-200 flex items-center gap-2 text-xs">
+                <Info className="w-4 h-4 text-slate-500 shrink-0" />
+                <div>
+                  <span className="text-slate-500 block text-[10px]">ملاحظات:</span>
+                  <span className="font-medium text-slate-800">{point.notes}</span>
+                </div>
               </div>
             )}
 
@@ -357,24 +385,53 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
         </div>
       </div>
 
-      {/* Fullscreen Photo Lightbox Modal */}
-      {selectedPhotoPreview && (
+      {/* Top-Level Fullscreen Lightbox Portal - Guaranteed 100% Fullscreen Visibility */}
+      {selectedPhotoPreview && createPortal(
         <div 
-          className="fixed inset-0 z-60 bg-black/95 backdrop-blur-md flex items-center justify-center p-4"
+          className="fixed inset-0 z-[99999] bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-3 animate-in fade-in duration-150"
           onClick={() => setSelectedPhotoPreview(null)}
         >
-          <button
-            onClick={() => setSelectedPhotoPreview(null)}
-            className="absolute top-4 right-4 p-2 bg-white/20 hover:bg-white/40 text-white rounded-full transition"
-          >
-            <X className="w-6 h-6" />
-          </button>
-          <img 
-            src={selectedPhotoPreview} 
-            alt="Preview" 
-            className="max-w-full max-h-[85vh] rounded-2xl object-contain shadow-2xl"
-          />
-        </div>
+          {/* Top Actions Bar */}
+          <div className="absolute top-4 inset-x-4 flex items-center justify-between z-10" onClick={(e) => e.stopPropagation()}>
+            <div className="flex items-center gap-2">
+              <button
+                type="button"
+                onClick={() => handleOpenPhotoInNewTab(selectedPhotoPreview)}
+                className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow transition"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>فتح في نافذة كاملة</span>
+              </button>
+
+              <a
+                href={selectedPhotoPreview}
+                download="charity-point-photo.jpg"
+                className="p-1.5 bg-white/20 hover:bg-white/30 text-white rounded-xl transition"
+                title="تحميل الصورة"
+              >
+                <Download className="w-4 h-4" />
+              </a>
+            </div>
+
+            <button
+              type="button"
+              onClick={() => setSelectedPhotoPreview(null)}
+              className="p-2 bg-white/20 hover:bg-white/40 text-white rounded-full transition"
+            >
+              <X className="w-6 h-6" />
+            </button>
+          </div>
+
+          {/* Centered Large Fullscreen Image */}
+          <div className="max-w-full max-h-[85vh] flex items-center justify-center p-2" onClick={(e) => e.stopPropagation()}>
+            <img 
+              src={selectedPhotoPreview} 
+              alt="Full size view" 
+              className="max-w-[95vw] max-h-[82vh] object-contain rounded-xl shadow-2xl"
+            />
+          </div>
+        </div>,
+        document.body
       )}
     </>
   );

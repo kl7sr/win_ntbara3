@@ -42,7 +42,6 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
   const [status, setStatus] = useState<PointStatus>('active');
   const [urgentDescription, setUrgentDescription] = useState('');
   const [notes, setNotes] = useState('');
-  const [hours, setHours] = useState('08:30 - 19:00');
 
   // Images state
   const [attachedImages, setAttachedImages] = useState<string[]>([]);
@@ -203,7 +202,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
     try {
       const newImages: string[] = [];
       for (let i = 0; i < Math.min(files.length, 3); i++) {
-        const compressed = await compressImageFile(files[i], 900, 900, 0.75);
+        const compressed = await compressImageFile(files[i], 1200, 1200, 0.85);
         newImages.push(compressed);
       }
       setAttachedImages((prev) => [...prev, ...newImages].slice(0, 3));
@@ -260,7 +259,6 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
       status,
       urgentDescription: urgentDescription.trim() || undefined,
       notes: notes.trim() || undefined,
-      hours: hours.trim() || '08:00 - 19:00',
       verified: false,
       featured: false,
       createdBy: 'user',
@@ -452,9 +450,9 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
             <div className="flex items-center justify-between">
               <label className="text-slate-700 font-semibold flex items-center gap-1.5">
                 <Camera className="w-4 h-4 text-emerald-700" />
-                <span>إرفاق صور للمركز (اختياري - حتى 3 صور):</span>
+                <span>إرفاق صور للمركز (اختياري):</span>
               </label>
-              <span className="text-[10px] text-slate-500">تراجع من طرف الإدارة قبل العرض</span>
+              <span className="text-[10px] text-slate-500">تظهر للزوار في نافذة المركز</span>
             </div>
 
             <div className="flex flex-wrap items-center gap-2">
