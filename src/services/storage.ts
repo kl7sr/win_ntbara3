@@ -1,18 +1,18 @@
 import { CharityPoint } from '../types';
 import { SEED_CHARITY_POINTS } from '../data/seedPoints';
 
-const STORAGE_KEY = 'win_ntbara3_points_unified_master';
+const STORAGE_KEY = 'win_ntbara3_points_unified_v7';
 const ADMIN_PASS_KEY = 'win_ntbara3_admin_pass';
 const DEFAULT_ADMIN_PASS = (import.meta as any).env?.VITE_ADMIN_PASSWORD || 'admin123';
 
 /**
- * Recovers all custom user-added points from ANY local storage key ever used
+ * Recovers all custom user-added points while keeping official fire zones updated
  */
 export function getStoredPoints(): CharityPoint[] {
   try {
     const customPointsMap = new Map<string, CharityPoint>();
 
-    // 1. Scan ALL localStorage keys to recover every single custom point ever submitted on this device
+    // 1. Scan ALL localStorage keys to recover every custom point ever added
     for (let i = 0; i < localStorage.length; i++) {
       const key = localStorage.key(i);
       if (key && key.startsWith('win_ntbara3')) {
@@ -36,30 +36,23 @@ export function getStoredPoints(): CharityPoint[] {
 
     const recoveredCustomPoints = Array.from(customPointsMap.values());
 
-    // 2. Read current stored points if any
+    // 2. Read current stored points
     const saved = localStorage.getItem(STORAGE_KEY);
-    let currentMaster: CharityPoint[] = [];
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
         if (Array.isArray(parsed) && parsed.length > 0) {
-          currentMaster = parsed;
+          return parsed;
         }
       } catch (e) {
         console.warn('Error reading master storage:', e);
       }
     }
 
-    // 3. Merge: recovered custom points + latest official seed points (without duplicates)
+    // 3. Merge: latest official points (with grey extinguished fire status) + recovered custom points
     const pointsMap = new Map<string, CharityPoint>();
 
-    // First add seed points (including all new fire zones)
     SEED_CHARITY_POINTS.forEach((p) => pointsMap.set(p.id, p));
-
-    // Then add current master points
-    currentMaster.forEach((p) => pointsMap.set(p.id, p));
-
-    // Finally add any recovered custom points so user points are never lost
     recoveredCustomPoints.forEach((p) => pointsMap.set(p.id, p));
 
     const finalPoints = Array.from(pointsMap.values());

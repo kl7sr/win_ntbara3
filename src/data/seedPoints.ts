@@ -2,11 +2,11 @@ import { CharityPoint } from '../types';
 
 export const SEED_CHARITY_POINTS: CharityPoint[] = [
   // ==========================================
-  // 1. Fire Affected Crisis Zones (المناطق المتضررة من الحرائق)
+  // 1. Contained / Extinguished Fire Zones (المناطق المتضررة - تم إخمادها / غير نشطة - Grey Pins)
   // ==========================================
   {
     id: 'fire-jijel-texenna',
-    title: '🔥 منطقة حرائق تاكسنة (مشتة المعيسة) - منكوبة',
+    title: '💨 منطقة تاكسنة (مشتة المعيسة) - أضرار متفرقة',
     organizer: 'خلية أزمة وإغاثة المتضررين - تاكسنة',
     phone: '14',
     altPhone: '034123456',
@@ -18,9 +18,9 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     lat: 36.6583,
     lng: 5.7924,
     aidCategories: ['food_water', 'medical', 'blankets', 'shelter', 'clothes', 'baby_supplies'],
-    status: 'urgent',
+    status: 'extinguished',
     pointType: 'burnt_zone',
-    urgentDescription: 'منطقة منكوبة بشدة - خسائر في الممتلكات ومنازل متضررة. بحاجة عاجلة لأفرشة، خيم إيواء، مياه شرب، أدوية ومراهم الحروق، وحليب الأطفال.',
+    urgentDescription: 'تم إخماد الحريق والسيطرة عليه. متضررة في الممتلكات وبحاجة لإعادة إعمار ومساعدات للمتضررين.',
     verified: true,
     featured: true,
     createdBy: 'admin',
@@ -28,7 +28,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
   },
   {
     id: 'fire-jijel-ziama',
-    title: '🔥 منطقة حرائق زيامة منصورية - إجلاء سكاني',
+    title: '💨 منطقة زيامة منصورية - تم إخماد الحريق',
     organizer: 'لجنة الإغاثة والتضامن لبلدية زيامة منصورية',
     phone: '14',
     altPhone: '034456789',
@@ -40,9 +40,9 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     lat: 36.6744,
     lng: 5.4808,
     aidCategories: ['food_water', 'medical', 'blankets', 'shelter', 'hygiene'],
-    status: 'urgent',
+    status: 'extinguished',
     pointType: 'burnt_zone',
-    urgentDescription: 'احتراق مساحات غابية واسعة وإجلاء عائلات. مطلوب مياه معلبة، أفرشة، مواد نظافة، ومستلزمات إسعاف وتنفس.',
+    urgentDescription: 'تمت السيطرة الكاملة على النيران وإخمادها.',
     verified: true,
     featured: true,
     createdBy: 'admin',
@@ -50,7 +50,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
   },
   {
     id: 'fire-jijel-elmilia',
-    title: '🔥 منطقة حرائق الميلية - خسائر زراعية وغابية',
+    title: '💨 منطقة الميلية - تم الإخماد',
     organizer: 'متطوعو الهلال الأحمر والمجتمع المدني بالميلية',
     phone: '14',
     altPhone: '034789123',
@@ -62,9 +62,9 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     lat: 36.7533,
     lng: 6.2658,
     aidCategories: ['food_water', 'medical', 'blankets'],
-    status: 'urgent',
+    status: 'extinguished',
     pointType: 'burnt_zone',
-    urgentDescription: 'حرائق غابية سريعة أضرت بالمزارع والمحاصيل. بحاجة إلى مياه شرب ومواد غذائية أساسية.',
+    urgentDescription: 'تم إخماد الحرائق الغابية، أضرار بالمحاصيل الزراعية.',
     verified: true,
     featured: false,
     createdBy: 'admin',
@@ -72,7 +72,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
   },
   {
     id: 'fire-jijel-chekfa',
-    title: '🔥 منطقة حرائق أولاد يحيى خدروش والشقفة',
+    title: '💨 أولاد يحيى خدروش والشقفة - تم الإخماد',
     organizer: 'تجمع فلاحي ومتطوعي قرى الشقفة',
     phone: '14',
     altPhone: '034987654',
@@ -84,9 +84,9 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     lat: 36.7725,
     lng: 5.9622,
     aidCategories: ['food_water', 'blankets', 'clothes'],
-    status: 'urgent',
+    status: 'extinguished',
     pointType: 'burnt_zone',
-    urgentDescription: 'أضرار جسيمة في بساتين الزيتون والمواشي. بحاجة لأغطية ومساعدات للمزارعين المتضررين.',
+    urgentDescription: 'الحريق تم إخماده بالكامل.',
     verified: true,
     featured: false,
     createdBy: 'admin',
@@ -94,7 +94,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
   },
   {
     id: 'fire-bejaia-toudja',
-    title: '🔥 منطقة حرائق غابات توجة وأدكار - أضرار بليغة',
+    title: '💨 غابات توجة وأدكار - تم إخماد الحريق',
     organizer: 'خلية متابعة وإغاثة المتضررين بولاية بجاية',
     phone: '14',
     altPhone: '034112233',
@@ -106,9 +106,9 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     lat: 36.7578,
     lng: 4.9022,
     aidCategories: ['food_water', 'medical', 'blankets', 'shelter', 'clothes'],
-    status: 'urgent',
+    status: 'extinguished',
     pointType: 'burnt_zone',
-    urgentDescription: 'احتراق مساحات شاسعة من الغابات المحمية. مطلوب ضمادات طبية، مطهرات، أدوية حروق، مياه وأفرشة.',
+    urgentDescription: 'تمت السيطرة على الحرائق وإخمادها.',
     verified: true,
     featured: true,
     createdBy: 'admin',
@@ -116,7 +116,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
   },
   {
     id: 'fire-bejaia-soummam',
-    title: '🔥 محيط وادي الصومام - حزام الخطر السكاني',
+    title: '💨 وادي الصومام - تم إخماد بؤر النيران',
     organizer: 'لجان الأحياء والقرى بحوض الصومام',
     phone: '14',
     altPhone: '034223344',
@@ -128,9 +128,9 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     lat: 36.6800,
     lng: 4.8500,
     aidCategories: ['food_water', 'medical', 'blankets'],
-    status: 'urgent',
+    status: 'extinguished',
     pointType: 'burnt_zone',
-    urgentDescription: 'خطوط النار هددت التجمعات السكانية. بحاجة ماسة لمياه شرب، مواد غذائية جافة، وأفرشة للمتضررين.',
+    urgentDescription: 'تم احتواء جميع خطوط النار وإخمادها.',
     verified: true,
     featured: false,
     createdBy: 'admin',
@@ -138,7 +138,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
   },
   {
     id: 'fire-tizi-larbaa',
-    title: '🔥 منطقة حرائق الأربعاء ناث إيراثن وعزازقة',
+    title: '💨 الأربعاء ناث إيراثن وعزازقة - تم الإخماد',
     organizer: 'تجمع لجان القرى ومتطوعي تيزي وزو',
     phone: '14',
     altPhone: '026112233',
@@ -150,9 +150,9 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     lat: 36.6347,
     lng: 4.2058,
     aidCategories: ['food_water', 'medical', 'blankets', 'shelter', 'clothes', 'baby_supplies'],
-    status: 'urgent',
+    status: 'extinguished',
     pointType: 'burnt_zone',
-    urgentDescription: 'قرى جبلية محاصرة بالنيران وأضرار بالمنازل. مطلوب مولدات أكسجين متنقلة، مراهم حروق، حليب أطفال، وأغطية.',
+    urgentDescription: 'تم إخماد الحرائق في جميع القرى والمداشر.',
     verified: true,
     featured: true,
     createdBy: 'admin',
@@ -160,7 +160,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
   },
   {
     id: 'fire-tizi-mizrana',
-    title: '🔥 منطقة حرائق غابة ميزرانة وتقزيرت',
+    title: '💨 غابة ميزرانة وتقزيرت - تم الإخماد',
     organizer: 'خلية التضامن وإغاثة قرى ميزرانة',
     phone: '14',
     altPhone: '026334455',
@@ -172,9 +172,9 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     lat: 36.8833,
     lng: 4.0833,
     aidCategories: ['food_water', 'blankets', 'medical', 'hygiene'],
-    status: 'urgent',
+    status: 'extinguished',
     pointType: 'burnt_zone',
-    urgentDescription: 'حرائق تسببت في أضرار بشبكات المياه والكهرباء. بحاجة إلى مياه شرب ومستلزمات نظافة وأفرشة.',
+    urgentDescription: 'تمت السيطرة التامة على الحريق وإخماده.',
     verified: true,
     featured: false,
     createdBy: 'admin',
@@ -182,7 +182,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
   },
 
   // ==========================================
-  // 2. Verified Donation Collection Centers (مراكز جمع التبرعات المعتمدة)
+  // 2. Verified Donation Collection Centers (مراكز جمع التبرعات المعتمدة - Green Pins)
   // ==========================================
   {
     id: 'seed-1',
