@@ -1,5 +1,5 @@
 // Cloudflare Pages Function: /api/resolve-google-maps
-// Resolves Google Maps links, cleans title, extracts coordinates, address, commune, phone, hours, and photos
+// Resolves Google Maps links, cleans title, extracts coordinates, address, commune, and map preview photos
 
 export const onRequestGet: PagesFunction = async (context) => {
   const urlParam = new URL(context.request.url).searchParams.get('url');
@@ -35,7 +35,7 @@ export const onRequestGet: PagesFunction = async (context) => {
     let lat: number | null = null;
     let lng: number | null = null;
 
-    // Match !3dlat!4dlng (Google Maps Place pin)
+    // Match !3dlat!4dlng (Most accurate Google Maps Place pin)
     const placeMatch = finalUrl.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
     if (placeMatch) {
       lat = parseFloat(placeMatch[1]);
@@ -60,7 +60,7 @@ export const onRequestGet: PagesFunction = async (context) => {
       }
     }
 
-    // 2. Extract Clean Place Title (No '+' and no '%XX' and no weird text)
+    // 2. Extract Clean Place Title (No '+' and no '%XX')
     let title: string = '';
 
     const placeSlugMatch = finalUrl.match(/\/maps\/place\/([^/@?]+)/);
@@ -70,7 +70,6 @@ export const onRequestGet: PagesFunction = async (context) => {
         slug = decodeURIComponent(slug);
         slug = decodeURIComponent(slug);
       } catch {}
-      // Replace all '+' with spaces and collapse spaces
       slug = slug.split('+').join(' ').replace(/\s+/g, ' ').trim();
       if (slug && !slug.toLowerCase().includes('google maps') && !slug.includes('خرائط')) {
         title = slug;
@@ -104,7 +103,7 @@ export const onRequestGet: PagesFunction = async (context) => {
       }
     }
 
-    // 4. Reverse Geocode for High-Accuracy Address and Commune if Coords Found
+    // 4. Reverse Geocode for High-Accuracy Address and Commune
     let address: string = '';
     let commune: string = '';
     let wilayaName: string = '';
@@ -141,14 +140,7 @@ export const onRequestGet: PagesFunction = async (context) => {
       }
     }
 
-    // 5. Extract Working Hours if available
-    let hours: string = '';
-    const hoursMatch = htmlText.match(/(?:Opens|Closed|Ouvert|Fermé)[^<"]*(?:AM|PM|h|\d{1,2}:\d{2})/i);
-    if (hoursMatch) {
-      hours = hoursMatch[0].replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
-    }
-
-    // 6. Extract Photos
+    // 5. Photos Extraction
     const photos: string[] = [];
     const ogImageMatch = htmlText.match(/<meta\s+(?:property|name)="og:image"\s+content="([^"]+)"/i);
     if (ogImageMatch && !ogImageMatch[1].includes('maps_preview') && !ogImageMatch[1].includes('staticmap')) {
@@ -174,7 +166,6 @@ export const onRequestGet: PagesFunction = async (context) => {
         phone: phone || undefined,
         address: address || undefined,
         commune: commune || undefined,
-        hours: hours || undefined,
         photos: photos.slice(0, 3),
       }),
       {

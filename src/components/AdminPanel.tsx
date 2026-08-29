@@ -108,6 +108,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [newPass, setNewPass] = useState('');
   const [passChangeMsg, setPassChangeMsg] = useState('');
 
+  // Re-sync state
+  const [syncingPointId, setSyncingPointId] = useState<string | null>(null);
+  const [syncSuccessMsg, setSyncSuccessMsg] = useState<string>('');
+
   const unconfirmedPoints = points.filter((p) => !p.verified);
 
   const handleLogin = (e: React.FormEvent) => {
@@ -118,6 +122,46 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       setAuthError('');
     } else {
       setAuthError('كلمة المرور غير صحيحة');
+    }
+  };
+
+  const handleResyncPoint = async (point: CharityPoint) => {
+    const targetLink = point.googleMapsUrl || `https://www.google.com/maps/search/?api=1&query=${point.lat},${point.lng}`;
+    setSyncingPointId(point.id);
+    setSyncSuccessMsg('');
+
+    try {
+      const res = await fetch(`/api/resolve-google-maps?url=${encodeURIComponent(targetLink)}`);
+      if (res.ok) {
+        const data = await res.json();
+        const updates: Partial<CharityPoint> = {};
+
+        if (data.title) {
+          updates.title = data.title.split('+').join(' ').replace(/\s+/g, ' ').trim();
+        }
+        if (data.lat && data.lng) {
+          updates.lat = data.lat;
+          updates.lng = data.lng;
+        }
+        if (data.address) updates.address = data.address;
+        if (data.commune) updates.commune = data.commune;
+        if (data.phone && (!point.phone || point.phone === '0550000000')) updates.phone = data.phone;
+        if (data.photos && data.photos.length > 0) {
+          updates.images = data.photos;
+          updates.imageUrl = data.photos[0];
+        }
+
+        onUpdatePoint(point.id, updates);
+        setSyncSuccessMsg(`تمت إعادة مزامنة وتحديث "${updates.title || point.title}" بنجاح.`);
+        setTimeout(() => setSyncSuccessMsg(''), 4000);
+      } else {
+        alert('تعذر استخراج بيانات المزامنة من الرابط.');
+      }
+    } catch (e) {
+      console.error('Resync failed:', e);
+      alert('فشلت عملية إعادة المزامنة.');
+    } finally {
+      setSyncingPointId(null);
     }
   };
 
@@ -1157,6 +1201,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           </div>
 
                           <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
+                            <button
+                              type="button"
+                              onClick={() => handleResyncPoint(point)}
+                              disabled={syncingPointId === point.id}
+                              className="p-2 bg-emerald-50 hover:bg-emerald-100 disabled:opacity-50 text-emerald-800 rounded-lg border border-emerald-300 transition flex items-center gap-1 text-xs font-semibold"
+                              title="إعادة المزامنة مع خرائط Google وتحديث البيانات والصور"
+                            >
+                              <RefreshCw className={`w-3.5 h-3.5 ${syncingPointId === point.id ? 'animate-spin' : ''}`} />
+                              <span className="hidden sm:inline">مزامنة</span>
+                            </button>
+
                             <button
                               onClick={() => onUpdatePoint(point.id, { verified: !point.verified })}
                               className={`p-1.5 px-2.5 rounded-lg text-xs font-semibold border transition ${
