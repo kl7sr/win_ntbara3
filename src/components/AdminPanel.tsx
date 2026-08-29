@@ -24,7 +24,8 @@ import {
   Camera,
   Loader2,
   Edit,
-  HeartHandshake
+  HeartHandshake,
+  LogOut
 } from 'lucide-react';
 import { CharityPoint, AidCategory, PointStatus, PointType } from '../types';
 import { WILAYAS } from '../data/wilayas';
@@ -35,7 +36,9 @@ import {
   setAdminPasscode, 
   exportPointsJson, 
   importPointsJson, 
-  resetPointsToDefault 
+  resetPointsToDefault,
+  isAdminAuthenticated,
+  setAdminAuthenticated
 } from '../services/storage';
 
 interface AdminPanelProps {
@@ -48,6 +51,7 @@ interface AdminPanelProps {
   onReloadPoints: () => void;
   onSelectPointOnMap: (point: CharityPoint) => void;
   onEditPoint?: (point: CharityPoint) => void;
+  onAdminAuthChange?: (isAuth: boolean) => void;
 }
 
 export const AdminPanel: React.FC<AdminPanelProps> = ({
@@ -60,10 +64,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   onReloadPoints,
   onSelectPointOnMap,
   onEditPoint,
+  onAdminAuthChange,
 }) => {
   if (!isOpen) return null;
 
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean>(() => isAdminAuthenticated());
   const [passInput, setPassInput] = useState('');
   const [authError, setAuthError] = useState('');
 
@@ -124,11 +129,19 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     e.preventDefault();
     const correctPass = getAdminPasscode();
     if (passInput.trim() === correctPass.trim()) {
+      setAdminAuthenticated(true);
       setIsAuthenticated(true);
+      onAdminAuthChange?.(true);
       setAuthError('');
     } else {
       setAuthError('كلمة المرور غير صحيحة');
     }
+  };
+
+  const handleLogout = () => {
+    setAdminAuthenticated(false);
+    setIsAuthenticated(false);
+    onAdminAuthChange?.(false);
   };
 
   const handleQuickImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -409,15 +422,29 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           </div>
         </div>
 
-        <button
-          type="button"
-          onClick={onClose}
-          className="p-2 rounded-xl text-slate-500 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition active:scale-95 flex items-center gap-1.5 text-xs font-bold"
-          title="إغلاق والعودة للموقع"
-        >
-          <X className="w-5 h-5" />
-          <span className="hidden sm:inline">إغلاق اللوحة</span>
-        </button>
+        <div className="flex items-center gap-2">
+          {isAuthenticated && (
+            <button
+              type="button"
+              onClick={handleLogout}
+              className="p-2 rounded-xl text-red-700 hover:text-red-800 bg-red-50 hover:bg-red-100 border border-red-200 transition active:scale-95 flex items-center gap-1.5 text-xs font-bold"
+              title="تسجيل الخروج من لوحة التحكم"
+            >
+              <LogOut className="w-4 h-4" />
+              <span className="hidden sm:inline">تسجيل خروج</span>
+            </button>
+          )}
+
+          <button
+            type="button"
+            onClick={onClose}
+            className="p-2 rounded-xl text-slate-500 hover:text-slate-900 bg-slate-100 hover:bg-slate-200 border border-slate-200 transition active:scale-95 flex items-center gap-1.5 text-xs font-bold"
+            title="إغلاق والعودة للموقع"
+          >
+            <X className="w-5 h-5" />
+            <span className="hidden sm:inline">إغلاق اللوحة</span>
+          </button>
+        </div>
       </header>
 
       {/* Main Light Container */}

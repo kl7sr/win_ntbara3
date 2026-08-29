@@ -12,7 +12,8 @@ import {
   getStoredPoints, 
   addPoint as saveNewPointLocal, 
   updatePoint as saveUpdatedPointLocal, 
-  deletePoint as removePointLocal 
+  deletePoint as removePointLocal,
+  isAdminAuthenticated
 } from './services/storage';
 import { 
   fetchLivePointsFromD1, 
@@ -26,6 +27,7 @@ export function App() {
   const [points, setPoints] = useState<CharityPoint[]>([]);
   const [selectedPoint, setSelectedPoint] = useState<CharityPoint | null>(null);
   const [editingPoint, setEditingPoint] = useState<CharityPoint | null>(null);
+  const [isAdminSession, setIsAdminSession] = useState<boolean>(() => isAdminAuthenticated());
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
 
   // Modals & Panels
@@ -226,16 +228,18 @@ export function App() {
         point={selectedPoint}
         userLocation={userLocation}
         onClose={() => setSelectedPoint(null)}
-        onEditPoint={(point) => setEditingPoint(point)}
+        onEditPoint={isAdminSession ? ((point) => setEditingPoint(point)) : undefined}
       />
 
       {/* 6. Edit Point Modal (Map & Admin Direct Edit) */}
-      <EditPointModal
-        point={editingPoint}
-        isOpen={Boolean(editingPoint)}
-        onClose={() => setEditingPoint(null)}
-        onUpdatePoint={handleUpdatePoint}
-      />
+      {isAdminSession && (
+        <EditPointModal
+          point={editingPoint}
+          isOpen={Boolean(editingPoint)}
+          onClose={() => setEditingPoint(null)}
+          onUpdatePoint={handleUpdatePoint}
+        />
+      )}
 
       {/* 7. Add Charity Point Modal */}
       <AddPointModal
@@ -260,7 +264,7 @@ export function App() {
         onSelectWilaya={setSelectedWilaya}
       />
 
-      {/* 9. Admin Dashboard (Fullscreen) */}
+      {/* 9. Admin Dashboard (Fullscreen Light Mode) */}
       <AdminPanel
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
@@ -273,6 +277,7 @@ export function App() {
           setSelectedPoint(point);
         }}
         onEditPoint={(point) => setEditingPoint(point)}
+        onAdminAuthChange={(isAuth) => setIsAdminSession(isAuth)}
       />
 
       {/* Toast Notification */}

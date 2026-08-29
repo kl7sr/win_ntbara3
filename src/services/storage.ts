@@ -149,3 +149,23 @@ export function getAdminPasscode(): string {
 export function setAdminPasscode(newPass: string): void {
   localStorage.setItem(ADMIN_PASS_KEY, newPass);
 }
+
+const ADMIN_SESSION_KEY = 'win_ntbara3_admin_session_auth';
+
+export function isAdminAuthenticated(): boolean {
+  try {
+    return sessionStorage.getItem(ADMIN_SESSION_KEY) === 'true';
+  } catch {
+    return false;
+  }
+}
+
+export function setAdminAuthenticated(val: boolean): void {
+  try {
+    if (val) {
+      sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
+    } else {
+      sessionStorage.removeItem(ADMIN_SESSION_KEY);
+    }
+  } catch {}
+}
