@@ -15,11 +15,11 @@ import {
   MapPin, 
   Phone, 
   Check, 
-  ExternalLink,
-  Search,
-  Eye,
-  Sliders,
-  Clock
+  ExternalLink, 
+  Search, 
+  Eye, 
+  Sliders, 
+  Clock 
 } from 'lucide-react';
 import { CharityPoint, AidCategory, PointStatus } from '../types';
 import { WILAYAS, AID_CATEGORIES_META } from '../data/wilayas';
@@ -99,7 +99,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       setIsAuthenticated(true);
       setAuthError('');
     } else {
-      setAuthError('كلمة المرور غير صحيحة (الافتراضية: admin123)');
+      setAuthError('كلمة المرور غير صحيحة');
     }
   };
 
@@ -153,8 +153,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       return;
     }
 
-    if (!quickTitle.trim() || !quickOrganizer.trim() || !quickPhone.trim()) {
-      setParseError('يرجى ملء الاسم، المشرف، ورقم الهاتف');
+    if (!quickTitle.trim() || !quickPhone.trim()) {
+      setParseError('يرجى ملء الاسم ورقم الهاتف');
       return;
     }
 
@@ -162,7 +162,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
     onAddPoint({
       title: quickTitle.trim(),
-      organizer: quickOrganizer.trim(),
+      organizer: quickOrganizer.trim() || 'فاعل خير / متطوعين',
       phone: quickPhone.trim(),
       wilayaCode: wilaya.code,
       wilayaNameAr: wilaya.nameAr,
@@ -175,7 +175,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       status: quickUrgent ? 'urgent' : 'active',
       urgentDescription: quickUrgentNote.trim() || undefined,
       hours: quickHours.trim(),
-      verified: true, // Points added directly by admin are verified
+      verified: true,
       featured: false,
       createdBy: 'admin',
       googleMapsUrl: googleInput.startsWith('http') ? googleInput : getGoogleMapsDirUrl(parsedLat, parsedLng),
@@ -384,7 +384,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
               </button>
             </div>
 
-            {/* Tab 0: Unconfirmed / Pending Points */}
+            {/* Tab 0: Unconfirmed */}
             {activeTab === 'unconfirmed' && (
               <div className="p-4 sm:p-6 overflow-y-auto space-y-4 text-xs sm:text-sm flex-1">
                 <div className="bg-amber-50 border border-amber-200 rounded-xl p-4 flex items-start gap-3">
@@ -394,7 +394,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   <div>
                     <h4 className="font-bold text-amber-900 text-sm">قائمة النقاط المضافة التي تحتاج لتأكيدك ({unconfirmedPoints.length})</h4>
                     <p className="text-xs text-amber-800 mt-1 leading-relaxed">
-                      هذه النقاط تظهر حالياً على الخريطة بعلامة صفراء مع تنبيه للمستخدم بالاتصال قبل الذهاب. يمكنك تأكيدها فوراً بضغطة زر لتتحول إلى نقاط موثوقة خضراء، أو حذفها.
+                      هذه النقاط تظهر حالياً على الخريطة بعلامة صفراء مع تنبيه للمستخدم بالاتصال قبل الذهاب. يمكنك تأكيدها فوراً بضغطة زر.
                     </p>
                   </div>
                 </div>
@@ -404,7 +404,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     <div className="text-center py-12 text-slate-500 bg-slate-50 rounded-xl border border-slate-200">
                       <ShieldCheck className="w-10 h-10 text-emerald-600 mx-auto mb-2" />
                       <p className="font-bold text-slate-800">رائع! جميع المواقع مؤكدة وموثوقة</p>
-                      <p className="text-xs text-slate-500 mt-1">أي نقطة يضيفها المستخدمون ستظهر هنا للمراجعة والتأكيد</p>
                     </div>
                   ) : (
                     unconfirmedPoints.map((point) => (
@@ -429,9 +428,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           <p className="text-xs text-slate-500">{point.address}</p>
                         </div>
 
-                        {/* Actions */}
                         <div className="flex items-center gap-2 shrink-0 pt-2 sm:pt-0 border-t sm:border-t-0 border-slate-100">
-                          {/* Confirm & Verify button */}
                           <button
                             onClick={() => handleConfirmPoint(point)}
                             className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs flex items-center gap-1.5 shadow-sm transition active:scale-95"
@@ -440,7 +437,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             <span>تأكيد وتوثيق الموقع</span>
                           </button>
 
-                          {/* Center on map */}
                           <button
                             onClick={() => {
                               onSelectPointOnMap(point);
@@ -452,7 +448,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             <Eye className="w-4 h-4" />
                           </button>
 
-                          {/* Delete */}
                           <button
                             onClick={() => {
                               if (confirm(`هل تريد حذف "${point.title}"؟`)) {
@@ -573,13 +568,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       </div>
 
                       <div>
-                        <label className="block text-slate-700 font-semibold mb-1">المشرف / الجمعية *</label>
+                        <label className="block text-slate-700 font-semibold mb-1">المشرف / الجمعية (اختياري)</label>
                         <input
                           type="text"
-                          required
                           value={quickOrganizer}
                           onChange={(e) => setQuickOrganizer(e.target.value)}
-                          placeholder="اسم الجمعية أو المنظم"
+                          placeholder="اسم الجمعية أو المنظم (اختياري)"
                           className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:ring-2 focus:ring-emerald-600"
                         />
                       </div>

@@ -71,7 +71,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({
 
     points.forEach((point) => {
       const isVerified = point.verified;
-      // Green for verified, Amber/Orange for unconfirmed
       const bgColor = isVerified ? '#047857' : '#d97706';
 
       const markerHtml = `
@@ -123,7 +122,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     });
   }, [points, onSelectPoint]);
 
-  // Update User GPS Marker
+  // Update User GPS Marker & Zoom to User Location
   useEffect(() => {
     if (!mapInstanceRef.current) return;
 
@@ -147,6 +146,11 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       } else {
         userMarkerRef.current.setLatLng([userLocation.lat, userLocation.lng]);
       }
+
+      // Smoothly zoom in on where user is
+      mapInstanceRef.current.flyTo([userLocation.lat, userLocation.lng], 14, {
+        duration: 1.5,
+      });
     }
   }, [userLocation]);
 
@@ -177,6 +181,15 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     mapInstanceRef.current.setView([35.0, 3.0], 6.5);
   };
 
+  const handleLocateClick = () => {
+    onRequestUserLocation();
+    if (userLocation && mapInstanceRef.current) {
+      mapInstanceRef.current.flyTo([userLocation.lat, userLocation.lng], 15, {
+        duration: 1.2,
+      });
+    }
+  };
+
   return (
     <div className="relative w-full h-full bg-slate-100 overflow-hidden">
       {/* Leaflet Map Container */}
@@ -184,13 +197,13 @@ export const MapComponent: React.FC<MapComponentProps> = ({
 
       {/* Floating Map Controls */}
       <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
-        {/* GPS Locate Button */}
+        {/* GPS Locate & Zoom Button */}
         <button
-          onClick={onRequestUserLocation}
+          onClick={handleLocateClick}
           className="p-2.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-emerald-700 rounded-xl border border-slate-300 shadow-md transition active:scale-95"
-          title="تحديد موقعي الحالي"
+          title="تحديد موقعي والتكبير عليه"
         >
-          <Locate className="w-5 h-5" />
+          <Locate className="w-5 h-5 text-emerald-700" />
         </button>
 
         {/* Fit Algeria */}
@@ -203,7 +216,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         </button>
       </div>
 
-      {/* Map Legend (Bottom Right on Desktop, Bottom Left on mobile above nav) */}
+      {/* Map Legend */}
       <div className="absolute bottom-16 sm:bottom-4 right-3 z-20 flex items-center gap-3 bg-white/95 border border-slate-200 px-3 py-1.5 rounded-xl text-xs text-slate-700 shadow-md">
         <div className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded-full bg-emerald-700"></span>
@@ -215,7 +228,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         </div>
       </div>
 
-      {/* Zoom Controls (Desktop) */}
+      {/* Zoom Controls */}
       <div className="absolute bottom-6 left-3 z-20 hidden sm:flex flex-col gap-1.5">
         <button
           onClick={handleZoomIn}

@@ -40,7 +40,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
   const [notes, setNotes] = useState('');
   const [hours, setHours] = useState('08:30 - 19:00');
 
-  // GPS Coordinates (Default: Algiers, Algeria)
+  // GPS Coordinates - automatically prefilled with saved user location
   const [lat, setLat] = useState<number>(initialCoords?.lat || 36.7538);
   const [lng, setLng] = useState<number>(initialCoords?.lng || 3.0588);
   const [gpsLoading, setGpsLoading] = useState(false);
@@ -56,6 +56,15 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
       if (initialCoords && isWithinAlgeriaBounds(initialCoords.lat, initialCoords.lng)) {
         setLat(initialCoords.lat);
         setLng(initialCoords.lng);
+        // Auto-select closest wilaya based on saved coords
+        const closest = WILAYAS.reduce((prev, curr) => {
+          const distPrev = Math.hypot(prev.lat - initialCoords.lat, prev.lng - initialCoords.lng);
+          const distCurr = Math.hypot(curr.lat - initialCoords.lat, curr.lng - initialCoords.lng);
+          return distCurr < distPrev ? curr : prev;
+        });
+        if (closest) {
+          setSelectedWilayaCode(closest.code);
+        }
       } else {
         detectCurrentLocation();
       }
@@ -102,7 +111,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
           setErrorMessage('');
         } else {
           setErrorMessage('عذراً، يجب أن يكون موقع نقطة التبرع داخل الحدود الجزائرية فقط.');
-          marker.setLatLng([lat, lng]); // snap back
+          marker.setLatLng([lat, lng]);
         }
       });
 
@@ -153,7 +162,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
 
         if (!isWithinAlgeriaBounds(newLat, newLng)) {
           setGpsLoading(false);
-          setErrorMessage('موقعك الحالي يقع خارج حدود الجزائر، لا يمكن إضافة نقاط خارج الجزائر.');
+          setErrorMessage('موقعك الحالي يقع خارج حدود الجزائر.');
           return;
         }
 
@@ -190,22 +199,22 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Strict Algerian boundary check
     if (!isWithinAlgeriaBounds(lat, lng)) {
       setErrorMessage('عذراً، يجب أن يكون موقع نقطة التبرع داخل الحدود الجغرافية للجزائر فقط.');
       return;
     }
 
-    if (!title.trim() || !organizer.trim() || !phone.trim() || !commune.trim()) {
-      setErrorMessage('يرجى ملء جميع الحقول الإلزامية (اسم النقطة، المشرف، الهاتف، والبلدية).');
+    if (!title.trim() || !phone.trim() || !commune.trim()) {
+      setErrorMessage('يرجى ملء اسم النقطة، رقم الهاتف، والبلدية.');
       return;
     }
 
     const wilaya = WILAYAS.find((w) => w.code === selectedWilayaCode) || WILAYAS[15];
+    const organizerName = organizer.trim() || 'فاعل خير / متطوعين';
 
     onAddPoint({
       title: title.trim(),
-      organizer: organizer.trim(),
+      organizer: organizerName,
       phone: phone.trim(),
       altPhone: altPhone.trim() || undefined,
       wilayaCode: wilaya.code,
@@ -247,7 +256,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
             </div>
             <div>
               <h2 className="text-base font-bold text-slate-900">إضافة نقطة تبرع بالجزائر</h2>
-              <p className="text-xs text-slate-500">مخصصة للمراكز والجمعيات داخل التراب الجزائري</p>
+              <p className="text-xs text-slate-500">سجل موقع مركز التبرعات ليتمكن المتبرعون من الوصول إليكم</p>
             </div>
           </div>
           <button
@@ -289,7 +298,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
                 ) : (
                   <LocateFixed className="w-3.5 h-3.5" />
                 )}
-                <span>{gpsLoading ? 'جاري التحديد...' : 'تحديد موقعي الحالي (GPS)'}</span>
+                <span>{gpsLoading ? 'جاري التحديد...' : 'تحديث موقعي (GPS)'}</span>
               </button>
             </div>
 
@@ -302,32 +311,31 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
             </div>
           </div>
 
-          {/* Title & Organizer */}
+          {/* Title & Organizer (Organizer is optional) */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-slate-700 font-semibold mb-1">
-                اسم المركز أو النقطة <span className="text-red-600">*</span>
+                اسم نقطة التبرع أو المركز <span className="text-red-600">*</span>
               </label>
               <input
                 type="text"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="مثال: مركز الهلال الأحمر، جمعية..."
+                placeholder="مثال: نقطة تجميع، دار الشباب، مسجد..."
                 className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-xs sm:text-sm"
               />
             </div>
 
             <div>
               <label className="block text-slate-700 font-semibold mb-1">
-                المشرف / الجمعية <span className="text-red-600">*</span>
+                اسم الجمعية / المشرف <span className="text-slate-400 font-normal">(اختياري)</span>
               </label>
               <input
                 type="text"
-                required
                 value={organizer}
                 onChange={(e) => setOrganizer(e.target.value)}
-                placeholder="اسم الجمعية أو المنظم"
+                placeholder="مثال: جمعية الإحسان، متطوعين (اختياري)"
                 className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-xs sm:text-sm"
               />
             </div>
@@ -337,7 +345,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-slate-700 font-semibold mb-1">
-                رقم الهاتف <span className="text-red-600">*</span>
+                رقم الهاتف للاتصال <span className="text-red-600">*</span>
               </label>
               <div className="relative">
                 <input
