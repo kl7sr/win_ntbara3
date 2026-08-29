@@ -1,8 +1,9 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef } from 'react';
 import L from 'leaflet';
 import { CharityPoint, UserLocation } from '../types';
-import { Locate, Layers, ZoomIn, ZoomOut, Maximize2, HeartHandshake } from 'lucide-react';
+import { Locate, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import { WILAYAS } from '../data/wilayas';
+import { ALGERIA_BOUNDS } from '../utils/geoParser';
 
 interface MapComponentProps {
   points: CharityPoint[];
@@ -26,28 +27,30 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   const markersLayerRef = useRef<L.LayerGroup | null>(null);
   const userMarkerRef = useRef<L.Marker | null>(null);
 
-  // Initialize Map
+  // Initialize Map strictly constrained to Algeria
   useEffect(() => {
     if (!mapContainerRef.current || mapInstanceRef.current) return;
 
-    // Algeria central view
+    const algeriaBounds = L.latLngBounds(
+      L.latLng(ALGERIA_BOUNDS.minLat, ALGERIA_BOUNDS.minLng),
+      L.latLng(ALGERIA_BOUNDS.maxLat, ALGERIA_BOUNDS.maxLng)
+    );
+
     const map = L.map(mapContainerRef.current, {
-      center: [35.5, 3.5],
+      center: [35.0, 3.0],
       zoom: 6.5,
-      minZoom: 5,
+      minZoom: 5.5,
       maxZoom: 18,
+      maxBounds: algeriaBounds,
+      maxBoundsViscosity: 1.0, // Hard lock inside Algeria bounds
       zoomControl: false,
     });
-
-    const southWest = L.latLng(18.0, -9.0);
-    const northEast = L.latLng(38.0, 12.5);
-    const bounds = L.latLngBounds(southWest, northEast);
-    map.setMaxBounds(bounds);
 
     // Clean OpenStreetMap standard tiles (Zero API key required)
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
       attribution: '&copy; OpenStreetMap contributors',
       maxZoom: 19,
+      bounds: algeriaBounds,
     }).addTo(map);
 
     const markersLayer = L.layerGroup().addTo(map);
@@ -71,7 +74,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       const isUrgent = point.status === 'urgent';
       const bgColor = isUrgent ? '#dc2626' : '#047857';
 
-      // Clean SVG pin icon without neon
       const markerHtml = `
         <div class="custom-pin-container">
           <div class="custom-pin-body" style="background-color: ${bgColor};">
@@ -158,44 +160,37 @@ export const MapComponent: React.FC<MapComponentProps> = ({
 
   const handleFitAll = () => {
     if (!mapInstanceRef.current) return;
-    if (points.length > 0) {
-      const group = L.featureGroup(
-        points.map((p) => L.marker([p.lat, p.lng]))
-      );
-      mapInstanceRef.current.fitBounds(group.getBounds().pad(0.15));
-    } else {
-      mapInstanceRef.current.setView([35.5, 3.5], 6.5);
-    }
+    mapInstanceRef.current.setView([35.0, 3.0], 6.5);
   };
 
   return (
-    <div className="relative w-full h-[calc(100vh-100px)] bg-slate-100 overflow-hidden">
+    <div className="relative w-full h-full bg-slate-100 overflow-hidden">
       {/* Leaflet Map Container */}
       <div ref={mapContainerRef} className="w-full h-full z-10" />
 
       {/* Floating Map Controls */}
-      <div className="absolute top-4 left-4 z-20 flex flex-col gap-2">
+      <div className="absolute top-3 left-3 z-20 flex flex-col gap-2">
         {/* GPS Locate Button */}
         <button
           onClick={onRequestUserLocation}
-          className="p-2.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-emerald-700 rounded-lg border border-slate-300 shadow-md transition"
+          className="p-2.5 bg-white hover:bg-slate-50 text-slate-700 hover:text-emerald-700 rounded-xl border border-slate-300 shadow-md transition active:scale-95"
           title="تحديد موقعي الحالي"
         >
           <Locate className="w-5 h-5" />
         </button>
 
-        {/* Fit All Points */}
+        {/* Fit Algeria */}
         <button
           onClick={handleFitAll}
-          className="p-2.5 bg-white hover:bg-slate-50 text-slate-700 rounded-lg border border-slate-300 shadow-md transition"
-          title="عرض كامل الخريطة"
+          className="p-2.5 bg-white hover:bg-slate-50 text-slate-700 rounded-xl border border-slate-300 shadow-md transition active:scale-95"
+          title="عرض خريطة الجزائر"
         >
           <Maximize2 className="w-5 h-5" />
         </button>
       </div>
 
-      {/* Zoom Controls */}
-      <div className="absolute bottom-6 left-4 z-20 hidden sm:flex flex-col gap-1.5">
+      {/* Zoom Controls (Bottom Left) */}
+      <div className="absolute bottom-6 left-3 z-20 hidden sm:flex flex-col gap-1.5">
         <button
           onClick={handleZoomIn}
           className="p-2 bg-white hover:bg-slate-50 text-slate-700 rounded-lg border border-slate-300 shadow-md transition"
@@ -208,18 +203,6 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         >
           <ZoomOut className="w-4 h-4" />
         </button>
-      </div>
-
-      {/* Clean Legend (Bottom Right) */}
-      <div className="absolute bottom-6 right-4 z-20 hidden md:flex items-center gap-3 bg-white/95 border border-slate-200 px-3 py-1.5 rounded-lg text-xs text-slate-700 shadow-md">
-        <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-emerald-700"></span>
-          <span>نقطة تبرع</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-600"></span>
-          <span>حاجة عاجلة</span>
-        </div>
       </div>
     </div>
   );

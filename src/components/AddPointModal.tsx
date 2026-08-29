@@ -7,11 +7,11 @@ import {
   AlertCircle, 
   LocateFixed, 
   Loader2, 
-  CheckCircle2,
-  Clock
+  CheckCircle2
 } from 'lucide-react';
 import { CharityPoint, AidCategory, PointStatus } from '../types';
 import { WILAYAS, AID_CATEGORIES_META } from '../data/wilayas';
+import { isWithinAlgeriaBounds, ALGERIA_BOUNDS } from '../utils/geoParser';
 import L from 'leaflet';
 
 interface AddPointModalProps {
@@ -40,7 +40,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
   const [notes, setNotes] = useState('');
   const [hours, setHours] = useState('08:30 - 19:00');
 
-  // GPS Coordinates
+  // GPS Coordinates (Default: Algiers, Algeria)
   const [lat, setLat] = useState<number>(initialCoords?.lat || 36.7538);
   const [lng, setLng] = useState<number>(initialCoords?.lng || 3.0588);
   const [gpsLoading, setGpsLoading] = useState(false);
@@ -53,7 +53,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
 
   useEffect(() => {
     if (isOpen) {
-      if (initialCoords) {
+      if (initialCoords && isWithinAlgeriaBounds(initialCoords.lat, initialCoords.lng)) {
         setLat(initialCoords.lat);
         setLng(initialCoords.lng);
       } else {
@@ -70,6 +70,11 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
         center: [lat, lng],
         zoom: 13,
         zoomControl: false,
+        maxBounds: L.latLngBounds(
+          L.latLng(ALGERIA_BOUNDS.minLat, ALGERIA_BOUNDS.minLng),
+          L.latLng(ALGERIA_BOUNDS.maxLat, ALGERIA_BOUNDS.maxLng)
+        ),
+        maxBoundsViscosity: 1.0,
       });
 
       L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
@@ -91,14 +96,25 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
 
       marker.on('dragend', () => {
         const pos = marker.getLatLng();
-        setLat(Number(pos.lat.toFixed(6)));
-        setLng(Number(pos.lng.toFixed(6)));
+        if (isWithinAlgeriaBounds(pos.lat, pos.lng)) {
+          setLat(Number(pos.lat.toFixed(6)));
+          setLng(Number(pos.lng.toFixed(6)));
+          setErrorMessage('');
+        } else {
+          setErrorMessage('عذراً، يجب أن يكون موقع نقطة التبرع داخل الحدود الجزائرية فقط.');
+          marker.setLatLng([lat, lng]); // snap back
+        }
       });
 
       map.on('click', (e) => {
-        marker.setLatLng(e.latlng);
-        setLat(Number(e.latlng.lat.toFixed(6)));
-        setLng(Number(e.latlng.lng.toFixed(6)));
+        if (isWithinAlgeriaBounds(e.latlng.lat, e.latlng.lng)) {
+          marker.setLatLng(e.latlng);
+          setLat(Number(e.latlng.lat.toFixed(6)));
+          setLng(Number(e.latlng.lng.toFixed(6)));
+          setErrorMessage('');
+        } else {
+          setErrorMessage('عذراً، لا يمكن وضع النقطة خارج حدود الجزائر.');
+        }
       });
 
       miniMapInstanceRef.current = map;
@@ -127,16 +143,20 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
   }, [lat, lng]);
 
   const detectCurrentLocation = () => {
-    if (!navigator.geolocation) {
-      setErrorMessage('خاصية تحديد الموقع غير مدعومة في هذا المتصفح');
-      return;
-    }
+    if (!navigator.geolocation) return;
     setGpsLoading(true);
     setErrorMessage('');
     navigator.geolocation.getCurrentPosition(
       (pos) => {
         const newLat = Number(pos.coords.latitude.toFixed(6));
         const newLng = Number(pos.coords.longitude.toFixed(6));
+
+        if (!isWithinAlgeriaBounds(newLat, newLng)) {
+          setGpsLoading(false);
+          setErrorMessage('موقعك الحالي يقع خارج حدود الجزائر، لا يمكن إضافة نقاط خارج الجزائر.');
+          return;
+        }
+
         setLat(newLat);
         setLng(newLng);
         setGpsAccuracy(Math.round(pos.coords.accuracy));
@@ -169,6 +189,13 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Strict Algerian boundary check
+    if (!isWithinAlgeriaBounds(lat, lng)) {
+      setErrorMessage('عذراً، يجب أن يكون موقع نقطة التبرع داخل الحدود الجغرافية للجزائر فقط.');
+      return;
+    }
+
     if (!title.trim() || !organizer.trim() || !phone.trim() || !commune.trim()) {
       setErrorMessage('يرجى ملء جميع الحقول الإلزامية (اسم النقطة، المشرف، الهاتف، والبلدية).');
       return;
@@ -205,44 +232,49 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-slate-900/50 backdrop-blur-xs overflow-y-auto">
-      <div className="bg-white border border-slate-200 rounded-2xl w-full max-w-2xl shadow-xl overflow-hidden my-auto max-h-[92vh] flex flex-col">
+    <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs overflow-y-auto">
+      <div className="bg-white border-t sm:border border-slate-200 rounded-t-3xl sm:rounded-2xl w-full max-w-2xl shadow-2xl my-0 sm:my-auto max-h-[90vh] flex flex-col animate-in slide-in-from-bottom duration-200">
+        {/* Mobile Drag Handle */}
+        <div className="w-full pt-2.5 pb-1 sm:hidden flex justify-center cursor-pointer" onClick={onClose}>
+          <div className="w-12 h-1.5 bg-slate-300 rounded-full"></div>
+        </div>
+
         {/* Header */}
-        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+        <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-emerald-100 text-emerald-800 rounded-lg">
+            <div className="p-2 bg-emerald-100 text-emerald-800 rounded-xl">
               <MapPin className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base sm:text-lg font-bold text-slate-900">إضافة نقطة تبرع جديدة</h2>
-              <p className="text-xs text-slate-500">سجل موقع مركز التبرعات ليتمكن المواطنون من الوصول إليكم</p>
+              <h2 className="text-base font-bold text-slate-900">إضافة نقطة تبرع بالجزائر</h2>
+              <p className="text-xs text-slate-500">مخصصة للمراكز والجمعيات داخل التراب الجزائري</p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg text-slate-400 hover:text-slate-700 bg-white hover:bg-slate-100 border border-slate-200 transition"
+            className="p-1.5 rounded-full text-slate-400 hover:text-slate-700 bg-white border border-slate-200 transition"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Form Body */}
-        <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto space-y-4 text-xs sm:text-sm">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 overflow-y-auto space-y-3.5 text-xs sm:text-sm">
           {errorMessage && (
-            <div className="p-3 bg-red-50 border border-red-200 rounded-lg text-red-800 text-xs flex items-center gap-2">
+            <div className="p-3 bg-red-50 border border-red-200 rounded-xl text-red-800 text-xs flex items-center gap-2 font-medium">
               <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
               <span>{errorMessage}</span>
             </div>
           )}
 
           {/* GPS Location Box */}
-          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-3">
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2.5">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <span className="font-bold text-slate-800 text-xs block">موقع النقطة الجغرافي:</span>
                 <span className="text-[11px] text-slate-500 font-mono">
                   {lat.toFixed(4)}, {lng.toFixed(4)}
-                  {gpsAccuracy && ` (دقة: ±${gpsAccuracy} متر)`}
+                  {gpsAccuracy && ` (دقة: ±${gpsAccuracy}m)`}
                 </span>
               </div>
 
@@ -250,7 +282,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
                 type="button"
                 onClick={detectCurrentLocation}
                 disabled={gpsLoading}
-                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs transition shadow-sm disabled:opacity-50"
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-semibold text-xs transition shadow-sm disabled:opacity-50 active:scale-95"
               >
                 {gpsLoading ? (
                   <Loader2 className="w-3.5 h-3.5 animate-spin" />
@@ -262,50 +294,50 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
             </div>
 
             {/* Interactive Mini Map */}
-            <div className="relative rounded-lg overflow-hidden border border-slate-300 h-36 w-full">
+            <div className="relative rounded-lg overflow-hidden border border-slate-300 h-32 w-full">
               <div ref={miniMapContainerRef} className="w-full h-full" />
               <div className="absolute bottom-1.5 right-1.5 z-[400] bg-white/95 text-slate-700 text-[10px] px-2 py-0.5 rounded border border-slate-200 shadow-sm">
-                اسحب النقطة أو انقر على الخريطة لتعديل الموقع بدقة
+                داخل حدود الجزائر فقط
               </div>
             </div>
           </div>
 
           {/* Title & Organizer */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-slate-700 font-semibold mb-1">
-                اسم نقطة التبرع أو المركز <span className="text-red-600">*</span>
+                اسم المركز أو النقطة <span className="text-red-600">*</span>
               </label>
               <input
                 type="text"
                 required
                 value={title}
                 onChange={(e) => setTitle(e.target.value)}
-                placeholder="مثال: مركز الهلال الأحمر، دار الشباب، جمعية..."
-                className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                placeholder="مثال: مركز الهلال الأحمر، جمعية..."
+                className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-xs sm:text-sm"
               />
             </div>
 
             <div>
               <label className="block text-slate-700 font-semibold mb-1">
-                المشرف / الجمعية / المنظم <span className="text-red-600">*</span>
+                المشرف / الجمعية <span className="text-red-600">*</span>
               </label>
               <input
                 type="text"
                 required
                 value={organizer}
                 onChange={(e) => setOrganizer(e.target.value)}
-                placeholder="مثال: جمعية البركة، كشافة، متطوعين..."
-                className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                placeholder="اسم الجمعية أو المنظم"
+                className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-xs sm:text-sm"
               />
             </div>
           </div>
 
           {/* Phone Numbers */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-slate-700 font-semibold mb-1">
-                رقم الهاتف الرئيسي للاتصال <span className="text-red-600">*</span>
+                رقم الهاتف <span className="text-red-600">*</span>
               </label>
               <div className="relative">
                 <input
@@ -315,7 +347,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="0550123456"
-                  className="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 font-mono"
+                  className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 font-mono text-xs sm:text-sm"
                 />
                 <Phone className="w-4 h-4 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
               </div>
@@ -323,7 +355,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
 
             <div>
               <label className="block text-slate-700 font-semibold mb-1">
-                رقم هاتف إضافي (اختياري)
+                رقم إضافي (اختياري)
               </label>
               <div className="relative">
                 <input
@@ -332,7 +364,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
                   value={altPhone}
                   onChange={(e) => setAltPhone(e.target.value)}
                   placeholder="021123456"
-                  className="w-full bg-white border border-slate-300 rounded-lg pl-9 pr-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 font-mono"
+                  className="w-full bg-white border border-slate-300 rounded-xl pl-9 pr-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 font-mono text-xs sm:text-sm"
                 />
                 <Phone className="w-4 h-4 text-slate-400 absolute left-2.5 top-1/2 -translate-y-1/2" />
               </div>
@@ -340,7 +372,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
           </div>
 
           {/* Wilaya & Commune */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-slate-700 font-semibold mb-1">
                 الولاية <span className="text-red-600">*</span>
@@ -348,7 +380,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
               <select
                 value={selectedWilayaCode}
                 onChange={(e) => setSelectedWilayaCode(Number(e.target.value))}
-                className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-900 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-xs sm:text-sm"
               >
                 {WILAYAS.map((w) => (
                   <option key={w.code} value={w.code}>
@@ -368,34 +400,21 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
                 value={commune}
                 onChange={(e) => setCommune(e.target.value)}
                 placeholder="البلدية أو الحي"
-                className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600"
+                className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-xs sm:text-sm"
               />
             </div>
           </div>
 
-          {/* Address & Hours */}
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
-            <div>
-              <label className="block text-slate-700 font-semibold mb-1">العنوان ومكان التواجد</label>
-              <input
-                type="text"
-                value={address}
-                onChange={(e) => setAddress(e.target.value)}
-                placeholder="العنوان بدقة (شارع، بجانب مسجد...)"
-                className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600"
-              />
-            </div>
-
-            <div>
-              <label className="block text-slate-700 font-semibold mb-1">أوقات استقبال التبرعات</label>
-              <input
-                type="text"
-                value={hours}
-                onChange={(e) => setHours(e.target.value)}
-                placeholder="مثال: 08:30 - 19:00"
-                className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600"
-              />
-            </div>
+          {/* Address */}
+          <div>
+            <label className="block text-slate-700 font-semibold mb-1">العنوان ومكان التواجد</label>
+            <input
+              type="text"
+              value={address}
+              onChange={(e) => setAddress(e.target.value)}
+              placeholder="العنوان بدقة"
+              className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-xs sm:text-sm"
+            />
           </div>
 
           {/* Accepted Aid Types */}
@@ -412,7 +431,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
                     type="button"
                     key={catKey}
                     onClick={() => toggleCategory(catKey)}
-                    className={`flex items-center justify-between p-2.5 rounded-lg border text-xs font-medium transition text-right ${
+                    className={`flex items-center justify-between p-2 rounded-xl border text-xs font-medium transition text-right ${
                       isSelected
                         ? 'bg-emerald-50 border-emerald-600 text-emerald-900 font-bold'
                         : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
@@ -426,33 +445,19 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
             </div>
           </div>
 
-          {/* Notes */}
-          <div>
-            <label className="block text-slate-700 font-semibold mb-1">
-              ملاحظات إضافية (اختياري)
-            </label>
-            <textarea
-              rows={2}
-              value={notes}
-              onChange={(e) => setNotes(e.target.value)}
-              placeholder="أي معلومات إضافية للمتبرعين..."
-              className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600"
-            />
-          </div>
-
           {/* Submit Button */}
           <div className="pt-2 border-t border-slate-200 flex items-center justify-end gap-3">
             <button
               type="button"
               onClick={onClose}
-              className="px-4 py-2 rounded-lg text-slate-700 hover:bg-slate-100 font-medium transition"
+              className="px-4 py-2.5 rounded-xl text-slate-700 hover:bg-slate-100 font-medium transition"
             >
               إلغاء
             </button>
 
             <button
               type="submit"
-              className="px-6 py-2 rounded-lg bg-emerald-700 hover:bg-emerald-800 text-white font-bold shadow transition flex items-center gap-2"
+              className="px-6 py-2.5 rounded-xl bg-emerald-700 hover:bg-emerald-800 text-white font-bold shadow-md transition flex items-center gap-2 active:scale-95"
             >
               <CheckCircle2 className="w-4 h-4" />
               <span>نشر نقطة التبرع على الخريطة</span>

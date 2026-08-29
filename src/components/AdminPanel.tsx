@@ -23,7 +23,7 @@ import {
 } from 'lucide-react';
 import { CharityPoint, AidCategory, PointStatus } from '../types';
 import { WILAYAS, AID_CATEGORIES_META } from '../data/wilayas';
-import { parseGoogleMapsLinkOrCoords, getGoogleMapsDirUrl } from '../utils/geoParser';
+import { parseGoogleMapsLinkOrCoords, getGoogleMapsDirUrl, isWithinAlgeriaBounds } from '../utils/geoParser';
 import { 
   getAdminPasscode, 
   setAdminPasscode, 
@@ -110,6 +110,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
     const result = parseGoogleMapsLinkOrCoords(googleInput);
     if (result) {
+      if (!isWithinAlgeriaBounds(result.lat, result.lng)) {
+        setParseStatus('error');
+        setParseError('عذراً، هذا الموقع يقع خارج حدود الجزائر.');
+        return;
+      }
+
       setParsedLat(Number(result.lat.toFixed(6)));
       setParsedLng(Number(result.lng.toFixed(6)));
       setParseStatus('success');
@@ -126,7 +132,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       }
     } else {
       setParseStatus('error');
-      setParseError('تعذر استخراج الإحداثيات. يرجى إدخال الإحداثيات مثل: 36.75, 3.05');
+      setParseError('تعذر استخراج الإحداثيات. يرجى إدخال إحداثيات صالحة داخل الجزائر مثل: 36.75, 3.05');
     }
   };
 
@@ -136,6 +142,12 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       setParseError('يرجى استخراج وتأكيد الإحداثيات أولاً');
       return;
     }
+
+    if (!isWithinAlgeriaBounds(parsedLat, parsedLng)) {
+      setParseError('عذراً، يجب أن يكون الموقع داخل الجزائر فقط.');
+      return;
+    }
+
     if (!quickTitle.trim() || !quickOrganizer.trim() || !quickPhone.trim()) {
       setParseError('يرجى ملء الاسم، المشرف، ورقم الهاتف');
       return;
@@ -325,7 +337,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 }`}
               >
                 <LinkIcon className="w-4 h-4" />
-                <span>إضافة عبر رابط Google Maps أو موقع</span>
+                <span>إضافة عبر رابط Google Maps</span>
               </button>
 
               <button
@@ -361,9 +373,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     <LinkIcon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h4 className="font-bold text-slate-900 text-sm">إضافة نقطة فورية عبر رابط أو إحداثيات Google Maps</h4>
+                    <h4 className="font-bold text-slate-900 text-sm">إضافة نقطة فورية داخل الجزائر عبر Google Maps</h4>
                     <p className="text-xs text-slate-600 mt-1 leading-relaxed">
-                      الصق رابط مشاركة من تطبيق Google Maps أو أدخل الإحداثيات مباشرة (مثل: <code className="text-emerald-800 font-mono">36.7538, 3.0588</code>) لاستخراج الموقع تلقائياً.
+                      الصق رابط مشاركة من تطبيق Google Maps أو أدخل الإحداثيات (مثال: <code className="text-emerald-800 font-mono">36.7538, 3.0588</code>). النظام يقبل المواقع داخل التراب الجزائري حصراً.
                     </p>
                   </div>
                 </div>
@@ -378,7 +390,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                 {/* Step 1: Input URL / Coords */}
                 <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
                   <label className="block text-slate-800 font-bold">
-                    1. رابط خرائط Google Maps أو الإحداثيات:
+                    1. رابط خرائط Google Maps أو الإحداثيات بالجزائر:
                   </label>
 
                   <div className="flex flex-col sm:flex-row items-stretch gap-2">
@@ -417,7 +429,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     <div className="p-3 bg-emerald-50 border border-emerald-300 rounded-lg flex flex-wrap items-center justify-between gap-2 text-xs">
                       <div className="flex items-center gap-2 text-emerald-900 font-medium">
                         <CheckCircle className="w-4 h-4 text-emerald-700" />
-                        <span>تم استخراج الإحداثيات: Latitude: {parsedLat}, Longitude: {parsedLng}</span>
+                        <span>تم استخراج موقع بالجزائر: Latitude: {parsedLat}, Longitude: {parsedLng}</span>
                       </div>
 
                       <a
@@ -547,7 +559,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             {/* Tab 2: Manage All Points */}
             {activeTab === 'manage_points' && (
               <div className="p-4 sm:p-6 overflow-y-auto space-y-4 text-xs sm:text-sm flex-1">
-                {/* Search & Filter Bar */}
                 <div className="flex flex-col sm:flex-row items-center gap-2">
                   <div className="relative flex-1 w-full">
                     <input
@@ -574,7 +585,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   </select>
                 </div>
 
-                {/* Points Table / List */}
                 <div className="space-y-2.5">
                   {filteredPoints.length === 0 ? (
                     <div className="text-center py-8 text-slate-400">لا توجد نقاط مطابقة</div>
@@ -605,9 +615,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           )}
                         </div>
 
-                        {/* Action buttons */}
                         <div className="flex items-center gap-1.5 shrink-0 self-end sm:self-center">
-                          {/* Toggle Verified */}
                           <button
                             onClick={() => onUpdatePoint(point.id, { verified: !point.verified })}
                             className={`p-1.5 px-2.5 rounded-lg text-xs font-semibold border transition ${
@@ -620,7 +628,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             {point.verified ? 'موثوق ✓' : 'توثيق'}
                           </button>
 
-                          {/* Center on map */}
                           <button
                             onClick={() => {
                               onSelectPointOnMap(point);
@@ -632,7 +639,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                             <Eye className="w-3.5 h-3.5" />
                           </button>
 
-                          {/* Delete */}
                           <button
                             onClick={() => {
                               if (confirm(`هل تريد حذف "${point.title}"؟`)) {
@@ -655,11 +661,10 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
             {/* Tab 3: Settings & Backup */}
             {activeTab === 'settings' && (
               <div className="p-4 sm:p-6 overflow-y-auto space-y-5 text-xs sm:text-sm flex-1">
-                {/* Backup & Restore */}
                 <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
                   <h4 className="font-bold text-slate-900 text-sm">النسخ الاحتياطي واستيراد البيانات</h4>
                   <p className="text-slate-600 text-xs">
-                    تصدير قاعدة بيانات نقاط التبرع كملف JSON وحفظه، أو استيراده على أي جهاز.
+                    تصدير واستيراد قاعدة بيانات نقاط التبرع كملف JSON.
                   </p>
 
                   <div className="flex flex-wrap items-center gap-3 pt-1">
@@ -687,7 +692,6 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   </div>
                 </div>
 
-                {/* Change Admin Password */}
                 <div className="bg-slate-50 border border-slate-200 rounded-xl p-4 space-y-3">
                   <h4 className="font-bold text-slate-900 text-sm">تغيير كلمة مرور المشرف</h4>
                   
