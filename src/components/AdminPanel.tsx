@@ -93,177 +93,86 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [quickCategories, setQuickCategories] = useState<AidCategory[]>(['food_water', 'clothes', 'medical']);
   const [quickUrgent, setQuickUrgent] = useState(false);
   const [quickUrgentNote, setQuickUrgentNote] = useState('');
+  const [quickPhotos, setQuickPhotos] = useState<string[]>([]);
   const [quickSuccessMsg, setQuickSuccessMsg] = useState('');
+  const [parsingLoading, setParsingLoading] = useState(false);
 
-  // Manage table filters
-  const [adminSearch, setAdminSearch] = useState('');
-  const [adminWilayaFilter, setAdminWilayaFilter] = useState<number | null>(null);
-
-  // Settings
-  const [newPass, setNewPass] = useState('');
-  const [passChangeMsg, setPassChangeMsg] = useState('');
-
-  if (!isOpen) return null;
-
-  const unconfirmedPoints = points.filter((p) => !p.verified);
-
-  const handleLogin = (e: React.FormEvent) => {
-    e.preventDefault();
-    const correctPass = getAdminPasscode();
-    if (passInput.trim() === correctPass.trim()) {
-      setIsAuthenticated(true);
-      setAuthError('');
-    } else {
-      setAuthError('كلمة المرور غير صحيحة');
-    }
-  };
-
-  const handleConfirmPoint = (point: CharityPoint) => {
-    onUpdatePoint(point.id, { verified: true });
-  };
-
-  const handleOpenPhotoInNewTab = (imgUrl: string) => {
-    const newTab = window.open();
-    if (newTab) {
-      newTab.document.write(`
-        <!DOCTYPE html>
-        <html lang="ar">
-          <head>
-            <title>معاينة صورة نقطة التبرع</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-              body {
-                margin: 0;
-                background-color: #0f172a;
-                display: flex;
-                flex-direction: column;
-                align-items: center;
-                justify-content: center;
-                min-height: 100vh;
-                font-family: sans-serif;
-              }
-              img {
-                max-width: 95vw;
-                max-height: 90vh;
-                object-fit: contain;
-                border-radius: 8px;
-                box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-              }
-            </style>
-          </head>
-          <body>
-            <img src="${imgUrl}" alt="Charity point photo" />
-          </body>
-        </html>
-      `);
-      newTab.document.close();
-    }
-  };
-
-  // Parse Burnt Zone Coords
-  const handleParseBurntCoords = () => {
-    if (!burntCoordsInput.trim()) {
-      setBurntError('يرجى إدخال رابط أو إحداثيات موقع الحريق');
-      return;
-    }
-    const result = parseGoogleMapsLinkOrCoords(burntCoordsInput);
-    if (result && isWithinAlgeriaBounds(result.lat, result.lng)) {
-      setBurntLat(Number(result.lat.toFixed(6)));
-      setBurntLng(Number(result.lng.toFixed(6)));
-      setBurntError('');
-      const closest = WILAYAS.reduce((prev, curr) => {
-        const distPrev = Math.hypot(prev.lat - result.lat, prev.lng - result.lng);
-        const distCurr = Math.hypot(curr.lat - result.lat, curr.lng - result.lng);
-        return distCurr < distPrev ? curr : prev;
-      });
-      if (closest) setBurntWilaya(closest.code);
-    } else {
-      setBurntError('يرجى إدخال إحداثيات أو رابط صالح داخل الجزائر (مثال: 36.71, 4.04)');
-    }
-  };
-
-  // Submit Burnt Zone (Admin Exclusive)
-  const handleAddBurntZone = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!burntLat || !burntLng) {
-      setBurntError('يرجى استخراج وتحديد إحداثيات المنطقة أولاً');
-      return;
-    }
-
-    if (!burntTitle.trim() || !burntCommune.trim()) {
-      setBurntError('يرجى ملء اسم المنطقة والبلدية');
-      return;
-    }
-
-    const wilaya = WILAYAS.find((w) => w.code === burntWilaya) || WILAYAS[14];
-
-    onAddPoint({
-      title: `🔥 ${burntTitle.trim()}`,
-      organizer: burntCoordinator.trim() || 'خلية إغاثة المتضررين من الحرائق',
-      phone: burntPhone.trim() || '14',
-      wilayaCode: wilaya.code,
-      wilayaNameAr: wilaya.nameAr,
-      wilayaNameFr: wilaya.nameFr,
-      commune: burntCommune.trim(),
-      address: burntAddress.trim() || `${burntCommune}، ولاية ${wilaya.nameAr}`,
-      lat: burntLat,
-      lng: burntLng,
-      aidCategories: ['food_water', 'medical', 'blankets', 'shelter', 'clothes'],
-      status: 'urgent',
-      pointType: 'burnt_zone', // Burnt zone type
-      urgentDescription: burntNeeds.trim() || 'منطقة منكوبة ومتضررة من الحرائق بحاجة عاجلة لإغاثة ومساعدات.',
-      verified: true,
-      featured: true,
-      createdBy: 'admin',
-      googleMapsUrl: getGoogleMapsDirUrl(burntLat, burntLng),
-    });
-
-    setBurntSuccessMsg('تمت إضافة وتثبيت المنطقة المتضررة من الحرائق على الخريطة بنجاح.');
-    setTimeout(() => setBurntSuccessMsg(''), 4000);
-
-    setBurntTitle('');
-    setBurntCommune('');
-    setBurntAddress('');
-    setBurntPhone('');
-    setBurntCoordinator('');
-    setBurntNeeds('');
-    setBurntCoordsInput('');
-    setBurntLat(null);
-    setBurntLng(null);
-  };
-
-  const handleParseGoogleLink = () => {
+  const handleParseGoogleLink = async () => {
     if (!googleInput.trim()) {
       setParseStatus('error');
       setParseError('يرجى لصق رابط خرائط Google أو الإحداثيات');
       return;
     }
 
+    setParsingLoading(true);
+    setParseError('');
+
+    try {
+      // 1. Try server-side Cloudflare resolver (handles short maps.app.goo.gl and extracts photos + title)
+      const res = await fetch(`/api/resolve-google-maps?url=${encodeURIComponent(googleInput.trim())}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.lat && data.lng) {
+          if (!isWithinAlgeriaBounds(data.lat, data.lng)) {
+            setParseStatus('error');
+            setParseError('عذراً، هذا الموقع يقع خارج حدود الجزائر.');
+            setParsingLoading(false);
+            return;
+          }
+
+          setParsedLat(Number(data.lat.toFixed(6)));
+          setParsedLng(Number(data.lng.toFixed(6)));
+          setParseStatus('success');
+          setParseError('');
+
+          if (data.title) setQuickTitle(data.title);
+          if (data.photos && data.photos.length > 0) setQuickPhotos(data.photos);
+
+          const closest = WILAYAS.reduce((prev, curr) => {
+            const distPrev = Math.hypot(prev.lat - data.lat, prev.lng - data.lng);
+            const distCurr = Math.hypot(curr.lat - data.lat, curr.lng - data.lng);
+            return distCurr < distPrev ? curr : prev;
+          });
+          if (closest) {
+            setQuickWilaya(closest.code);
+            setQuickCommune(closest.nameAr);
+          }
+
+          setParsingLoading(false);
+          return;
+        }
+      }
+    } catch (e) {
+      console.warn('Backend resolver failed, using local parser:', e);
+    }
+
+    // 2. Fallback to local regex parser
     const result = parseGoogleMapsLinkOrCoords(googleInput);
     if (result) {
       if (!isWithinAlgeriaBounds(result.lat, result.lng)) {
         setParseStatus('error');
         setParseError('عذراً، هذا الموقع يقع خارج حدود الجزائر.');
-        return;
-      }
+      } else {
+        setParsedLat(Number(result.lat.toFixed(6)));
+        setParsedLng(Number(result.lng.toFixed(6)));
+        setParseStatus('success');
+        setParseError('');
 
-      setParsedLat(Number(result.lat.toFixed(6)));
-      setParsedLng(Number(result.lng.toFixed(6)));
-      setParseStatus('success');
-      setParseError('');
-
-      const closest = WILAYAS.reduce((prev, curr) => {
-        const distPrev = Math.hypot(prev.lat - result.lat, prev.lng - result.lng);
-        const distCurr = Math.hypot(curr.lat - result.lat, curr.lng - result.lng);
-        return distCurr < distPrev ? curr : prev;
-      });
-      if (closest) {
-        setQuickWilaya(closest.code);
+        const closest = WILAYAS.reduce((prev, curr) => {
+          const distPrev = Math.hypot(prev.lat - result.lat, prev.lng - result.lng);
+          const distCurr = Math.hypot(curr.lat - result.lat, curr.lng - result.lng);
+          return distCurr < distPrev ? curr : prev;
+        });
+        if (closest) {
+          setQuickWilaya(closest.code);
+        }
       }
     } else {
       setParseStatus('error');
-      setParseError('تعذر استخراج الإحداثيات. يرجى إدخال إحداثيات صالحة داخل الجزائر مثل: 36.75, 3.05');
+      setParseError('تعذر استخراج البيانات من الرابط. يرجى التأكد من الرابط أو إدخال الإحداثيات مباشرة.');
     }
+
+    setParsingLoading(false);
   };
 
   const handleAddQuickPoint = (e: React.FormEvent) => {
@@ -303,10 +212,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       verified: true,
       featured: false,
       createdBy: 'admin',
+      images: quickPhotos.length > 0 ? quickPhotos : undefined,
       googleMapsUrl: googleInput.startsWith('http') ? googleInput : getGoogleMapsDirUrl(parsedLat, parsedLng),
     });
 
-    setQuickSuccessMsg('تمت إضافة وتوثيق نقطة التبرع بنجاح.');
+    setQuickSuccessMsg('تمت إضافة وتوثيق نقطة التبرع وحفظ صورها بنجاح.');
     setTimeout(() => setQuickSuccessMsg(''), 4000);
 
     setGoogleInput('');
@@ -319,6 +229,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setQuickCommune('');
     setQuickAddress('');
     setQuickUrgentNote('');
+    setQuickPhotos([]);
   };
 
   const handleExport = () => {
@@ -838,10 +749,18 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
                       <button
                         type="button"
+                        disabled={parsingLoading}
                         onClick={handleParseGoogleLink}
-                        className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 text-white font-bold rounded-lg shadow-xs transition flex items-center justify-center gap-2 shrink-0"
+                        className="px-5 py-2.5 bg-slate-900 hover:bg-slate-800 disabled:bg-slate-600 text-white font-bold rounded-lg shadow-xs transition flex items-center justify-center gap-2 shrink-0"
                       >
-                        <span>استخراج الموقع</span>
+                        {parsingLoading ? (
+                          <>
+                            <RefreshCw className="w-4 h-4 animate-spin" />
+                            <span>جاري الاستخراج...</span>
+                          </>
+                        ) : (
+                          <span>استخراج الموقع والصور</span>
+                        )}
                       </button>
                     </div>
 
@@ -878,6 +797,31 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       <h4 className="font-bold text-slate-900 border-b border-slate-100 pb-2">
                         2. تفاصيل ومعلومات المركز:
                       </h4>
+
+                      {/* Extracted Google Maps Photos Preview */}
+                      {quickPhotos.length > 0 && (
+                        <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl space-y-2">
+                          <label className="block text-slate-800 font-semibold text-xs flex items-center gap-1.5">
+                            <ImageIcon className="w-4 h-4 text-emerald-700" />
+                            <span>الصور المستخرجة تلقائياً من خرائط Google ({quickPhotos.length}):</span>
+                          </label>
+                          <div className="flex items-center gap-2.5 overflow-x-auto pb-1">
+                            {quickPhotos.map((photoUrl, idx) => (
+                              <div key={idx} className="relative w-20 h-20 rounded-xl overflow-hidden border border-slate-300 shrink-0 shadow-xs group">
+                                <img src={photoUrl} alt={`Extracted ${idx}`} className="w-full h-full object-cover" />
+                                <button
+                                  type="button"
+                                  onClick={() => setQuickPhotos(prev => prev.filter((_, i) => i !== idx))}
+                                  className="absolute top-1 right-1 bg-red-600 hover:bg-red-700 text-white rounded-full p-0.5 shadow transition"
+                                  title="حذف الصورة"
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        </div>
+                      )}
 
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         <div>
