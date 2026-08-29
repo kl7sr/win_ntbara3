@@ -63,7 +63,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     };
   }, []);
 
-  // Update Points Markers with support for Burnt Zones
+  // Update Points Markers with support for Active (Red) vs Extinguished/Inactive (Grey) Fires
   useEffect(() => {
     if (!mapInstanceRef.current || !markersLayerRef.current) return;
 
@@ -71,15 +71,22 @@ export const MapComponent: React.FC<MapComponentProps> = ({
 
     points.forEach((point) => {
       const isBurntZone = point.pointType === 'burnt_zone';
+      const isFireActive = isBurntZone && (point.status === 'urgent' || point.status === 'active');
+      const isFireExtinguished = isBurntZone && (point.status === 'extinguished' || point.status === 'full');
       const isVerified = point.verified;
 
-      // Color coding: Red for burnt zones, Green for verified charity hubs, Amber for unconfirmed
-      let bgColor = '#047857';
+      // Color coding
+      let bgColor = '#047857'; // Green (default verified charity)
       let borderColor = '#ffffff';
 
       if (isBurntZone) {
-        bgColor = '#dc2626'; // Red for burnt zone
-        borderColor = '#fecaca';
+        if (isFireActive) {
+          bgColor = '#dc2626'; // Red for active fire
+          borderColor = '#fecaca';
+        } else {
+          bgColor = '#64748b'; // Grey for non-active / extinguished fire
+          borderColor = '#e2e8f0';
+        }
       } else if (!isVerified) {
         bgColor = '#d97706'; // Amber for unconfirmed
         borderColor = '#fef3c7';
@@ -124,7 +131,9 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       });
 
       const statusBadge = isBurntZone
-        ? `<span style="color:#dc2626; font-weight:700;">🔥 منطقة متضررة من الحرائق</span>`
+        ? isFireActive
+          ? `<span style="color:#dc2626; font-weight:700;">🔥 حريق نشط - بحاجة لإغاثة</span>`
+          : `<span style="color:#64748b; font-weight:700;">💨 حريق تم إخماده / غير نشط</span>`
         : isVerified 
         ? `<span style="color:#047857; font-weight:600;">✓ موقع تبرع مؤكد</span>`
         : `<span style="color:#d97706; font-weight:600;">⚠️ غير مؤكد (اتصل قبل التنقل)</span>`;
@@ -241,7 +250,11 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded-full bg-red-600"></span>
-          <span>منطقة متضررة من الحرائق</span>
+          <span>حرائق نشطة</span>
+        </div>
+        <div className="flex items-center gap-1.5">
+          <span className="w-3 h-3 rounded-full bg-slate-500"></span>
+          <span>حرائق تم إخمادها</span>
         </div>
         <div className="flex items-center gap-1.5">
           <span className="w-3 h-3 rounded-full bg-amber-600"></span>

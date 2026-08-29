@@ -212,7 +212,17 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
           <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-start justify-between gap-3">
             <div className="flex-1">
               <div className="flex items-center gap-2 mb-1 flex-wrap">
-                {point.verified ? (
+                {point.pointType === 'burnt_zone' ? (
+                  point.status === 'urgent' || point.status === 'active' ? (
+                    <span className="inline-flex items-center gap-1 bg-red-50 text-red-800 border border-red-300 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                      🔥 منطقة حرائق نشطة (بحاجة لإغاثة)
+                    </span>
+                  ) : (
+                    <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 border border-slate-300 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                      💨 حريق تم إخماده / غير نشط
+                    </span>
+                  )
+                ) : point.verified ? (
                   <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-300 text-[10px] font-semibold px-2 py-0.5 rounded-md">
                     <ShieldCheck className="w-3 h-3 text-emerald-700" />
                     موقع مؤكد وموثوق
