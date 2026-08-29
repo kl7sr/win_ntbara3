@@ -92,6 +92,11 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [quickAddress, setQuickAddress] = useState('');
   const [quickCategories, setQuickCategories] = useState<AidCategory[]>(['food_water', 'clothes', 'medical']);
   const [quickUrgent, setQuickUrgent] = useState(false);
+  const [quickUrgentNote, setQuickUrgentNote] = useState('');
+  const [quickPhotos, setQuickPhotos] = useState<string[]>([]);
+  const [quickSuccessMsg, setQuickSuccessMsg] = useState('');
+  const [parsingLoading, setParsingLoading] = useState(false);
+
   // Manage table filters
   const [adminSearch, setAdminSearch] = useState('');
   const [adminWilayaFilter, setAdminWilayaFilter] = useState<number | null>(null);
