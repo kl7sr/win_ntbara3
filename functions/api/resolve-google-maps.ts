@@ -1,5 +1,5 @@
 // Cloudflare Pages Function: /api/resolve-google-maps
-// Resolves Google Maps links (maps.app.goo.gl / google.com/maps), extracts clean place name, coords, phone, address, and photos
+// Resolves Google Maps links, cleans title, extracts coordinates, address, commune, phone, hours, and photos
 
 export const onRequestGet: PagesFunction = async (context) => {
   const urlParam = new URL(context.request.url).searchParams.get('url');
@@ -35,7 +35,7 @@ export const onRequestGet: PagesFunction = async (context) => {
     let lat: number | null = null;
     let lng: number | null = null;
 
-    // Match !3dlat!4dlng (Most accurate Google Maps Place pin format)
+    // Match !3dlat!4dlng (Google Maps Place pin)
     const placeMatch = finalUrl.match(/!3d(-?\d+\.\d+)!4d(-?\d+\.\d+)/);
     if (placeMatch) {
       lat = parseFloat(placeMatch[1]);
@@ -60,42 +60,41 @@ export const onRequestGet: PagesFunction = async (context) => {
       }
     }
 
-    // 2. Extract Clean Place Name (French & Arabic)
+    // 2. Extract Clean Place Title (No '+' and no '%XX' and no weird text)
     let title: string = '';
 
-    // Extract from URL slug with multi-pass decoding to remove '+' and '%XX'
     const placeSlugMatch = finalUrl.match(/\/maps\/place\/([^/@?]+)/);
     if (placeSlugMatch && placeSlugMatch[1]) {
-      let rawSlug = placeSlugMatch[1].replace(/\+/g, ' ');
+      let slug = placeSlugMatch[1];
       try {
-        rawSlug = decodeURIComponent(rawSlug);
-        rawSlug = decodeURIComponent(rawSlug); // Double decode for safety
+        slug = decodeURIComponent(slug);
+        slug = decodeURIComponent(slug);
       } catch {}
-
-      const cleanSlug = rawSlug.trim();
-      if (cleanSlug && !cleanSlug.toLowerCase().includes('google maps') && !cleanSlug.includes('خرائط')) {
-        title = cleanSlug;
+      // Replace all '+' with spaces and collapse spaces
+      slug = slug.split('+').join(' ').replace(/\s+/g, ' ').trim();
+      if (slug && !slug.toLowerCase().includes('google maps') && !slug.includes('خرائط')) {
+        title = slug;
       }
     }
 
-    // Fallback: og:title
     if (!title) {
       const ogTitleMatch = htmlText.match(/<meta\s+(?:property|name)="og:title"\s+content="([^"]+)"/i) 
         || htmlText.match(/<title>([^<]+)<\/title>/i);
       if (ogTitleMatch) {
-        const candidate = ogTitleMatch[1]
+        let candidate = ogTitleMatch[1]
           .replace(/ - Google Maps.*$/i, '')
           .replace(/^Google Maps - /i, '')
           .replace(/ - خرائط Google.*$/i, '')
           .replace(/^خرائط Google - /i, '')
           .trim();
+        candidate = candidate.split('+').join(' ').replace(/\s+/g, ' ').trim();
         if (candidate && candidate !== 'Google Maps' && candidate !== 'خرائط Google') {
           title = candidate;
         }
       }
     }
 
-    // 3. Extract Algerian Phone Number
+    // 3. Extract Phone Number
     let phone: string = '';
     const phoneMatch = htmlText.match(/(?:tel:|\"|\s)(\+?213\s*[5672][0-9\s]{7,11}|0[5672][0-9\s]{8,12})(?:\"|\s|<)/);
     if (phoneMatch && phoneMatch[1]) {
@@ -105,17 +104,51 @@ export const onRequestGet: PagesFunction = async (context) => {
       }
     }
 
-    // 4. Extract Address
+    // 4. Reverse Geocode for High-Accuracy Address and Commune if Coords Found
     let address: string = '';
-    const addressMetaMatch = htmlText.match(/<meta\s+(?:property|name)="og:description"\s+content="([^"]+)"/i);
-    if (addressMetaMatch && addressMetaMatch[1] && !addressMetaMatch[1].toLowerCase().includes('find local businesses')) {
-      const candidateAddr = addressMetaMatch[1].replace(/^·\s*/, '').trim();
-      if (candidateAddr.length > 3) {
-        address = candidateAddr;
+    let commune: string = '';
+    let wilayaName: string = '';
+
+    if (lat && lng) {
+      try {
+        const geoRes = await fetch(
+          `https://nominatim.openstreetmap.org/reverse?lat=${lat}&lon=${lng}&format=json&accept-language=ar`,
+          { headers: { 'User-Agent': 'WinNtbara3/1.0 (win-ntbara3.pages.dev)' } }
+        );
+        if (geoRes.ok) {
+          const geoData: any = await geoRes.json();
+          if (geoData && geoData.address) {
+            commune = geoData.address.suburb || geoData.address.town || geoData.address.village || geoData.address.city || '';
+            wilayaName = geoData.address.state || '';
+            const road = geoData.address.road || '';
+            address = [road, commune, wilayaName].filter(Boolean).join('، ');
+          }
+        }
+      } catch (e) {
+        console.warn('Reverse geocode fallback:', e);
       }
     }
 
-    // 5. Extract Photos
+    // Fallback: extract address from og:description
+    if (!address) {
+      const addressMetaMatch = htmlText.match(/<meta\s+(?:property|name)="og:description"\s+content="([^"]+)"/i);
+      if (addressMetaMatch && addressMetaMatch[1] && !addressMetaMatch[1].toLowerCase().includes('find local businesses')) {
+        let candidateAddr = addressMetaMatch[1].replace(/^·\s*/, '').trim();
+        candidateAddr = candidateAddr.split('+').join(' ').replace(/\s+/g, ' ').trim();
+        if (candidateAddr.length > 3) {
+          address = candidateAddr;
+        }
+      }
+    }
+
+    // 5. Extract Working Hours if available
+    let hours: string = '';
+    const hoursMatch = htmlText.match(/(?:Opens|Closed|Ouvert|Fermé)[^<"]*(?:AM|PM|h|\d{1,2}:\d{2})/i);
+    if (hoursMatch) {
+      hours = hoursMatch[0].replace(/\\n/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+
+    // 6. Extract Photos
     const photos: string[] = [];
     const ogImageMatch = htmlText.match(/<meta\s+(?:property|name)="og:image"\s+content="([^"]+)"/i);
     if (ogImageMatch && !ogImageMatch[1].includes('maps_preview') && !ogImageMatch[1].includes('staticmap')) {
@@ -140,6 +173,8 @@ export const onRequestGet: PagesFunction = async (context) => {
         title: title || undefined,
         phone: phone || undefined,
         address: address || undefined,
+        commune: commune || undefined,
+        hours: hours || undefined,
         photos: photos.slice(0, 3),
       }),
       {

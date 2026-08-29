@@ -263,9 +263,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           setParseStatus('success');
           setParseError('');
 
-          if (data.title) setQuickTitle(data.title);
+          if (data.title) {
+            const cleanTitle = data.title.split('+').join(' ').replace(/\s+/g, ' ').trim();
+            setQuickTitle(cleanTitle);
+          }
           if (data.phone) setQuickPhone(data.phone);
           if (data.address) setQuickAddress(data.address);
+          if (data.commune) setQuickCommune(data.commune);
+          if (data.hours) setQuickNotes(`أوقات العمل: ${data.hours}`);
           if (data.photos && data.photos.length > 0) setQuickPhotos(data.photos);
 
           const closest = WILAYAS.reduce((prev, curr) => {
@@ -275,7 +280,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           });
           if (closest) {
             setQuickWilaya(closest.code);
-            setQuickCommune(closest.nameAr);
+            if (!data.commune) setQuickCommune(closest.nameAr);
           }
 
           setParsingLoading(false);
