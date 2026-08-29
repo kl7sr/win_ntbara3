@@ -334,7 +334,7 @@ export const EditPointModal: React.FC<EditPointModalProps> = ({
                       <span className="w-3.5 h-3.5 flex items-center justify-center rounded-full bg-white/20 text-[10px]">
                         {isSelected ? '✓' : '+'}
                       </span>
-                      <span>{meta.nameAr}</span>
+                      <span>{meta.labelAr}</span>
                     </button>
                   );
                 })}
