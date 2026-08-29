@@ -7,11 +7,15 @@ import {
   AlertCircle, 
   LocateFixed, 
   Loader2, 
-  CheckCircle2
+  CheckCircle2,
+  Camera,
+  Image as ImageIcon,
+  Trash2
 } from 'lucide-react';
 import { CharityPoint, AidCategory, PointStatus } from '../types';
 import { WILAYAS, AID_CATEGORIES_META } from '../data/wilayas';
 import { isWithinAlgeriaBounds, ALGERIA_BOUNDS } from '../utils/geoParser';
+import { compressImageFile } from '../utils/imageCompressor';
 import L from 'leaflet';
 
 interface AddPointModalProps {
@@ -40,7 +44,11 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
   const [notes, setNotes] = useState('');
   const [hours, setHours] = useState('08:30 - 19:00');
 
-  // GPS Coordinates - automatically prefilled with saved user location
+  // Images state
+  const [attachedImages, setAttachedImages] = useState<string[]>([]);
+  const [imageLoading, setImageLoading] = useState(false);
+
+  // GPS Coordinates
   const [lat, setLat] = useState<number>(initialCoords?.lat || 36.7538);
   const [lng, setLng] = useState<number>(initialCoords?.lng || 3.0588);
   const [gpsLoading, setGpsLoading] = useState(false);
@@ -50,13 +58,13 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
   const miniMapContainerRef = useRef<HTMLDivElement>(null);
   const miniMapInstanceRef = useRef<L.Map | null>(null);
   const miniMarkerRef = useRef<L.Marker | null>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (isOpen) {
       if (initialCoords && isWithinAlgeriaBounds(initialCoords.lat, initialCoords.lng)) {
         setLat(initialCoords.lat);
         setLng(initialCoords.lng);
-        // Auto-select closest wilaya based on saved coords
         const closest = WILAYAS.reduce((prev, curr) => {
           const distPrev = Math.hypot(prev.lat - initialCoords.lat, prev.lng - initialCoords.lng);
           const distCurr = Math.hypot(curr.lat - initialCoords.lat, curr.lng - initialCoords.lng);
@@ -187,6 +195,30 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
     );
   };
 
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+
+    setImageLoading(true);
+    try {
+      const newImages: string[] = [];
+      for (let i = 0; i < Math.min(files.length, 3); i++) {
+        const compressed = await compressImageFile(files[i], 900, 900, 0.75);
+        newImages.push(compressed);
+      }
+      setAttachedImages((prev) => [...prev, ...newImages].slice(0, 3));
+    } catch (err) {
+      console.error('Image upload failed:', err);
+    } finally {
+      setImageLoading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setAttachedImages((prev) => prev.filter((_, i) => i !== index));
+  };
+
   const toggleCategory = (cat: AidCategory) => {
     if (selectedCategories.includes(cat)) {
       if (selectedCategories.length === 1) return;
@@ -233,6 +265,8 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
       featured: false,
       createdBy: 'user',
       accuracyMeters: gpsAccuracy || undefined,
+      images: attachedImages.length > 0 ? attachedImages : undefined,
+      imageUrl: attachedImages.length > 0 ? attachedImages[0] : undefined,
     });
 
     onClose();
@@ -311,7 +345,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
             </div>
           </div>
 
-          {/* Title & Organizer (Organizer is optional) */}
+          {/* Title & Organizer */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
             <div>
               <label className="block text-slate-700 font-semibold mb-1">
@@ -410,6 +444,53 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
                 placeholder="البلدية أو الحي"
                 className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-emerald-600 text-xs sm:text-sm"
               />
+            </div>
+          </div>
+
+          {/* Attach Pictures Section */}
+          <div className="bg-slate-50 border border-slate-200 rounded-xl p-3 space-y-2">
+            <div className="flex items-center justify-between">
+              <label className="text-slate-700 font-semibold flex items-center gap-1.5">
+                <Camera className="w-4 h-4 text-emerald-700" />
+                <span>إرفاق صور للمركز (اختياري - حتى 3 صور):</span>
+              </label>
+              <span className="text-[10px] text-slate-500">تراجع من طرف الإدارة قبل العرض</span>
+            </div>
+
+            <div className="flex flex-wrap items-center gap-2">
+              {attachedImages.map((imgSrc, idx) => (
+                <div key={idx} className="relative w-16 h-16 rounded-lg overflow-hidden border border-slate-300 bg-slate-100 group">
+                  <img src={imgSrc} alt="Preview" className="w-full h-full object-cover" />
+                  <button
+                    type="button"
+                    onClick={() => handleRemoveImage(idx)}
+                    className="absolute top-1 right-1 bg-red-600 text-white rounded-full p-0.5 shadow transition"
+                  >
+                    <X className="w-3 h-3" />
+                  </button>
+                </div>
+              ))}
+
+              {attachedImages.length < 3 && (
+                <label className="w-16 h-16 rounded-lg border-2 border-dashed border-slate-300 hover:border-emerald-600 bg-white flex flex-col items-center justify-center cursor-pointer text-slate-500 hover:text-emerald-700 transition">
+                  {imageLoading ? (
+                    <Loader2 className="w-5 h-5 animate-spin" />
+                  ) : (
+                    <>
+                      <ImageIcon className="w-5 h-5 mb-0.5" />
+                      <span className="text-[9px] font-semibold">+ صورة</span>
+                    </>
+                  )}
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    multiple
+                    onChange={handleImageUpload}
+                    className="hidden"
+                  />
+                </label>
+              )}
             </div>
           </div>
 

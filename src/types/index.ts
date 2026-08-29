@@ -1,13 +1,13 @@
 export type AidCategory = 
-  | 'food_water'      // مواد غذائية ومياه
-  | 'clothes'         // ملابس وأحذية
-  | 'medical'         // أدوية ومستلزمات صحية
-  | 'shelter'         // أفرشة وأغطية
-  | 'baby_supplies'   // مستلزمات وحليب رضع
-  | 'financial'       // مساعدات وتجهيز
-  | 'general';        // تبرعات عامة
+  | 'food_water' 
+  | 'clothes' 
+  | 'medical' 
+  | 'blankets' 
+  | 'baby_supplies' 
+  | 'hygiene' 
+  | 'general';
 
-export type PointStatus = 'active' | 'urgent' | 'full' | 'closed';
+export type PointStatus = 'active' | 'full' | 'urgent';
 
 export interface CharityPoint {
   id: string;
@@ -28,27 +28,27 @@ export interface CharityPoint {
   notes?: string;
   hours?: string;
   verified: boolean;
-  featured: boolean;
+  featured?: boolean;
+  createdBy: 'admin' | 'user';
   createdAt: string;
-  createdBy: 'user' | 'admin';
   googleMapsUrl?: string;
   accuracyMeters?: number;
+  imageUrl?: string;
+  images?: string[];
 }
 
-export interface Wilaya {
+export interface WilayaInfo {
   code: number;
   nameAr: string;
   nameFr: string;
   lat: number;
   lng: number;
-  zoom: number;
+  zoom?: number;
 }
 
 export interface UserLocation {
   lat: number;
   lng: number;
   accuracy?: number;
-  timestamp?: number;
+  timestamp: number;
 }
-
-export type Language = 'ar' | 'fr' | 'en';
