@@ -1,5 +1,5 @@
 // Cloudflare Pages Function: /api/resolve-google-maps
-// Resolves shortened Google Maps links (maps.app.goo.gl), extracts coordinates, place title, and photos
+// Deeply resolves shortened Google Maps links (maps.app.goo.gl), extracts place name, phone, address, and photos
 
 export const onRequestGet: PagesFunction = async (context) => {
   const urlParam = new URL(context.request.url).searchParams.get('url');
@@ -22,20 +22,23 @@ export const onRequestGet: PagesFunction = async (context) => {
       method: 'GET',
       redirect: 'follow',
       headers: {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36',
         'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
-        'Accept-Language': 'ar,fr;q=0.9,en;q=0.8',
+        'Accept-Language': 'fr-FR,fr;q=0.9,ar;q=0.8,en;q=0.7',
       },
     });
 
     const finalUrl = response.url;
-    const htmlText = await response.text();
+    let htmlText = await response.text();
+
+    // Decode unicode escape sequences in HTML text
+    htmlText = htmlText.replace(/\\u003d/g, '=').replace(/\\u0026/g, '&').replace(/\\u002F/g, '/');
 
     // 1. Extract Coordinates
     let lat: number | null = null;
     let lng: number | null = null;
 
-    // Match @lat,lng,zoom
+    // Match @lat,lng
     const atMatch = finalUrl.match(/@(-?\d+\.\d+),(-?\d+\.\d+)/);
     if (atMatch) {
       lat = parseFloat(atMatch[1]);
@@ -60,7 +63,7 @@ export const onRequestGet: PagesFunction = async (context) => {
       }
     }
 
-    // Match within HTML source if still not found in URL
+    // Match within HTML source if still not found
     if (!lat || !lng) {
       const htmlCoordMatch = htmlText.match(/\[null,null,(-?\d+\.\d+),(-?\d+\.\d+)\]/);
       if (htmlCoordMatch) {
@@ -69,25 +72,57 @@ export const onRequestGet: PagesFunction = async (context) => {
       }
     }
 
-    // 2. Extract Place Title
+    // 2. Extract Place Name / Title
     let title: string = '';
-    
-    // OpenGraph meta title
-    const ogTitleMatch = htmlText.match(/<meta\s+(?:property|name)="og:title"\s+content="([^"]+)"/i) 
-      || htmlText.match(/<title>([^<]+)<\/title>/i);
-    if (ogTitleMatch) {
-      title = ogTitleMatch[1].replace(/ - Google Maps$/, '').replace(/^Google Maps - /, '').trim();
-    }
 
-    // Fallback: extract place name from URL slug
-    if (!title || title === 'Google Maps') {
-      const placeSlugMatch = finalUrl.match(/\/maps\/place\/([^/@?]+)/);
-      if (placeSlugMatch) {
-        title = decodeURIComponent(placeSlugMatch[1].replace(/\+/g, ' '));
+    // A. Priority: Extract from URL slug (Most reliable for Google Maps place URLs)
+    const placeSlugMatch = finalUrl.match(/\/maps\/place\/([^/@?]+)/);
+    if (placeSlugMatch && placeSlugMatch[1]) {
+      const decodedSlug = decodeURIComponent(placeSlugMatch[1].replace(/\+/g, ' ')).trim();
+      if (decodedSlug && !decodedSlug.toLowerCase().includes('google maps') && !decodedSlug.includes('خرائط')) {
+        title = decodedSlug;
       }
     }
 
-    // 3. Extract Photos (og:image + googleusercontent photos)
+    // B. If not found from slug, check og:title and <title>
+    if (!title) {
+      const ogTitleMatch = htmlText.match(/<meta\s+(?:property|name)="og:title"\s+content="([^"]+)"/i) 
+        || htmlText.match(/<title>([^<]+)<\/title>/i);
+      if (ogTitleMatch) {
+        const candidate = ogTitleMatch[1]
+          .replace(/ - Google Maps.*$/i, '')
+          .replace(/^Google Maps - /i, '')
+          .replace(/ - خرائط Google.*$/i, '')
+          .replace(/^خرائط Google - /i, '')
+          .trim();
+        if (candidate && candidate !== 'Google Maps' && candidate !== 'خرائط Google') {
+          title = candidate;
+        }
+      }
+    }
+
+    // 3. Extract Algerian Phone Number (05xx, 06xx, 07xx, 02xx, +213)
+    let phone: string = '';
+    // Look for Algerian phone format in HTML
+    const phoneMatch = htmlText.match(/(?:tel:|\"|\s)(\+?213\s*[5672][0-9\s]{7,11}|0[5672][0-9\s]{8,12})(?:\"|\s|<)/);
+    if (phoneMatch && phoneMatch[1]) {
+      phone = phoneMatch[1].replace(/[\s\-\.]/g, '').trim();
+      if (phone.startsWith('+213')) {
+        phone = '0' + phone.substring(4);
+      }
+    }
+
+    // 4. Extract Address
+    let address: string = '';
+    const addressMetaMatch = htmlText.match(/<meta\s+(?:property|name)="og:description"\s+content="([^"]+)"/i);
+    if (addressMetaMatch && addressMetaMatch[1] && !addressMetaMatch[1].toLowerCase().includes('find local businesses')) {
+      const candidateAddr = addressMetaMatch[1].replace(/^·\s*/, '').trim();
+      if (candidateAddr.length > 5) {
+        address = candidateAddr;
+      }
+    }
+
+    // 5. Extract Photos
     const photos: string[] = [];
 
     // OG Image
@@ -96,13 +131,25 @@ export const onRequestGet: PagesFunction = async (context) => {
       photos.push(ogImageMatch[1]);
     }
 
-    // Find lh5/lh3 googleusercontent photo URLs inside page
+    // Find all googleusercontent photo URLs inside HTML
     const photoRegex = /https:\/\/lh[3-6]\.googleusercontent\.com\/p\/[a-zA-Z0-9_\-]+/g;
     const foundPhotos = htmlText.match(photoRegex) || [];
     for (const pUrl of foundPhotos) {
-      const fullSizeUrl = pUrl + '=s800'; // High resolution 800px
-      if (!photos.includes(fullSizeUrl) && photos.length < 3) {
-        photos.push(fullSizeUrl);
+      const cleanUrl = pUrl.split('=')[0] + '=w800-h600-k-no'; // High quality image parameter
+      if (!photos.includes(cleanUrl) && photos.length < 3) {
+        photos.push(cleanUrl);
+      }
+    }
+
+    // Fallback: ggpht photo matches
+    if (photos.length < 3) {
+      const ggphtRegex = /https:\/\/[a-z0-9]+\.ggpht\.com\/p\/[a-zA-Z0-9_\-]+/g;
+      const foundGgpht = htmlText.match(ggphtRegex) || [];
+      for (const gUrl of foundGgpht) {
+        const cleanUrl = gUrl.split('=')[0] + '=w800-h600-k-no';
+        if (!photos.includes(cleanUrl) && photos.length < 3) {
+          photos.push(cleanUrl);
+        }
       }
     }
 
@@ -113,6 +160,8 @@ export const onRequestGet: PagesFunction = async (context) => {
         lat,
         lng,
         title: title || undefined,
+        phone: phone || undefined,
+        address: address || undefined,
         photos: photos.slice(0, 3),
       }),
       {

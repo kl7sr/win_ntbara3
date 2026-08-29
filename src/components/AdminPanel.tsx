@@ -90,6 +90,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const [quickWilaya, setQuickWilaya] = useState<number>(16);
   const [quickCommune, setQuickCommune] = useState('');
   const [quickAddress, setQuickAddress] = useState('');
+  const [quickNotes, setQuickNotes] = useState('');
   const [quickCategories, setQuickCategories] = useState<AidCategory[]>(['food_water', 'clothes', 'medical']);
   const [quickUrgent, setQuickUrgent] = useState(false);
   const [quickUrgentNote, setQuickUrgentNote] = useState('');
@@ -261,6 +262,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
           setParseError('');
 
           if (data.title) setQuickTitle(data.title);
+          if (data.phone) setQuickPhone(data.phone);
+          if (data.address) setQuickAddress(data.address);
           if (data.photos && data.photos.length > 0) setQuickPhotos(data.photos);
 
           const closest = WILAYAS.reduce((prev, curr) => {
@@ -343,7 +346,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       aidCategories: quickCategories,
       status: quickUrgent ? 'urgent' : 'active',
       pointType: 'charity_hub',
-      urgentDescription: quickUrgentNote.trim() || undefined,
+      urgentDescription: quickUrgentNote.trim() || quickNotes.trim() || undefined,
+      notes: quickNotes.trim() || undefined,
       verified: true,
       featured: false,
       createdBy: 'admin',
@@ -351,7 +355,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
       googleMapsUrl: googleInput.startsWith('http') ? googleInput : getGoogleMapsDirUrl(parsedLat, parsedLng),
     });
 
-    setQuickSuccessMsg('تمت إضافة وتوثيق نقطة التبرع وحفظ صورها بنجاح.');
+    setQuickSuccessMsg('تمت إضافة وتوثيق نقطة التبرع وحفظ صورها وبياناتها بنجاح.');
     setTimeout(() => setQuickSuccessMsg(''), 4000);
 
     setGoogleInput('');
@@ -363,6 +367,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     setQuickPhone('');
     setQuickCommune('');
     setQuickAddress('');
+    setQuickNotes('');
     setQuickUrgentNote('');
     setQuickPhotos([]);
   };
@@ -1032,6 +1037,17 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           value={quickAddress}
                           onChange={(e) => setQuickAddress(e.target.value)}
                           placeholder="المكان بدقة"
+                          className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-700 font-semibold mb-1">الوصف والملاحظات (Description & Notes)</label>
+                        <textarea
+                          rows={2}
+                          value={quickNotes}
+                          onChange={(e) => setQuickNotes(e.target.value)}
+                          placeholder="أدخل وصفاً للمركز، أوقات العمل، أو توجيهات خاصة بالمتبرعين..."
                           className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
                         />
                       </div>
