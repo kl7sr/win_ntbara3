@@ -1,5 +1,5 @@
 import React from 'react';
-import { HeartHandshake } from 'lucide-react';
+import { HeartHandshake, Phone } from 'lucide-react';
 
 export const EmergencyBanner: React.FC = () => {
   return (
@@ -19,8 +19,9 @@ export const EmergencyBanner: React.FC = () => {
           <a
             href="tel:14"
             className="bg-red-700 hover:bg-red-600 px-1.5 py-0.5 rounded text-white font-bold flex items-center gap-1 transition active:scale-95 text-[10px] sm:text-[11px] shadow-xs shrink-0"
-            title="الحماية المدنية (14)"
+            title="اتصال بالحماية المدنية (14)"
           >
+            <Phone className="w-2.5 h-2.5 shrink-0" />
             <span>الحماية:</span>
             <span className="font-mono font-black underline">14</span>
           </a>
@@ -29,8 +30,9 @@ export const EmergencyBanner: React.FC = () => {
           <a
             href="tel:1548"
             className="bg-blue-800 hover:bg-blue-700 px-1.5 py-0.5 rounded text-white font-bold flex items-center gap-1 transition active:scale-95 text-[10px] sm:text-[11px] shadow-xs shrink-0"
-            title="الشرطة والأمن الوطني (1548)"
+            title="اتصال بالشرطة والأمن الوطني (1548)"
           >
+            <Phone className="w-2.5 h-2.5 shrink-0" />
             <span>الشرطة:</span>
             <span className="font-mono font-black underline">1548</span>
           </a>
@@ -39,8 +41,9 @@ export const EmergencyBanner: React.FC = () => {
           <a
             href="tel:1055"
             className="bg-emerald-800 hover:bg-emerald-700 px-1.5 py-0.5 rounded text-white font-bold flex items-center gap-1 transition active:scale-95 text-[10px] sm:text-[11px] shadow-xs shrink-0"
-            title="الدرك الوطني (1055)"
+            title="اتصال بالدرك الوطني (1055)"
           >
+            <Phone className="w-2.5 h-2.5 shrink-0" />
             <span>الدرك:</span>
             <span className="font-mono font-black underline">1055</span>
           </a>
@@ -49,8 +52,9 @@ export const EmergencyBanner: React.FC = () => {
           <a
             href="tel:021633266"
             className="hidden sm:flex bg-emerald-900 hover:bg-emerald-800 px-1.5 py-0.5 rounded text-emerald-200 hover:text-white border border-emerald-800 items-center gap-1 transition text-[10px] sm:text-[11px] shrink-0"
-            title="الهلال الأحمر الجزائري"
+            title="اتصال بالهلال الأحمر الجزائري"
           >
+            <Phone className="w-2.5 h-2.5 shrink-0" />
             <span>الهلال الأحمر:</span>
             <span dir="ltr" className="font-mono font-bold">021633266</span>
           </a>
