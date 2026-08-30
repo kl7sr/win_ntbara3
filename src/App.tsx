@@ -347,7 +347,7 @@ export function App() {
       </main>
 
       {/* 4. Bottom Navigation Bar (5 Action Items - Compact & Dynamic) */}
-      <footer className="fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 sm:px-4 py-1 shadow-2xl flex items-center justify-between max-w-lg mx-auto sm:rounded-t-2xl pb-[max(0.35rem,env(safe-area-inset-bottom))]">
+      <footer className="fixed bottom-0 inset-x-0 z-40 bg-white/98 backdrop-blur-md border-t border-slate-200 px-2 sm:px-4 py-1 shadow-2xl flex items-center justify-between max-w-lg mx-auto sm:rounded-t-2xl pb-[max(0.35rem,env(safe-area-inset-bottom))]">
         {/* 1. Map Key / Legend Tab */}
         <button
           onClick={() => setIsLegendModalOpen(true)}
@@ -364,10 +364,14 @@ export function App() {
             setIsNearestDrawerOpen(false);
             setSelectedPoint(null);
           }}
-          className="flex flex-col items-center justify-center gap-0.5 py-1 px-1 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
+          className={`flex flex-col items-center justify-center gap-0.5 py-1 px-1 active:scale-95 transition flex-1 ${
+            !isNearestDrawerOpen
+              ? 'text-emerald-800 font-black'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
           title={t.exploreMap}
         >
-          <MapIcon className="w-4 h-4 text-emerald-700" />
+          <MapIcon className={`w-4 h-4 ${!isNearestDrawerOpen ? 'text-emerald-700' : 'text-slate-600'}`} />
           <span className="text-[9.5px] font-bold">{t.exploreMap}</span>
         </button>
 
@@ -385,11 +389,15 @@ export function App() {
 
         {/* 4. Nearest Drawer Tab */}
         <button
-          onClick={() => setIsNearestDrawerOpen(true)}
-          className="flex flex-col items-center justify-center gap-0.5 py-1 px-1 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
+          onClick={() => setIsNearestDrawerOpen((prev) => !prev)}
+          className={`flex flex-col items-center justify-center gap-0.5 py-1 px-1 active:scale-95 transition flex-1 ${
+            isNearestDrawerOpen
+              ? 'text-emerald-800 font-black'
+              : 'text-slate-600 hover:text-slate-900'
+          }`}
           title={t.nearestToMe}
         >
-          <Compass className="w-4 h-4 text-slate-600" />
+          <Compass className={`w-4 h-4 ${isNearestDrawerOpen ? 'text-emerald-700' : 'text-slate-600'}`} />
           <span className="text-[9.5px] font-bold">{t.nearestToMe}</span>
         </button>
 

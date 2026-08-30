@@ -90,7 +90,7 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
   const selectedWilayaObj = WILAYAS.find((w) => w.code === selectedWilaya);
 
   return (
-    <div className="fixed inset-y-0 right-0 z-50 w-full sm:max-w-md bg-white shadow-2xl flex flex-col border-l border-slate-200 animate-in slide-in-from-right duration-200">
+    <div className="fixed top-0 bottom-14 sm:bottom-16 right-0 z-30 w-full sm:max-w-md bg-white shadow-2xl flex flex-col border-l border-slate-200 animate-in slide-in-from-right duration-200">
       {/* Header */}
       <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
         <div className="flex items-center gap-2">
