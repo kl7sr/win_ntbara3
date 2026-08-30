@@ -51,6 +51,7 @@ export function App() {
 
   // Filters
   const [selectedWilaya, setSelectedWilaya] = useState<number | null>(null);
+  const [showFireZones, setShowFireZones] = useState<boolean>(false);
 
   // Multi-language state (Arabic first by default)
   const [language, setLanguage] = useState<Language>(() => {
@@ -244,8 +245,9 @@ export function App() {
     }
   };
 
-  const displayedPoints = points.filter((p) => {
-    if (selectedWilaya && p.wilayaCode !== selectedWilaya) return false;
+  // Filter points according to fire toggle
+  const activeVisiblePoints = points.filter((p) => {
+    if (!showFireZones && p.pointType === 'burnt_zone') return false;
     return true;
   });
 
@@ -263,15 +265,17 @@ export function App() {
         onOpenAdmin={() => setIsAdminOpen(true)}
         selectedWilaya={selectedWilaya}
         onSelectWilaya={setSelectedWilaya}
-        totalPoints={points.length}
+        totalPoints={activeVisiblePoints.length}
         currentLanguage={language}
         onSelectLanguage={handleLanguageChange}
+        showFireZones={showFireZones}
+        onToggleFireZones={setShowFireZones}
       />
 
       {/* 3. Main Full-Screen Map */}
       <main className="flex-1 relative w-full h-full pb-16 overflow-hidden">
         <MapComponent
-          points={points}
+          points={activeVisiblePoints}
           selectedPoint={selectedPoint}
           onSelectPoint={(p) => {
             setSelectedPoint(p);
@@ -370,7 +374,7 @@ export function App() {
         isOpen={isWilayaResultsModalOpen}
         onClose={() => setIsWilayaResultsModalOpen(false)}
         wilayaCode={selectedWilaya}
-        points={points}
+        points={activeVisiblePoints}
         userLocation={userLocation}
         onSelectPointOnMap={(point) => {
           setIsWilayaResultsModalOpen(false);
@@ -399,7 +403,7 @@ export function App() {
       <NearestListDrawer
         isOpen={isNearestDrawerOpen}
         onClose={() => setIsNearestDrawerOpen(false)}
-        points={points}
+        points={activeVisiblePoints}
         userLocation={userLocation}
         onSelectPoint={(point) => {
           setSelectedPoint(point);
@@ -409,6 +413,8 @@ export function App() {
         selectedWilaya={selectedWilaya}
         onSelectWilaya={setSelectedWilaya}
         currentLanguage={language}
+        showFireZones={showFireZones}
+        onToggleFireZones={setShowFireZones}
       />
 
       {/* 9. Admin Dashboard */}

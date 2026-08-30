@@ -28,6 +28,8 @@ interface NearestListDrawerProps {
   selectedWilaya: number | null;
   onSelectWilaya: (code: number | null) => void;
   currentLanguage?: Language;
+  showFireZones?: boolean;
+  onToggleFireZones?: (show: boolean) => void;
 }
 
 export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
@@ -40,6 +42,8 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
   selectedWilaya,
   onSelectWilaya,
   currentLanguage = 'ar',
+  showFireZones = false,
+  onToggleFireZones,
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [verificationFilter, setVerificationFilter] = useState<'all' | 'verified' | 'unconfirmed'>('all');
@@ -114,7 +118,7 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
         </button>
       </div>
 
-      {/* Wilaya Filter & Search Bar */}
+      {/* Wilaya Filter, Search Bar & Fire Toggle */}
       <div className="p-3 bg-white border-b border-slate-100 space-y-2">
         <div className="relative">
           <input
@@ -127,7 +131,7 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
           <Search className="w-4 h-4 text-slate-400 absolute left-3 top-1/2 -translate-y-1/2" />
         </div>
 
-        {/* Wilaya selector shortcut */}
+        {/* Wilaya selector shortcut, GPS & Fire Checkbox */}
         <div className="flex items-center justify-between gap-2 text-xs">
           <div className="relative flex-1">
             <select
@@ -152,6 +156,27 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
             <LocateFixed className="w-3.5 h-3.5" />
             <span>GPS</span>
           </button>
+
+          {onToggleFireZones && (
+            <button
+              type="button"
+              onClick={() => onToggleFireZones(!showFireZones)}
+              className={`px-2 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-1 shrink-0 transition ${
+                showFireZones
+                  ? 'bg-red-50 text-red-800 border-red-300 shadow-xs'
+                  : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200'
+              }`}
+              title="إظهار أو إخفاء مناطق الحرائق"
+            >
+              <input
+                type="checkbox"
+                checked={showFireZones}
+                onChange={() => {}}
+                className="w-3.5 h-3.5 rounded text-red-600 accent-red-600 pointer-events-none"
+              />
+              <span>حرائق</span>
+            </button>
+          )}
         </div>
       </div>
 
@@ -164,67 +189,74 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
             <p className="text-xs">لا توجد نقاط مطابقة في هذه الولاية</p>
           </div>
         ) : (
-          filtered.map((point) => (
-            <div
-              key={point.id}
-              onClick={() => {
-                onSelectPoint(point);
-                onClose();
-              }}
-              className="p-3.5 bg-white border border-slate-200 hover:border-emerald-500 rounded-2xl shadow-xs hover:shadow-md transition cursor-pointer space-y-2 group text-right"
-            >
-              <div className="flex items-start justify-between gap-2">
-                <div className="space-y-0.5 flex-1">
-                  <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border inline-block mb-1 ${
-                    point.pointType === 'burnt_zone'
-                      ? 'bg-red-50 text-red-700 border-red-200'
-                      : point.verified
-                      ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                      : 'bg-slate-100 text-slate-700 border-slate-300'
-                  }`}>
-                    {point.pointType === 'burnt_zone'
-                      ? (point.status === 'extinguished' ? 'تم الإخماد' : 'حريق نشط')
-                      : (point.verified ? 'موقع مؤكد' : 'غير مؤكد')}
-                  </span>
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-emerald-800 transition">
-                    {point.title}
-                  </h4>
-                  <p className="text-[11px] text-slate-500">
-                    {point.wilayaNameAr} - {point.commune}
-                  </p>
+          filtered.map((point) => {
+            const isBurnt = point.pointType === 'burnt_zone';
+            const googleMapsUrl = point.googleMapsUrl || getGoogleMapsDirUrl(point.lat, point.lng, point.title);
+
+            return (
+              <div
+                key={point.id}
+                onClick={() => {
+                  onSelectPoint(point);
+                  onClose();
+                }}
+                className="p-3.5 bg-white border border-slate-200 hover:border-emerald-500 rounded-2xl shadow-xs hover:shadow-md transition cursor-pointer space-y-2 group text-right"
+              >
+                <div className="flex items-start justify-between gap-2">
+                  <div className="space-y-0.5 flex-1">
+                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border inline-block mb-1 ${
+                      isBurnt
+                        ? 'bg-red-50 text-red-700 border-red-200'
+                        : point.verified
+                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
+                        : 'bg-slate-100 text-slate-700 border-slate-300'
+                    }`}>
+                      {isBurnt
+                        ? (point.status === 'extinguished' ? 'تم الإخماد' : 'حريق نشط')
+                        : (point.verified ? 'موقع مؤكد' : 'غير مؤكد')}
+                    </span>
+                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-emerald-800 transition">
+                      {point.title}
+                    </h4>
+                    <p className="text-[11px] text-slate-500">
+                      {point.wilayaNameAr} - {point.commune}
+                    </p>
+                  </div>
+
+                  {point.distance !== null && (
+                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg shrink-0 border border-emerald-200">
+                      {point.distance} كم
+                    </span>
+                  )}
                 </div>
 
-                {point.distance !== null && (
-                  <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg shrink-0 border border-emerald-200">
-                    {point.distance} كم
-                  </span>
-                )}
-              </div>
+                {/* Action Buttons */}
+                <div className={`flex items-center gap-2 pt-1 border-t border-slate-100`}>
+                  {!isBurnt && point.phone && (
+                    <a
+                      href={`tel:${point.phone}`}
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex-1 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 transition active:scale-95"
+                    >
+                      <Phone className="w-3 h-3" />
+                      <span>اتصال</span>
+                    </a>
+                  )}
 
-              {/* Action Buttons */}
-              <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
-                <a
-                  href={`tel:${point.phone}`}
-                  onClick={(e) => e.stopPropagation()}
-                  className="flex-1 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 transition"
-                >
-                  <Phone className="w-3 h-3" />
-                  <span>اتصال</span>
-                </a>
-
-                <a
-                  href={point.googleMapsUrl || getGoogleMapsDirUrl(point.lat, point.lng)}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  onClick={(e) => e.stopPropagation()}
-                  className="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 transition"
-                >
-                  <Navigation className="w-3 h-3" />
-                  <span>الاتجاهات</span>
-                </a>
+                  <a
+                    href={googleMapsUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 transition active:scale-95"
+                  >
+                    <Navigation className="w-3 h-3" />
+                    <span>الاتجاهات</span>
+                  </a>
+                </div>
               </div>
-            </div>
-          ))
+            );
+          })
         )}
 
         {/* Smart Neighboring Border Centers Section */}
@@ -239,27 +271,53 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
               </p>
             </div>
 
-            {partitioned.borderNeighborPoints.map(({ point, distanceToWilayaCenterKm }) => (
-              <div
-                key={point.id}
-                onClick={() => {
-                  onSelectPoint(point);
-                  onClose();
-                }}
-                className="p-3 bg-slate-50 border border-slate-200 hover:border-emerald-500 rounded-xl transition cursor-pointer text-right space-y-1.5"
-              >
-                <div className="flex items-center justify-between">
-                  <span className="text-[10px] font-bold bg-white text-slate-700 px-2 py-0.5 rounded-md border border-slate-200">
-                    ولاية {point.wilayaNameAr}
-                  </span>
-                  <span className="text-[10px] text-slate-500 font-semibold">
-                    ~ {distanceToWilayaCenterKm} كم من مركز الولاية
-                  </span>
+            {partitioned.borderNeighborPoints.map(({ point, distanceToWilayaCenterKm }) => {
+              const isBurnt = point.pointType === 'burnt_zone';
+              const googleMapsUrl = point.googleMapsUrl || getGoogleMapsDirUrl(point.lat, point.lng, point.title);
+
+              return (
+                <div
+                  key={point.id}
+                  onClick={() => {
+                    onSelectPoint(point);
+                    onClose();
+                  }}
+                  className="p-3 bg-slate-50 border border-slate-200 hover:border-emerald-500 rounded-xl transition cursor-pointer text-right space-y-1.5"
+                >
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-bold bg-white text-slate-700 px-2 py-0.5 rounded-md border border-slate-200">
+                      ولاية {point.wilayaNameAr}
+                    </span>
+                    <span className="text-[10px] text-slate-500 font-semibold">
+                      ~ {distanceToWilayaCenterKm} كم من مركز الولاية
+                    </span>
+                  </div>
+                  <h5 className="text-xs font-bold text-slate-900">{point.title}</h5>
+                  <p className="text-[10px] text-slate-500">{point.commune} ({point.address})</p>
+
+                  <div className="flex items-center gap-2 pt-1">
+                    {!isBurnt && point.phone && (
+                      <a
+                        href={`tel:${point.phone}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="flex-1 py-1 bg-white text-emerald-800 font-bold text-[10px] rounded border border-slate-200 text-center"
+                      >
+                        اتصال
+                      </a>
+                    )}
+                    <a
+                      href={googleMapsUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      onClick={(e) => e.stopPropagation()}
+                      className="flex-1 py-1 bg-white text-slate-700 font-bold text-[10px] rounded border border-slate-200 text-center"
+                    >
+                      الاتجاهات
+                    </a>
+                  </div>
                 </div>
-                <h5 className="text-xs font-bold text-slate-900">{point.title}</h5>
-                <p className="text-[10px] text-slate-500">{point.commune} ({point.address})</p>
-              </div>
-            ))}
+              );
+            })}
           </div>
         )}
       </div>

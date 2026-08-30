@@ -2,8 +2,9 @@ import React, { useState } from 'react';
 import { 
   ShieldCheck, 
   MapPin, 
-  Globe,
-  Check
+  Globe, 
+  Check,
+  Flame
 } from 'lucide-react';
 import { WILAYAS } from '../data/wilayas';
 import { Language, TRANSLATIONS } from '../i18n/translations';
@@ -17,6 +18,8 @@ interface NavbarProps {
   totalPoints: number;
   currentLanguage: Language;
   onSelectLanguage: (lang: Language) => void;
+  showFireZones?: boolean;
+  onToggleFireZones?: (show: boolean) => void;
 }
 
 export const Navbar: React.FC<NavbarProps> = ({
@@ -28,6 +31,8 @@ export const Navbar: React.FC<NavbarProps> = ({
   totalPoints,
   currentLanguage,
   onSelectLanguage,
+  showFireZones = false,
+  onToggleFireZones,
 }) => {
   const [showLangMenu, setShowLangMenu] = useState(false);
   const t = TRANSLATIONS[currentLanguage];
@@ -63,7 +68,7 @@ export const Navbar: React.FC<NavbarProps> = ({
         </div>
 
         {/* Wilaya Filter Dropdown */}
-        <div className="flex-1 max-w-[170px] sm:max-w-[220px]">
+        <div className="flex-1 max-w-[150px] sm:max-w-[200px]">
           <div className="relative">
             <select
               value={selectedWilaya ?? ''}
@@ -80,6 +85,29 @@ export const Navbar: React.FC<NavbarProps> = ({
             <MapPin className="w-3.5 h-3.5 text-slate-400 absolute left-2 top-1/2 -translate-y-1/2 pointer-events-none" />
           </div>
         </div>
+
+        {/* Fire Zones Toggle Button with Checkbox */}
+        {onToggleFireZones && (
+          <button
+            type="button"
+            onClick={() => onToggleFireZones(!showFireZones)}
+            className={`px-2.5 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-1.5 transition shrink-0 ${
+              showFireZones
+                ? 'bg-red-50 text-red-800 border-red-300 shadow-xs'
+                : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200'
+            }`}
+            title="إظهار أو إخفاء مناطق الحرائق"
+          >
+            <input 
+              type="checkbox" 
+              checked={showFireZones} 
+              onChange={() => {}} 
+              className="w-3.5 h-3.5 rounded text-red-600 accent-red-600 pointer-events-none"
+            />
+            <span className="hidden sm:inline">مناطق الحرائق</span>
+            <span className="sm:hidden">حرائق</span>
+          </button>
+        )}
 
         {/* Header Action Buttons (Language Switcher & Admin) */}
         <div className="flex items-center gap-1.5">
