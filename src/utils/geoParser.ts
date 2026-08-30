@@ -23,7 +23,32 @@ export interface ParsedLocation {
   lat: number;
   lng: number;
   label?: string;
-  source: 'google_url' | 'raw_coords' | 'dms' | 'unknown';
+  source: 'google_url' | 'raw_coords' | 'dms' | 'plus_code' | 'unknown';
+}
+
+/**
+ * Detects if input looks like a Google Plus Code (e.g. "P29M+F3Q" or "P29M+F3Q, Birkhadem")
+ */
+export function isPlusCode(input: string): boolean {
+  const cleaned = input.trim();
+  // Plus codes: 4-8 alphanumeric chars + '+' + 2+ chars, optionally followed by a city
+  return /^[23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]{2,}/i.test(cleaned);
+}
+
+/**
+ * Resolves a Plus Code to lat/lng via server-side Google Maps API
+ */
+export async function resolvePlusCode(plusCode: string): Promise<ParsedLocation | null> {
+  try {
+    const encoded = encodeURIComponent(`https://www.google.com/maps/search/${encodeURIComponent(plusCode.trim())}`);
+    const response = await fetch(`/api/resolve-google-maps?url=${encoded}`);
+    if (!response.ok) return null;
+    const data = await response.json();
+    if (data.lat && data.lng) {
+      return { lat: data.lat, lng: data.lng, source: 'plus_code', label: plusCode };
+    }
+  } catch (e) {}
+  return null;
 }
 
 export function parseGoogleMapsLinkOrCoords(input: string): ParsedLocation | null {
@@ -83,6 +108,9 @@ export function parseGoogleMapsLinkOrCoords(input: string): ParsedLocation | nul
 
     return { lat, lng, source: 'dms' };
   }
+
+  // 6. Detect Plus Code — needs async resolution, return null here (use resolvePlusCode separately)
+  if (isPlusCode(cleanInput)) return null;
 
   return null;
 }

@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { CharityPoint, AidCategory, PointStatus, PointType } from '../types';
 import { WILAYAS, AID_CATEGORIES_META } from '../data/wilayas';
-import { isWithinAlgeriaBounds } from '../utils/geoParser';
+import { isWithinAlgeriaBounds, parseGoogleMapsLinkOrCoords, isPlusCode, resolvePlusCode } from '../utils/geoParser';
 import { compressImageFile } from '../utils/imageCompressor';
 
 interface EditPointModalProps {
@@ -49,6 +49,10 @@ export const EditPointModal: React.FC<EditPointModalProps> = ({
   const [imageLoading, setImageLoading] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [locationInput, setLocationInput] = useState('');
+  const [locationStatus, setLocationStatus] = useState<'idle' | 'resolving' | 'ok' | 'error'>('idle');
+  const [editedLat, setEditedLat] = useState<number>(point.lat);
+  const [editedLng, setEditedLng] = useState<number>(point.lng);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -66,10 +70,47 @@ export const EditPointModal: React.FC<EditPointModalProps> = ({
       setNotes(point.notes || '');
       setCategories(point.aidCategories || ['food_water']);
       setPhotos(point.images || (point.imageUrl ? [point.imageUrl] : []));
+      setLocationInput('');
+      setLocationStatus('idle');
+      setEditedLat(point.lat);
+      setEditedLng(point.lng);
       setErrorMessage('');
       setSuccessMessage('');
     }
   }, [point]);
+
+  const handleLocationResolve = async () => {
+    const raw = locationInput.trim();
+    if (!raw) return;
+    setLocationStatus('resolving');
+
+    // Try synchronous parsing first (decimal coords, DMS, Google Maps URL)
+    const parsed = parseGoogleMapsLinkOrCoords(raw);
+    if (parsed) {
+      if (isWithinAlgeriaBounds(parsed.lat, parsed.lng)) {
+        setEditedLat(parsed.lat);
+        setEditedLng(parsed.lng);
+        setLocationStatus('ok');
+        return;
+      } else {
+        setLocationStatus('error');
+        return;
+      }
+    }
+
+    // Try async Plus Code resolution
+    if (isPlusCode(raw)) {
+      const result = await resolvePlusCode(raw);
+      if (result && isWithinAlgeriaBounds(result.lat, result.lng)) {
+        setEditedLat(result.lat);
+        setEditedLng(result.lng);
+        setLocationStatus('ok');
+        return;
+      }
+    }
+
+    setLocationStatus('error');
+  };
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
@@ -119,6 +160,8 @@ export const EditPointModal: React.FC<EditPointModalProps> = ({
       wilayaNameFr: wilaya.nameFr,
       commune: commune.trim() || wilaya.nameAr,
       address: address.trim() || `${commune || wilaya.nameAr}، ولاية ${wilaya.nameAr}`,
+      lat: editedLat,
+      lng: editedLng,
       pointType,
       status,
       verified,
@@ -310,6 +353,51 @@ export const EditPointModal: React.FC<EditPointModalProps> = ({
                 className="w-full bg-white border border-slate-300 rounded-lg px-3 py-2 text-slate-900"
               />
             </div>
+          </div>
+
+          {/* Location Update via Coords / Plus Code / Google Maps Link */}
+          <div className="bg-blue-50 border border-blue-200 rounded-xl p-3 space-y-2">
+            <label className="block text-blue-900 font-bold text-xs mb-1 flex items-center gap-1.5">
+              <MapPin className="w-3.5 h-3.5 text-blue-700" />
+              تحديث الموقع الجغرافي على الخريطة
+            </label>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                dir="ltr"
+                value={locationInput}
+                onChange={(e) => { setLocationInput(e.target.value); setLocationStatus('idle'); }}
+                placeholder="مثلاً: P29M+F3Q, Birkhadem  أو  36.7162, 3.0533  أو رابط خرائط جوجل"
+                className="flex-1 bg-white border border-blue-300 rounded-lg px-3 py-2 text-slate-900 font-mono text-xs focus:outline-none focus:ring-1 focus:ring-blue-500"
+                onKeyDown={(e) => { if (e.key === 'Enter') { e.preventDefault(); handleLocationResolve(); }}}
+              />
+              <button
+                type="button"
+                onClick={handleLocationResolve}
+                disabled={locationStatus === 'resolving' || !locationInput.trim()}
+                className="px-3 py-2 bg-blue-700 hover:bg-blue-800 text-white text-xs font-bold rounded-lg disabled:opacity-50 transition flex items-center gap-1"
+              >
+                {locationStatus === 'resolving' ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <MapPin className="w-3.5 h-3.5" />}
+                <span>{locationStatus === 'resolving' ? '...' : 'تحديد'}</span>
+              </button>
+            </div>
+            {locationStatus === 'ok' && (
+              <div className="text-xs text-emerald-700 font-bold flex items-center gap-1">
+                <CheckCircle2 className="w-3.5 h-3.5" />
+                <span>تم تحديد الموقع: {editedLat.toFixed(5)}, {editedLng.toFixed(5)}</span>
+              </div>
+            )}
+            {locationStatus === 'error' && (
+              <div className="text-xs text-red-700 font-semibold flex items-center gap-1">
+                <AlertCircle className="w-3.5 h-3.5" />
+                <span>تعذّر تحديد الموقع. تأكد من الإحداثيات أو رمز Plus Code.</span>
+              </div>
+            )}
+            {locationStatus === 'idle' && (
+              <p className="text-[10.5px] text-blue-700 opacity-70">
+                يقبل: رمز Plus Code (مثل P29M+F3Q, Birkhadem) · إحداثيات عشرية · رابط خرائط جوجل
+              </p>
+            )}
           </div>
 
           {/* Categories */}
