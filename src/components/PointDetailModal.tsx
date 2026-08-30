@@ -287,17 +287,6 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
               </div>
             )}
 
-            {/* Urgent Note */}
-            {point.urgentDescription && (
-              <div className="p-3 bg-red-50 border border-red-200 rounded-xl flex items-start gap-2.5 text-red-900">
-                <Info className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
-                <div>
-                  <span className="font-bold text-xs block text-red-800 mb-0.5">احتياجات ذات أولوية:</span>
-                  <p className="text-xs leading-relaxed">{point.urgentDescription}</p>
-                </div>
-              </div>
-            )}
-
             {/* Location & Address */}
             <div className="flex items-start gap-2.5 text-slate-700 bg-slate-50 p-3 rounded-xl border border-slate-200">
               <MapPin className="w-4 h-4 text-red-600 shrink-0 mt-0.5" />
