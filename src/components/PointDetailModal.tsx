@@ -330,33 +330,49 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
               </div>
             )}
 
-            {/* Primary Action Buttons */}
-            <div className="pt-2 space-y-2 pb-2">
-              {/* Direct Call Button - Only for Donation Centers with valid phone */}
+              {/* Direct Call Button - Always prompt calling to verify before heading over */}
               {point.pointType !== 'burnt_zone' && point.phone && (
-                <div className="flex items-center gap-2">
-                  <a
-                    href={`tel:${point.phone}`}
-                    className={`flex-1 flex items-center justify-center gap-2 text-white font-bold py-3 px-4 rounded-xl shadow-md transition text-sm text-center active:scale-[0.98] ${
-                      point.verified 
-                        ? 'bg-emerald-700 hover:bg-emerald-800' 
-                        : 'bg-amber-700 hover:bg-amber-800'
-                    }`}
-                  >
-                    <Phone className="w-4 h-4 text-white" />
-                    <span>{point.verified ? 'اتصل بالمنسق:' : 'اتصل للتأكد قبل التنقل:'}</span>
-                    <span dir="ltr" className="font-mono tracking-wider font-extrabold bg-black/20 px-2 py-0.5 rounded">
-                      {point.phone}
-                    </span>
-                  </a>
+                <div className="space-y-1.5">
+                  <div className="flex items-center gap-2">
+                    <a
+                      href={`tel:${point.phone}`}
+                      className="flex-1 flex items-center justify-center gap-2 text-white font-bold py-3 px-4 rounded-xl shadow-md transition text-xs sm:text-sm text-center active:scale-[0.98] bg-emerald-700 hover:bg-emerald-800"
+                    >
+                      <Phone className="w-4 h-4 text-white shrink-0" />
+                      <span>اتصل للتأكد قبل التنقل:</span>
+                      <span dir="ltr" className="font-mono tracking-wider font-extrabold bg-black/20 px-2 py-0.5 rounded text-xs sm:text-sm">
+                        {point.phone}
+                      </span>
+                    </a>
 
-                  <button
-                    onClick={handleCopyPhone}
-                    className="p-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-300 transition active:scale-95"
-                    title="نسخ رقم الهاتف"
-                  >
-                    {copiedPhone ? <Check className="w-4 h-4 text-emerald-700" /> : <Copy className="w-4 h-4" />}
-                  </button>
+                    <button
+                      onClick={handleCopyPhone}
+                      className="p-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-300 transition active:scale-95 shrink-0"
+                      title="نسخ رقم الهاتف"
+                    >
+                      {copiedPhone ? <Check className="w-4 h-4 text-emerald-700" /> : <Copy className="w-4 h-4" />}
+                    </button>
+                  </div>
+
+                  {/* Optional Alt Phone if provided */}
+                  {point.altPhone && (
+                    <div className="flex items-center gap-2">
+                      <a
+                        href={`tel:${point.altPhone}`}
+                        className="flex-1 flex items-center justify-center gap-2 text-slate-800 font-bold py-2 px-3 rounded-xl border border-slate-300 bg-slate-50 hover:bg-slate-100 transition text-xs text-center active:scale-[0.98]"
+                      >
+                        <Phone className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+                        <span>رقم إضافي:</span>
+                        <span dir="ltr" className="font-mono font-bold px-1.5 py-0.5 rounded bg-slate-200 text-xs">
+                          {point.altPhone}
+                        </span>
+                      </a>
+                    </div>
+                  )}
+
+                  <p className="text-[11px] text-center text-slate-500 font-medium pt-0.5">
+                    💡 يُرجى الاتصال مسبقاً للتأكد من أوقات الاستقبال ونوع التبرعات المطلوبة قبل الذهاب
+                  </p>
                 </div>
               )}
 
