@@ -61,32 +61,58 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 
     const { results } = await db.prepare("SELECT * FROM points ORDER BY created_at DESC").all();
 
-    const formatted = (results || []).map((row: any) => ({
-      id: row.id,
-      title: row.title,
-      organizer: row.organizer,
-      phone: row.phone,
-      altPhone: row.alt_phone || undefined,
-      wilayaCode: row.wilaya_code,
-      wilayaNameAr: row.wilaya_name_ar,
-      wilayaNameFr: row.wilaya_name_fr,
-      commune: row.commune,
-      address: row.address,
-      lat: row.lat,
-      lng: row.lng,
-      aidCategories: row.aid_categories ? JSON.parse(row.aid_categories) : ['food_water'],
-      status: row.status || 'active',
-      pointType: row.point_type || 'charity_hub',
-      urgentDescription: row.urgent_description || undefined,
-      notes: row.notes || undefined,
-      hours: row.hours || undefined,
-      verified: Boolean(row.verified),
-      featured: Boolean(row.featured),
-      createdBy: row.created_by || 'user',
-      createdAt: row.created_at,
-      images: row.images ? JSON.parse(row.images) : undefined,
-      googleMapsUrl: row.google_maps_url || undefined,
-    }));
+    const formatted = (results || []).map((row: any) => {
+      let parsedImages: string[] | undefined = undefined;
+      if (row.images) {
+        try {
+          if (typeof row.images === 'string') {
+            const trimmed = row.images.trim();
+            if (trimmed.startsWith('[') || trimmed.startsWith('{')) {
+              const p = JSON.parse(trimmed);
+              parsedImages = Array.isArray(p) ? p : [p];
+            } else if (trimmed.length > 0) {
+              parsedImages = [trimmed];
+            }
+          } else if (Array.isArray(row.images)) {
+            parsedImages = row.images;
+          }
+        } catch (e) {
+          if (typeof row.images === 'string' && row.images.trim().length > 0) {
+            parsedImages = [row.images.trim()];
+          }
+        }
+      }
+
+      const imageUrl = (parsedImages && parsedImages.length > 0) ? parsedImages[0] : undefined;
+
+      return {
+        id: row.id,
+        title: row.title,
+        organizer: row.organizer,
+        phone: row.phone,
+        altPhone: row.alt_phone || undefined,
+        wilayaCode: row.wilaya_code,
+        wilayaNameAr: row.wilaya_name_ar,
+        wilayaNameFr: row.wilaya_name_fr,
+        commune: row.commune,
+        address: row.address,
+        lat: row.lat,
+        lng: row.lng,
+        aidCategories: row.aid_categories ? (() => { try { return JSON.parse(row.aid_categories); } catch { return ['food_water']; } })() : ['food_water'],
+        status: row.status || 'active',
+        pointType: row.point_type || 'charity_hub',
+        urgentDescription: row.urgent_description || undefined,
+        notes: row.notes || undefined,
+        hours: row.hours || undefined,
+        verified: Boolean(row.verified),
+        featured: Boolean(row.featured),
+        createdBy: row.created_by || 'user',
+        createdAt: row.created_at,
+        images: parsedImages,
+        imageUrl: imageUrl,
+        googleMapsUrl: row.google_maps_url || undefined,
+      };
+    });
 
     return new Response(JSON.stringify(formatted), {
       headers: {

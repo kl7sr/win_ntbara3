@@ -111,6 +111,11 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: true,
     createdBy: 'admin',
     createdAt: '2026-08-28T10:00:00Z',
+    imageUrl: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80',
+      'https://images.unsplash.com/photo-1532629345422-7515f3d16bb9?auto=format&fit=crop&w=800&q=80'
+    ],
     googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Croissant+Rouge+Algérien,+Boulevard+Mohamed+V,+Alger',
   },
   {
@@ -132,6 +137,10 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: true,
     createdBy: 'admin',
     createdAt: '2026-08-28T17:00:00Z',
+    imageUrl: 'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?auto=format&fit=crop&w=800&q=80'
+    ],
     googleMapsUrl: 'https://maps.app.goo.gl/BLEQapKiwvboxQQi9',
   },
   {
@@ -153,6 +162,10 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: true,
     createdBy: 'admin',
     createdAt: '2026-08-29T08:00:00Z',
+    imageUrl: 'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1593113598332-cd288d649433?auto=format&fit=crop&w=800&q=80'
+    ],
     googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Annexe+APC+Tixeraine,+Birkhadem,+Alger',
   },
   {
@@ -175,6 +188,10 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: true,
     createdBy: 'admin',
     createdAt: '2026-08-28T10:30:00Z',
+    imageUrl: 'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=800&q=80',
+    images: [
+      'https://images.unsplash.com/photo-1469571486292-0ba58a3f068b?auto=format&fit=crop&w=800&q=80'
+    ],
     googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Croissant+Rouge+Algérien,+Rue+du+8+Mai+1945,+Sétif',
   },
   {

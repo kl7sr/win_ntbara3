@@ -86,7 +86,12 @@ export function getStoredPoints(): CharityPoint[] {
     currentList.forEach((p) => {
       const existingSeed = mergedMap.get(p.id);
       if (existingSeed) {
-        mergedMap.set(p.id, { ...existingSeed, ...p });
+        mergedMap.set(p.id, {
+          ...existingSeed,
+          ...p,
+          images: (p.images && p.images.length > 0) ? p.images : (existingSeed.images || (existingSeed.imageUrl ? [existingSeed.imageUrl] : undefined)),
+          imageUrl: p.imageUrl || (p.images && p.images.length > 0 ? p.images[0] : existingSeed.imageUrl),
+        });
       } else {
         mergedMap.set(p.id, p);
       }
