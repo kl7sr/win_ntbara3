@@ -286,25 +286,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         </button>
       </div>
 
-      {/* Map Legend */}
-      <div className="absolute bottom-16 sm:bottom-4 right-3 z-20 flex flex-wrap items-center gap-2.5 bg-white/95 border border-slate-200 px-3 py-1.5 rounded-xl text-xs text-slate-700 shadow-md">
-        <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-emerald-700"></span>
-          <span>نقطة تبرع</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-red-600"></span>
-          <span>حرائق نشطة</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-slate-500"></span>
-          <span>حرائق تم إخمادها</span>
-        </div>
-        <div className="flex items-center gap-1.5">
-          <span className="w-3 h-3 rounded-full bg-amber-600"></span>
-          <span>غير مؤكد</span>
-        </div>
-      </div>
+
 
       {/* Zoom Controls */}
       <div className="absolute bottom-6 left-3 z-20 hidden sm:flex flex-col gap-1.5">

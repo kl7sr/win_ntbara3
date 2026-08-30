@@ -10,6 +10,8 @@ import { EditPointModal } from './components/EditPointModal';
 import { InstallAppBanner } from './components/InstallAppBanner';
 import { WelcomeEntryModal } from './components/WelcomeEntryModal';
 import { WilayaResultsModal } from './components/WilayaResultsModal';
+import { LegendModal } from './components/LegendModal';
+import { ReportSupportModal } from './components/ReportSupportModal';
 import { CharityPoint, UserLocation } from './types';
 import { Language, TRANSLATIONS } from './i18n/translations';
 import { WILAYAS } from './data/wilayas';
@@ -27,7 +29,7 @@ import {
   updateLivePointInD1, 
   deleteLivePointFromD1 
 } from './services/apiService';
-import { CheckCircle2, Plus, Compass, Map as MapIcon, RotateCcw, MapPin } from 'lucide-react';
+import { CheckCircle2, Plus, Compass, Map as MapIcon, RotateCcw, MapPin, Layers, Wrench } from 'lucide-react';
 
 export function App() {
   const [points, setPoints] = useState<CharityPoint[]>([]);
@@ -48,6 +50,8 @@ export function App() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isNearestDrawerOpen, setIsNearestDrawerOpen] = useState(false);
   const [isWilayaResultsModalOpen, setIsWilayaResultsModalOpen] = useState(false);
+  const [isLegendModalOpen, setIsLegendModalOpen] = useState(false);
+  const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
 
   // Filters
@@ -318,39 +322,61 @@ export function App() {
         )}
       </main>
 
-      {/* 4. Bottom Navigation Bar */}
-      <footer className="fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-6 py-2 shadow-2xl safe-bottom-padding flex items-center justify-between max-w-lg mx-auto sm:rounded-t-2xl">
-        {/* Map Tab */}
+      {/* 4. Bottom Navigation Bar (5 Action Items) */}
+      <footer className="fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 sm:px-6 py-2 shadow-2xl safe-bottom-padding flex items-center justify-between max-w-lg mx-auto sm:rounded-t-2xl">
+        {/* 1. Map Key / Legend Tab */}
+        <button
+          onClick={() => setIsLegendModalOpen(true)}
+          className="flex flex-col items-center justify-center gap-1 py-1 px-1.5 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
+          title="مفتاح الخريطة"
+        >
+          <Layers className="w-4 h-4 text-slate-600" />
+          <span className="text-[10px] font-bold">المفتاح</span>
+        </button>
+
+        {/* 2. Map Tab */}
         <button
           onClick={() => {
             setIsNearestDrawerOpen(false);
             setSelectedPoint(null);
           }}
-          className="flex flex-col items-center justify-center gap-1 py-1 px-4 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
+          className="flex flex-col items-center justify-center gap-1 py-1 px-1.5 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
+          title={t.exploreMap}
         >
-          <MapIcon className="w-5 h-5 text-emerald-700" />
-          <span className="text-[11px] font-bold">{t.exploreMap}</span>
+          <MapIcon className="w-4 h-4 text-emerald-700" />
+          <span className="text-[10px] font-bold">{t.exploreMap}</span>
         </button>
 
-        {/* Add Point CTA */}
+        {/* 3. Add Point CTA */}
         <div className="flex-1 flex flex-col items-center justify-center -mt-6">
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="w-14 h-14 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-xl flex items-center justify-center border-4 border-white active:scale-95 transition shrink-0"
+            className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-xl flex items-center justify-center border-4 border-white active:scale-95 transition shrink-0"
             title={t.addPoint}
           >
-            <Plus className="w-7 h-7 stroke-[2.5]" />
+            <Plus className="w-6 h-6 stroke-[2.5]" />
           </button>
-          <span className="text-[10px] font-extrabold text-emerald-800 mt-0.5 whitespace-nowrap">{t.addPoint}</span>
+          <span className="text-[9.5px] sm:text-[10px] font-extrabold text-emerald-800 mt-0.5 whitespace-nowrap">{t.addPoint}</span>
         </div>
 
-        {/* Nearest Drawer Tab */}
+        {/* 4. Nearest Drawer Tab */}
         <button
           onClick={() => setIsNearestDrawerOpen(true)}
-          className="flex flex-col items-center justify-center gap-1 py-1 px-4 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
+          className="flex flex-col items-center justify-center gap-1 py-1 px-1.5 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
+          title={t.nearestToMe}
         >
-          <Compass className="w-5 h-5 text-slate-600" />
-          <span className="text-[11px] font-bold">{t.nearestToMe}</span>
+          <Compass className="w-4 h-4 text-slate-600" />
+          <span className="text-[10px] font-bold">{t.nearestToMe}</span>
+        </button>
+
+        {/* 5. Support / Report Technical Problems Tab */}
+        <button
+          onClick={() => setIsSupportModalOpen(true)}
+          className="flex flex-col items-center justify-center gap-1 py-1 px-1.5 text-slate-700 hover:text-amber-700 active:scale-95 transition flex-1"
+          title="الدعم الفني والإبلاغ"
+        >
+          <Wrench className="w-4 h-4 text-amber-600" />
+          <span className="text-[10px] font-bold">الدعم الفني</span>
         </button>
       </footer>
 
@@ -374,7 +400,21 @@ export function App() {
         onEditPoint={isAdminSession ? (point) => setEditingPoint(point) : undefined}
       />
 
-      {/* 8. Admin In-Place Edit Modal */}
+      {/* 7. Map Key / Legend Modal */}
+      <LegendModal
+        isOpen={isLegendModalOpen}
+        onClose={() => setIsLegendModalOpen(false)}
+        currentLanguage={language}
+      />
+
+      {/* 8. Technical Support & Report Modal */}
+      <ReportSupportModal
+        isOpen={isSupportModalOpen}
+        onClose={() => setIsSupportModalOpen(false)}
+        currentLanguage={language}
+      />
+
+      {/* 9. Admin In-Place Edit Modal */}
       {editingPoint && (
         <EditPointModal
           point={editingPoint}
@@ -384,7 +424,7 @@ export function App() {
         />
       )}
 
-      {/* 9. Wilaya Results Modal with Neighboring Centers Accordion */}
+      {/* 10. Wilaya Results Modal with Neighboring Centers Accordion */}
       <WilayaResultsModal
         isOpen={isWilayaResultsModalOpen}
         onClose={() => setIsWilayaResultsModalOpen(false)}
@@ -406,7 +446,7 @@ export function App() {
         currentLanguage={language}
       />
 
-      {/* 7. Add Point Modal */}
+      {/* 11. Add Point Modal */}
       <AddPointModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
@@ -414,7 +454,7 @@ export function App() {
         initialWilayaCode={selectedWilaya || undefined}
       />
 
-      {/* 8. Nearest Points Drawer (with Smart Border Centers) */}
+      {/* 12. Nearest Points Drawer (with Smart Border Centers) */}
       <NearestListDrawer
         isOpen={isNearestDrawerOpen}
         onClose={() => setIsNearestDrawerOpen(false)}
@@ -432,7 +472,7 @@ export function App() {
         onToggleFireZones={setShowFireZones}
       />
 
-      {/* 9. Admin Dashboard */}
+      {/* 13. Admin Dashboard */}
       <AdminPanel
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
@@ -448,10 +488,10 @@ export function App() {
         onAdminAuthChange={(isAuth) => setIsAdminSession(isAuth)}
       />
 
-      {/* 10. Phone App Install Prompt (PWA) */}
+      {/* 14. Phone App Install Prompt (PWA) */}
       <InstallAppBanner 
         currentLanguage={language} 
-        isVisible={!selectedPoint && !isAddModalOpen && !isAdminOpen && !isWilayaResultsModalOpen && !isNearestDrawerOpen && !isWelcomeModalOpen && !editingPoint}
+        isVisible={!selectedPoint && !isAddModalOpen && !isAdminOpen && !isWilayaResultsModalOpen && !isNearestDrawerOpen && !isWelcomeModalOpen && !editingPoint && !isLegendModalOpen && !isSupportModalOpen}
       />
 
       {/* Toast Notification */}
