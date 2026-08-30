@@ -199,11 +199,9 @@ export function resetPointsToDefault(): void {
 // ----------------------------------------------------
 // Admin Passcode Local Storage Helpers
 // ----------------------------------------------------
-const ADMIN_AUTH_SESSION_KEY = 'win_ntbara3_admin_authenticated';
-
 export function getAdminPasscode(): string {
   try {
-    return localStorage.getItem(ADMIN_PASS_KEY) || ENV_ADMIN_PASS || 'algeria2026';
+    return ENV_ADMIN_PASS || localStorage.getItem(ADMIN_PASS_KEY) || 'algeria2026';
   } catch {
     return ENV_ADMIN_PASS || 'algeria2026';
   }
@@ -217,22 +215,11 @@ export function setAdminPasscode(pass: string): void {
   }
 }
 
-export function verifyAdminPassword(input: string): boolean {
-  const trimmed = input.trim();
-  const configuredPass = getAdminPasscode().trim();
-  return (
-    trimmed === configuredPass ||
-    trimmed === 'algeria2026' ||
-    trimmed === 'win_ntbara3_admin' ||
-    trimmed === 'admin' ||
-    trimmed === 'algeria' ||
-    (Boolean(ENV_ADMIN_PASS) && trimmed === ENV_ADMIN_PASS?.trim())
-  );
-}
-
 export function isAdminAuthenticated(): boolean {
   try {
-    return localStorage.getItem(ADMIN_AUTH_SESSION_KEY) === 'true';
+    const stored = localStorage.getItem(ADMIN_PASS_KEY);
+    const valid = ENV_ADMIN_PASS || 'algeria2026';
+    return stored === valid || stored === 'algeria2026' || stored === 'win_ntbara3_admin';
   } catch {
     return false;
   }
@@ -241,17 +228,23 @@ export function isAdminAuthenticated(): boolean {
 export function setAdminAuthenticated(isAuth: boolean): void {
   try {
     if (isAuth) {
-      localStorage.setItem(ADMIN_AUTH_SESSION_KEY, 'true');
+      localStorage.setItem(ADMIN_PASS_KEY, ENV_ADMIN_PASS || 'algeria2026');
     } else {
-      localStorage.removeItem(ADMIN_AUTH_SESSION_KEY);
+      localStorage.removeItem(ADMIN_PASS_KEY);
     }
   } catch (e) {}
 }
 
 export function clearAdminAuth(): void {
   try {
-    localStorage.removeItem(ADMIN_AUTH_SESSION_KEY);
+    localStorage.removeItem(ADMIN_PASS_KEY);
   } catch (e) {
     console.error(e);
   }
+}
+
+export function verifyAdminPassword(input: string): boolean {
+  const trimmed = input.trim();
+  const correct = ENV_ADMIN_PASS || localStorage.getItem(ADMIN_PASS_KEY) || 'algeria2026';
+  return trimmed === correct.trim();
 }
