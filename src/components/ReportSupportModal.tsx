@@ -1,5 +1,5 @@
 import React from 'react';
-import { X, Wrench, Phone, MessageSquare, AlertCircle, ShieldAlert } from 'lucide-react';
+import { X, Wrench, Phone, MessageSquare, ExternalLink, Instagram } from 'lucide-react';
 import { Language } from '../i18n/translations';
 
 interface ReportSupportModalProps {
@@ -90,22 +90,25 @@ export const ReportSupportModal: React.FC<ReportSupportModalProps> = ({
             </span>
           </button>
 
-          {/* Emergency Firefighters */}
+          {/* Instagram Link */}
           <a
-            href="tel:14"
-            className="p-3.5 bg-red-50 border border-red-200 rounded-2xl flex items-center justify-between transition hover:bg-red-100 active:scale-98"
+            href="https://www.instagram.com/win.ntbara3/"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="p-3.5 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 text-white rounded-2xl flex items-center justify-between transition hover:opacity-95 active:scale-98 shadow-md"
           >
             <div className="flex items-center gap-2.5">
-              <div className="p-2 bg-red-600 text-white rounded-xl">
-                <ShieldAlert className="w-4 h-4" />
+              <div className="p-2 bg-white/20 text-white rounded-xl">
+                <Instagram className="w-4 h-4" />
               </div>
-              <div>
-                <h4 className="text-xs font-bold text-red-950">الحماية المدنية (حرائق وطوارئ)</h4>
-                <p className="text-[11px] text-red-700 mt-0.5">الرقم الأخضر الوطني المجاني</p>
+              <div className="text-right">
+                <h4 className="text-xs font-bold">صفحة التطبيق على إنستغرام</h4>
+                <p className="text-[11px] text-white/90 mt-0.5">@win.ntbara3 (متابعة آخر الأخبار والتحديثات)</p>
               </div>
             </div>
-            <span className="text-xs font-mono font-black text-white bg-red-700 px-3 py-1 rounded-lg">
-              14
+            <span className="text-xs font-bold bg-white/20 px-2.5 py-1 rounded-lg flex items-center gap-1">
+              <span>زيارة</span>
+              <ExternalLink className="w-3 h-3" />
             </span>
           </a>
         </div>
