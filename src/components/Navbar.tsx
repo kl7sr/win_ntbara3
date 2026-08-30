@@ -70,7 +70,7 @@ export const Navbar: React.FC<NavbarProps> = ({
               onChange={(e) => onSelectWilaya(e.target.value ? Number(e.target.value) : null)}
               className="w-full bg-slate-50 border border-slate-300 text-slate-800 text-xs rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-1 focus:ring-emerald-600 appearance-none cursor-pointer truncate font-medium"
             >
-              <option value="">{t.allWilayas} ({totalPoints})</option>
+              <option value="">{currentLanguage === 'ar' ? 'اختر الولاية' : currentLanguage === 'fr' ? 'Choisir la wilaya' : 'Select Wilaya'}</option>
               {WILAYAS.map((w) => (
                 <option key={w.code} value={w.code}>
                   {w.code} - {currentLanguage === 'ar' ? w.nameAr : w.nameFr}
