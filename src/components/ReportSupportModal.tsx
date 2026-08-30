@@ -30,9 +30,9 @@ export const ReportSupportModal: React.FC<ReportSupportModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-amber-100 text-amber-900 rounded-xl">
+        <div className="p-4 bg-white border-b border-slate-200 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="p-2 bg-slate-100 text-slate-700 rounded-xl border border-slate-200">
               <Wrench className="w-5 h-5" />
             </div>
             <div>
@@ -43,7 +43,7 @@ export const ReportSupportModal: React.FC<ReportSupportModalProps> = ({
 
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-200 transition"
+            className="p-1.5 text-slate-400 hover:text-slate-700 rounded-full hover:bg-slate-100 transition"
           >
             <X className="w-5 h-5" />
           </button>
@@ -54,18 +54,18 @@ export const ReportSupportModal: React.FC<ReportSupportModalProps> = ({
           {/* Direct Support Phone */}
           <a
             href="tel:0542258712"
-            className="p-3.5 bg-emerald-50 border border-emerald-200 rounded-2xl flex items-center justify-between transition hover:bg-emerald-100 active:scale-98"
+            className="p-3.5 bg-white hover:bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between transition shadow-xs active:scale-[0.99]"
           >
             <div className="flex items-center gap-2.5">
-              <div className="p-2 bg-emerald-600 text-white rounded-xl">
+              <div className="p-2 bg-slate-100 text-slate-800 rounded-xl border border-slate-200">
                 <Phone className="w-4 h-4" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-emerald-950">الاتصال بالدعم الفني</h4>
-                <p className="text-[11px] text-emerald-800 mt-0.5">متاح 24/7 لخدمة المتطوعين</p>
+                <h4 className="text-xs font-bold text-slate-900">الاتصال بالدعم الفني</h4>
+                <p className="text-[11px] text-slate-500 mt-0.5">متاح 24/7 لخدمة المتطوعين</p>
               </div>
             </div>
-            <span dir="ltr" className="text-xs font-mono font-bold text-emerald-900 bg-white px-2 py-1 rounded-lg border border-emerald-200">
+            <span dir="ltr" className="text-xs font-mono font-bold text-slate-800 bg-slate-100 px-2 py-1 rounded-lg border border-slate-200">
               0542258712
             </span>
           </a>
@@ -74,10 +74,10 @@ export const ReportSupportModal: React.FC<ReportSupportModalProps> = ({
           <button
             type="button"
             onClick={handleWhatsApp}
-            className="w-full p-3.5 bg-emerald-800 text-white rounded-2xl flex items-center justify-between transition hover:bg-emerald-900 active:scale-98 shadow-sm"
+            className="w-full p-3.5 bg-emerald-800 hover:bg-emerald-900 text-white rounded-2xl flex items-center justify-between transition active:scale-[0.99] shadow-xs"
           >
             <div className="flex items-center gap-2.5">
-              <div className="p-2 bg-white/20 text-white rounded-xl">
+              <div className="p-2 bg-white/15 text-white rounded-xl">
                 <MessageSquare className="w-4 h-4" />
               </div>
               <div className="text-right">
@@ -95,18 +95,18 @@ export const ReportSupportModal: React.FC<ReportSupportModalProps> = ({
             href="https://www.instagram.com/win_ntbara3/"
             target="_blank"
             rel="noopener noreferrer"
-            className="p-3.5 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 text-white rounded-2xl flex items-center justify-between transition hover:opacity-95 active:scale-98 shadow-md"
+            className="p-3.5 bg-white hover:bg-slate-50 border border-slate-200 text-slate-900 rounded-2xl flex items-center justify-between transition active:scale-[0.99] shadow-xs"
           >
             <div className="flex items-center gap-2.5">
-              <div className="p-2 bg-white/20 text-white rounded-xl">
+              <div className="p-2 bg-slate-100 text-pink-600 rounded-xl border border-slate-200">
                 <Instagram className="w-4 h-4" />
               </div>
               <div className="text-right">
-                <h4 className="text-xs font-bold">صفحة التطبيق على إنستغرام</h4>
-                <p className="text-[11px] text-white/90 mt-0.5">@win_ntbara3 (متابعة آخر الأخبار والتحديثات)</p>
+                <h4 className="text-xs font-bold text-slate-900">صفحة التطبيق على إنستغرام</h4>
+                <p className="text-[11px] text-slate-500 mt-0.5">@win_ntbara3 (متابعة آخر الأخبار والتحديثات)</p>
               </div>
             </div>
-            <span className="text-xs font-bold bg-white/20 px-2.5 py-1 rounded-lg flex items-center gap-1">
+            <span className="text-xs font-bold bg-slate-100 text-slate-700 px-2.5 py-1 rounded-lg border border-slate-200 flex items-center gap-1">
               <span>زيارة</span>
               <ExternalLink className="w-3 h-3" />
             </span>

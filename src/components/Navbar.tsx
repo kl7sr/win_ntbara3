@@ -123,8 +123,8 @@ export const Navbar: React.FC<NavbarProps> = ({
                   <button
                     key={lang.code}
                     onClick={() => onSelectLanguage(lang.code)}
-                    className={`w-full px-2.5 py-1.5 text-xs font-bold flex items-center justify-between hover:bg-slate-50 transition ${
-                      currentLanguage === lang.code ? 'text-emerald-700 bg-emerald-50/50' : 'text-slate-700'
+                    className={`w-full px-3 py-1.5 text-xs font-bold flex items-center justify-between hover:bg-slate-100 transition ${
+                      currentLanguage === lang.code ? 'text-slate-900 bg-slate-100' : 'text-slate-700'
                     }`}
                   >
                     <span className="flex items-center gap-1.5">

@@ -159,14 +159,14 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
                 <button
                   type="button"
                   onClick={() => handleChooseIntent('find')}
-                  className="group p-4 sm:p-5 rounded-2xl border-2 border-emerald-500/40 hover:border-emerald-600 bg-emerald-50/40 hover:bg-emerald-50 transition shadow-xs text-right flex items-center justify-between gap-3 active:scale-[0.99]"
+                  className="group p-4 sm:p-5 rounded-2xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 transition shadow-xs text-right flex items-center justify-between gap-3 active:scale-[0.99]"
                 >
                   <div className="space-y-1 flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="p-2 bg-emerald-700 text-white rounded-xl shadow-xs">
+                      <span className="p-2 bg-slate-900 text-white rounded-xl shadow-xs">
                         <Search className="w-5 h-5" />
                       </span>
-                      <h4 className="text-sm sm:text-base font-bold text-emerald-950">
+                      <h4 className="text-sm sm:text-base font-bold text-slate-900">
                         {currentLanguage === 'ar' 
                           ? 'البحث عن مركز تبرع أو إغاثة' 
                           : currentLanguage === 'fr' 
@@ -174,7 +174,7 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
                           : 'Find a Donation or Relief Spot'}
                       </h4>
                     </div>
-                    <p className="text-xs text-emerald-800/80 pr-11 leading-relaxed">
+                    <p className="text-xs text-slate-500 pr-11 leading-relaxed">
                       {currentLanguage === 'ar'
                         ? 'استكشف نقاط التبرع المعتمدة والمناطق المتضررة في ولايتك وجوارها'
                         : currentLanguage === 'fr'
@@ -182,14 +182,14 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
                         : 'Explore verified relief hubs and active centers in your wilaya'}
                     </p>
                   </div>
-                  <ChevronRight className="w-5 h-5 text-emerald-700 rtl:rotate-180 shrink-0 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition" />
+                  <ChevronRight className="w-5 h-5 text-slate-400 rtl:rotate-180 shrink-0 group-hover:translate-x-1 rtl:group-hover:-translate-x-1 transition" />
                 </button>
 
                 {/* Button 2: Add / Pin a donation spot */}
                 <button
                   type="button"
                   onClick={() => handleChooseIntent('add')}
-                  className="group p-4 sm:p-5 rounded-2xl border-2 border-slate-200 hover:border-emerald-600 bg-white hover:bg-slate-50 transition shadow-xs text-right flex items-center justify-between gap-3 active:scale-[0.99]"
+                  className="group p-4 sm:p-5 rounded-2xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 transition shadow-xs text-right flex items-center justify-between gap-3 active:scale-[0.99]"
                 >
                   <div className="space-y-1 flex-1">
                     <div className="flex items-center gap-2">
@@ -204,7 +204,7 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
                           : 'Add or Pin a New Donation Spot'}
                       </h4>
                     </div>
-                    <p className="text-xs text-slate-600 pr-11 leading-relaxed">
+                    <p className="text-xs text-slate-500 pr-11 leading-relaxed">
                       {currentLanguage === 'ar'
                         ? 'ساهم في إضافة جمعية، مسجد، أو نقطة تطوع لإرشاد المتبرعين'
                         : currentLanguage === 'fr'
@@ -221,7 +221,7 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
                 <button
                   type="button"
                   onClick={onDirectMapExplore}
-                  className="text-xs text-slate-500 hover:text-emerald-700 font-semibold underline underline-offset-4 transition"
+                  className="text-xs text-slate-500 hover:text-slate-900 font-semibold underline underline-offset-4 transition"
                 >
                   {currentLanguage === 'ar'
                     ? 'أو استكشاف كامل الخريطة مباشرة'
@@ -246,7 +246,7 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
                   </span>
                 </button>
 
-                <span className="text-xs font-bold text-emerald-800 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                <span className="text-xs font-bold text-slate-700 bg-slate-100 px-2.5 py-1 rounded-full border border-slate-200">
                   {selectedIntent === 'find' 
                     ? (currentLanguage === 'ar' ? 'الخطوة 2: حدد ولايتك' : 'Step 2: Choose Wilaya')
                     : (currentLanguage === 'ar' ? 'الخطوة 2: أين يقع المركز؟' : 'Step 2: Where is the hub?')}
@@ -318,10 +318,10 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
                       key={wilaya.code}
                       type="button"
                       onClick={() => onSelectIntentAndWilaya(selectedIntent, wilaya.code)}
-                      className="w-full px-4 py-2.5 text-xs hover:bg-emerald-50/60 transition flex items-center justify-between group text-right"
+                      className="w-full px-4 py-2.5 text-xs hover:bg-slate-50 transition flex items-center justify-between group text-right"
                     >
                       <div className="flex items-center gap-2">
-                        <span className="w-6 h-6 rounded-lg bg-slate-100 group-hover:bg-emerald-700 group-hover:text-white font-mono font-bold text-[11px] text-slate-700 flex items-center justify-center transition shrink-0">
+                        <span className="w-6 h-6 rounded-lg bg-slate-100 group-hover:bg-slate-900 group-hover:text-white font-mono font-bold text-[11px] text-slate-700 flex items-center justify-center transition shrink-0">
                           {wilaya.code}
                         </span>
                         <span className="font-bold text-slate-900">
@@ -332,7 +332,7 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
                         </span>
                       </div>
 
-                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-emerald-700 rtl:rotate-180 transition" />
+                      <ChevronRight className="w-4 h-4 text-slate-300 group-hover:text-slate-700 rtl:rotate-180 transition" />
                     </button>
                   ))
                 )}

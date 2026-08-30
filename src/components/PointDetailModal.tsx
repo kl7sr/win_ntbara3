@@ -294,7 +294,7 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
                     return (
                       <span
                         key={catKey}
-                        className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200"
+                        className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-slate-100 text-slate-800 border border-slate-200"
                       >
                         {meta.labelAr}
                       </span>
@@ -391,9 +391,9 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
                     onEditPoint(point);
                     onClose();
                   }}
-                  className="w-full flex items-center justify-center gap-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold py-2.5 px-4 rounded-xl border border-emerald-300 transition text-xs active:scale-95 shadow-xs"
+                  className="w-full flex items-center justify-center gap-2 bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold py-2.5 px-4 rounded-xl border border-slate-300 transition text-xs active:scale-95 shadow-xs"
                 >
-                  <Edit className="w-3.5 h-3.5 text-emerald-700" />
+                  <Edit className="w-3.5 h-3.5 text-slate-700" />
                   <span>تعديل بيانات هذه النقطة (Admin Edit)</span>
                 </button>
               )}

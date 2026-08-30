@@ -31,8 +31,8 @@ export const LegendModal: React.FC<LegendModalProps> = ({
         {/* Header */}
         <div className="px-5 py-4 bg-white border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 bg-emerald-50 text-emerald-800 border border-emerald-200/80 rounded-xl flex items-center justify-center shadow-xs">
-              <Layers className="w-5 h-5 text-emerald-700" />
+            <div className="w-9 h-9 bg-slate-100 text-slate-800 border border-slate-200 rounded-xl flex items-center justify-center">
+              <Layers className="w-5 h-5 text-slate-700" />
             </div>
             <div>
               <h3 className="text-sm sm:text-base font-black text-slate-900">مفتاح الخريطة</h3>

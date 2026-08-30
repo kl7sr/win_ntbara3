@@ -208,7 +208,7 @@ export const EditPointModal: React.FC<EditPointModalProps> = ({
         {/* Header */}
         <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-emerald-100 text-emerald-800 rounded-xl">
+            <div className="p-2 bg-slate-100 text-slate-800 rounded-xl border border-slate-200">
               <ShieldCheck className="w-5 h-5" />
             </div>
             <div>
@@ -235,7 +235,7 @@ export const EditPointModal: React.FC<EditPointModalProps> = ({
           )}
 
           {successMessage && (
-            <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-800 text-xs flex items-center gap-2 font-bold">
+            <div className="p-3 bg-slate-100 border border-slate-300 rounded-xl text-slate-900 text-xs flex items-center gap-2 font-bold">
               <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0" />
               <span>{successMessage}</span>
             </div>
@@ -275,8 +275,8 @@ export const EditPointModal: React.FC<EditPointModalProps> = ({
                 onClick={() => setVerified(!verified)}
                 className={`w-full py-1.5 px-3 rounded-lg text-xs font-bold border transition flex items-center justify-center gap-1.5 ${
                   verified
-                    ? 'bg-emerald-100 text-emerald-800 border-emerald-300'
-                    : 'bg-amber-100 text-amber-800 border-amber-300'
+                    ? 'bg-slate-900 text-white border-slate-900'
+                    : 'bg-white text-slate-700 border-slate-300'
                 }`}
               >
                 <span>{verified ? 'موثق ومؤكد ✓' : 'غير مؤكد'}</span>

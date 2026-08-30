@@ -372,7 +372,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
         {/* Header */}
         <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-emerald-100 text-emerald-800 rounded-xl">
+            <div className="p-2 bg-slate-100 text-slate-800 rounded-xl border border-slate-200">
               <MapPin className="w-5 h-5" />
             </div>
             <div>
@@ -608,12 +608,12 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
                     onClick={() => toggleCategory(catKey)}
                     className={`flex items-center justify-between p-2 rounded-xl border text-xs font-medium transition text-right ${
                       isSelected
-                        ? 'bg-emerald-50 border-emerald-600 text-emerald-900 font-bold'
+                        ? 'bg-slate-900 border-slate-900 text-white font-bold'
                         : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                     }`}
                   >
                     <span>{meta.labelAr}</span>
-                    {isSelected && <Check className="w-3.5 h-3.5 text-emerald-700 shrink-0" />}
+                    {isSelected && <Check className="w-3.5 h-3.5 text-emerald-400 shrink-0" />}
                   </button>
                 );
               })}
@@ -623,7 +623,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
           {/* Legal Disclaimer / Terms of Use Notice */}
           <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-600 space-y-1">
             <div className="flex items-center gap-1.5 font-bold text-slate-800">
-              <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+              <ShieldCheck className="w-4 h-4 text-slate-700 shrink-0" />
               <span>إخلاء المسؤولية وشروط الاستخدام</span>
             </div>
             <p className="leading-relaxed">
@@ -631,7 +631,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
               <button
                 type="button"
                 onClick={() => setShowTermsModal(true)}
-                className="text-emerald-700 font-bold underline hover:text-emerald-800 inline-block"
+                className="text-slate-900 font-bold underline hover:text-black inline-block"
               >
                 شروط الاستخدام وإخلاء المسؤولية
               </button>.
@@ -671,7 +671,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
           >
             <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-emerald-700" />
+                <ShieldCheck className="w-5 h-5 text-slate-700" />
                 <h3 className="text-sm font-bold text-slate-900">شروط الاستخدام وإخلاء المسؤولية</h3>
               </div>
               <button 
@@ -683,7 +683,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
             </div>
 
             <div className="p-5 overflow-y-auto space-y-4 text-xs text-slate-700 leading-relaxed">
-              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-[11px]">
+              <div className="p-3 bg-slate-100 border border-slate-200 rounded-xl text-slate-800 text-[11px]">
                 مسودة أولية — ينصح بمراجعتها من طرف محامٍ مختص قبل اعتمادها رسمياً.
               </div>
 

@@ -74,9 +74,9 @@ export const WilayaResultsModal: React.FC<WilayaResultsModalProps> = ({
               onClose();
               onChangeWilaya();
             }}
-            className="px-3 py-1.5 bg-white hover:bg-emerald-50 text-slate-700 hover:text-emerald-800 text-xs font-bold rounded-full border border-slate-300 flex items-center gap-1.5 shadow-xs transition active:scale-95"
+            className="px-3 py-1.5 bg-white hover:bg-slate-100 text-slate-700 hover:text-slate-900 text-xs font-bold rounded-full border border-slate-300 flex items-center gap-1.5 shadow-xs transition active:scale-95"
           >
-            <RotateCcw className="w-3.5 h-3.5 text-emerald-700" />
+            <RotateCcw className="w-3.5 h-3.5 text-slate-600" />
             <span>ولاية {wilaya.nameAr} (تغيير)</span>
           </button>
 
