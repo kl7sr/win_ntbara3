@@ -4,6 +4,8 @@
 interface Env {
   win_ntbara3_db?: D1Database;
   DB?: D1Database;
+  DATABASE?: D1Database;
+  d1?: D1Database;
   VITE_ADMIN_PASSWORD?: string;
   ADMIN_PASSWORD?: string;
   ADMIN_PASS?: string;
@@ -12,8 +14,32 @@ interface Env {
 }
 
 function getDatabase(context: EventContext<Env, any, any>): D1Database | null {
-  const env = context.env as any;
-  return env.win_ntbara3_db || env.DB || env.DATABASE || env.d1 || null;
+  const env = (context.env || {}) as any;
+
+  // 1. Direct match
+  if (env.win_ntbara3_db && typeof env.win_ntbara3_db.prepare === 'function') {
+    return env.win_ntbara3_db;
+  }
+  if (env.DB && typeof env.DB.prepare === 'function') {
+    return env.DB;
+  }
+  if (env.DATABASE && typeof env.DATABASE.prepare === 'function') {
+    return env.DATABASE;
+  }
+  if (env.d1 && typeof env.d1.prepare === 'function') {
+    return env.d1;
+  }
+
+  // 2. Auto-detect any D1Database instance attached to context.env
+  for (const [key, value] of Object.entries(env)) {
+    if (value && typeof (value as any).prepare === 'function') {
+      console.log(`[D1 Auto-Detect] Found D1 Database instance under env.${key}`);
+      return value as D1Database;
+    }
+  }
+
+  console.error('[D1 Error] No D1 Database found. Available context.env keys:', Object.keys(env));
+  return null;
 }
 
 const INIT_SQL = `
@@ -66,7 +92,10 @@ function checkAdminAuth(request: Request, env: any): boolean {
 export const onRequestGet: PagesFunction<Env> = async (context) => {
   const db = getDatabase(context);
   if (!db) {
-    return new Response(JSON.stringify({ error: "D1 Database binding 'win_ntbara3_db' not configured in Cloudflare" }), {
+    return new Response(JSON.stringify({ 
+      error: "D1 Database binding 'win_ntbara3_db' not found in context.env",
+      availableEnvKeys: Object.keys(context.env || {})
+    }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
@@ -145,9 +174,13 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 };
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
+  console.log('[POST /api/points] Available context.env keys:', Object.keys(context.env || {}));
   const db = getDatabase(context);
   if (!db) {
-    return new Response(JSON.stringify({ error: "D1 Database binding 'win_ntbara3_db' not configured" }), {
+    return new Response(JSON.stringify({ 
+      error: "D1 Database binding 'win_ntbara3_db' not found in context.env",
+      availableEnvKeys: Object.keys(context.env || {})
+    }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
@@ -216,7 +249,8 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
       headers: { "Content-Type": "application/json" }
     });
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), {
+    console.error('[POST /api/points Error]', err);
+    return new Response(JSON.stringify({ error: err.message, stack: err.stack }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
@@ -224,9 +258,16 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 };
 
 export const onRequestPut: PagesFunction<Env> = async (context) => {
+  console.log('[PUT /api/points] Available context.env keys:', Object.keys(context.env || {}));
   const db = getDatabase(context);
   if (!db) {
-    return new Response(JSON.stringify({ error: "D1 Database binding 'win_ntbara3_db' not configured" }), { status: 500 });
+    return new Response(JSON.stringify({ 
+      error: "D1 Database binding 'win_ntbara3_db' not found in context.env",
+      availableEnvKeys: Object.keys(context.env || {})
+    }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 
   // Bulletproof Admin Auth Check
@@ -298,7 +339,8 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
 
     return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message || "Internal server error" }), { 
+    console.error('[PUT /api/points Error]', err);
+    return new Response(JSON.stringify({ error: err.message || "Internal server error", stack: err.stack }), { 
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
@@ -308,7 +350,13 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
 export const onRequestDelete: PagesFunction<Env> = async (context) => {
   const db = getDatabase(context);
   if (!db) {
-    return new Response(JSON.stringify({ error: "D1 Database binding 'win_ntbara3_db' not configured" }), { status: 500 });
+    return new Response(JSON.stringify({ 
+      error: "D1 Database binding 'win_ntbara3_db' not found in context.env",
+      availableEnvKeys: Object.keys(context.env || {})
+    }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 
   // Bulletproof Admin Auth Check
