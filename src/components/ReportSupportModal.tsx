@@ -92,7 +92,7 @@ export const ReportSupportModal: React.FC<ReportSupportModalProps> = ({
 
           {/* Instagram Link */}
           <a
-            href="https://www.instagram.com/win.ntbara3/"
+            href="https://www.instagram.com/win_ntbara3/"
             target="_blank"
             rel="noopener noreferrer"
             className="p-3.5 bg-gradient-to-r from-purple-600 via-pink-600 to-amber-500 text-white rounded-2xl flex items-center justify-between transition hover:opacity-95 active:scale-98 shadow-md"
@@ -103,7 +103,7 @@ export const ReportSupportModal: React.FC<ReportSupportModalProps> = ({
               </div>
               <div className="text-right">
                 <h4 className="text-xs font-bold">صفحة التطبيق على إنستغرام</h4>
-                <p className="text-[11px] text-white/90 mt-0.5">@win.ntbara3 (متابعة آخر الأخبار والتحديثات)</p>
+                <p className="text-[11px] text-white/90 mt-0.5">@win_ntbara3 (متابعة آخر الأخبار والتحديثات)</p>
               </div>
             </div>
             <span className="text-xs font-bold bg-white/20 px-2.5 py-1 rounded-lg flex items-center gap-1">
