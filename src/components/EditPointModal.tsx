@@ -84,8 +84,11 @@ export const EditPointModal: React.FC<EditPointModalProps> = ({
     if (!raw) return;
     setLocationStatus('resolving');
 
-    // Try synchronous parsing first (decimal coords, DMS, Google Maps URL)
-    const parsed = parseGoogleMapsLinkOrCoords(raw);
+    const refLat = point.lat || 36.7538;
+    const refLng = point.lng || 3.0588;
+
+    // 1. Try synchronous parsing (decimal coords, DMS, Google Maps URL, or instant Plus Code decode)
+    const parsed = parseGoogleMapsLinkOrCoords(raw, refLat, refLng);
     if (parsed) {
       if (isWithinAlgeriaBounds(parsed.lat, parsed.lng)) {
         setEditedLat(parsed.lat);
@@ -98,9 +101,9 @@ export const EditPointModal: React.FC<EditPointModalProps> = ({
       }
     }
 
-    // Try async Plus Code resolution
+    // 2. Try async Plus Code resolution / server fallback
     if (isPlusCode(raw)) {
-      const result = await resolvePlusCode(raw);
+      const result = await resolvePlusCode(raw, refLat, refLng);
       if (result && isWithinAlgeriaBounds(result.lat, result.lng)) {
         setEditedLat(result.lat);
         setEditedLng(result.lng);

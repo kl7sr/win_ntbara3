@@ -26,32 +26,52 @@ export interface ParsedLocation {
   source: 'google_url' | 'raw_coords' | 'dms' | 'plus_code' | 'unknown';
 }
 
+import { decodePlusCode, extractPlusCode } from './openLocationCode';
+
 /**
  * Detects if input looks like a Google Plus Code (e.g. "P29M+F3Q" or "P29M+F3Q, Birkhadem")
  */
 export function isPlusCode(input: string): boolean {
-  const cleaned = input.trim();
-  // Plus codes: 4-8 alphanumeric chars + '+' + 2+ chars, optionally followed by a city
-  return /^[23456789CFGHJMPQRVWX]{4,8}\+[23456789CFGHJMPQRVWX]{2,}/i.test(cleaned);
+  return extractPlusCode(input) !== null;
 }
 
 /**
- * Resolves a Plus Code to lat/lng via server-side Google Maps API
+ * Resolves a Plus Code to lat/lng via instant client-side decoder with server API fallback
  */
-export async function resolvePlusCode(plusCode: string): Promise<ParsedLocation | null> {
+export async function resolvePlusCode(plusCode: string, refLat?: number, refLng?: number): Promise<ParsedLocation | null> {
+  if (!plusCode || !plusCode.trim()) return null;
+
+  // 1. Instant client-side mathematical decode (zero latency, offline support)
+  try {
+    const localResult = decodePlusCode(plusCode, refLat, refLng);
+    if (localResult && isWithinAlgeriaBounds(localResult.lat, localResult.lng)) {
+      return {
+        lat: localResult.lat,
+        lng: localResult.lng,
+        source: 'plus_code',
+        label: plusCode.trim(),
+      };
+    }
+  } catch (err) {
+    console.warn('Local Plus Code decode notice:', err);
+  }
+
+  // 2. Server API fallback
   try {
     const encoded = encodeURIComponent(`https://www.google.com/maps/search/${encodeURIComponent(plusCode.trim())}`);
     const response = await fetch(`/api/resolve-google-maps?url=${encoded}`);
-    if (!response.ok) return null;
-    const data = await response.json();
-    if (data.lat && data.lng) {
-      return { lat: data.lat, lng: data.lng, source: 'plus_code', label: plusCode };
+    if (response.ok) {
+      const data = await response.json();
+      if (data.lat && data.lng && isWithinAlgeriaBounds(data.lat, data.lng)) {
+        return { lat: data.lat, lng: data.lng, source: 'plus_code', label: plusCode.trim() };
+      }
     }
   } catch (e) {}
+
   return null;
 }
 
-export function parseGoogleMapsLinkOrCoords(input: string): ParsedLocation | null {
+export function parseGoogleMapsLinkOrCoords(input: string, refLat?: number, refLng?: number): ParsedLocation | null {
   if (!input || !input.trim()) return null;
   const cleanInput = input.trim();
 
@@ -109,8 +129,16 @@ export function parseGoogleMapsLinkOrCoords(input: string): ParsedLocation | nul
     return { lat, lng, source: 'dms' };
   }
 
-  // 6. Detect Plus Code — needs async resolution, return null here (use resolvePlusCode separately)
-  if (isPlusCode(cleanInput)) return null;
+  // 6. Check for instant Plus Code decode (e.g. "P29M+F3Q, Birkhadem" or "P29M+F3Q")
+  const plusMatch = decodePlusCode(cleanInput, refLat, refLng);
+  if (plusMatch && isWithinAlgeriaBounds(plusMatch.lat, plusMatch.lng)) {
+    return {
+      lat: plusMatch.lat,
+      lng: plusMatch.lng,
+      source: 'plus_code',
+      label: cleanInput,
+    };
+  }
 
   return null;
 }
