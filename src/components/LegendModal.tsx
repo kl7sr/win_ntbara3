@@ -80,7 +80,7 @@ export const LegendModal: React.FC<LegendModalProps> = ({
           <div className="bg-white border border-slate-200 rounded-2xl divide-y divide-slate-100 overflow-hidden shadow-xs">
             {/* 1. Verified Donation Hub */}
             <div className="p-3.5 flex items-start gap-3 hover:bg-slate-50/60 transition">
-              <span className="w-3.5 h-3.5 rounded-full bg-emerald-600 ring-4 ring-emerald-100 shrink-0 mt-0.5"></span>
+              <span className="w-3 h-3 rounded-full bg-emerald-600 shrink-0 mt-1"></span>
               <div className="flex-1 min-w-0">
                 <h4 className="text-xs font-bold text-slate-900">نقطة تبرع مؤكدة</h4>
                 <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">مراكز الهلال الأحمر الجزائري، الكشافة الإسلامية والجمعيات المعتمدة.</p>
@@ -89,7 +89,7 @@ export const LegendModal: React.FC<LegendModalProps> = ({
 
             {/* 2. Unconfirmed Point */}
             <div className="p-3.5 flex items-start gap-3 hover:bg-slate-50/60 transition">
-              <span className="w-3.5 h-3.5 rounded-full bg-amber-500 ring-4 ring-amber-100 shrink-0 mt-0.5"></span>
+              <span className="w-3 h-3 rounded-full bg-amber-500 shrink-0 mt-1"></span>
               <div className="flex-1 min-w-0">
                 <h4 className="text-xs font-bold text-slate-900">نقطة تبرع غير مؤكدة</h4>
                 <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">مبادرات تطوعية ومستودعات شعبية (يُرجى الاتصال للتأكد قبل التنقل).</p>
@@ -98,7 +98,7 @@ export const LegendModal: React.FC<LegendModalProps> = ({
 
             {/* 3. Active Fire */}
             <div className="p-3.5 flex items-start gap-3 hover:bg-slate-50/60 transition">
-              <span className="w-3.5 h-3.5 rounded-full bg-red-600 ring-4 ring-red-100 shrink-0 mt-0.5"></span>
+              <span className="w-3 h-3 rounded-full bg-red-600 shrink-0 mt-1"></span>
               <div className="flex-1 min-w-0">
                 <h4 className="text-xs font-bold text-slate-900">بؤرة حريق نشطة</h4>
                 <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">مناطق عمليات وتدخل الحماية المدنية (يرجى توخي الحذر والابتعاد).</p>
@@ -107,7 +107,7 @@ export const LegendModal: React.FC<LegendModalProps> = ({
 
             {/* 4. Contained Fire */}
             <div className="p-3.5 flex items-start gap-3 hover:bg-slate-50/60 transition">
-              <span className="w-3.5 h-3.5 rounded-full bg-slate-500 ring-4 ring-slate-200 shrink-0 mt-0.5"></span>
+              <span className="w-3 h-3 rounded-full bg-slate-500 shrink-0 mt-1"></span>
               <div className="flex-1 min-w-0">
                 <h4 className="text-xs font-bold text-slate-900">حرائق تم إخمادها</h4>
                 <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">مناطق تم إخماد النيران والسيطرة عليها وهي في طور الإغاثة.</p>

@@ -1174,7 +1174,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       >
                         <div className="space-y-1 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className={`w-2 h-2 rounded-full shrink-0 ${point.verified ? 'bg-emerald-600 ring-2 ring-emerald-100' : 'bg-amber-500 ring-2 ring-amber-100'}`} />
+                            <span className={`w-2 h-2 rounded-full shrink-0 ${point.verified ? 'bg-emerald-600' : 'bg-amber-500'}`} />
                             <span className="font-bold text-slate-900 text-sm sm:text-base">{point.title}</span>
                             <span className="text-slate-500 text-xs">({point.wilayaNameAr} - {point.commune})</span>
                             <span className={`text-[11px] font-bold ${point.verified ? 'text-emerald-800' : 'text-amber-800'}`}>
@@ -1281,7 +1281,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         >
                           <div className="space-y-1 flex-1">
                             <div className="flex items-center gap-2">
-                              <span className={`w-2 h-2 rounded-full shrink-0 ${isExtinguished ? 'bg-slate-400 ring-2 ring-slate-100' : 'bg-red-500 ring-2 ring-red-100'}`} />
+                              <span className={`w-2 h-2 rounded-full shrink-0 ${isExtinguished ? 'bg-slate-400' : 'bg-red-600'}`} />
                               <span className="font-bold text-slate-900 text-sm">{point.title}</span>
                               <span className={`text-[11px] font-bold ${isExtinguished ? 'text-slate-600' : 'text-red-700'}`}>
                                 {isExtinguished ? 'تم الإخماد' : 'حريق نشط'}

@@ -190,8 +190,8 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
                   <div className="flex items-center gap-1.5 min-w-0">
                     <span className={`w-2 h-2 rounded-full shrink-0 ${
                       isBurnt
-                        ? isFireActive ? 'bg-red-500 ring-2 ring-red-100' : 'bg-slate-400 ring-2 ring-slate-100'
-                        : isVerified ? 'bg-emerald-600 ring-2 ring-emerald-100' : 'bg-amber-500 ring-2 ring-amber-100'
+                        ? isFireActive ? 'bg-red-600' : 'bg-slate-400'
+                        : isVerified ? 'bg-emerald-600' : 'bg-amber-500'
                     }`} />
                     <span className={`text-[11px] font-bold truncate ${
                       isBurnt
@@ -320,8 +320,8 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
                         <div className="flex items-center gap-1.5">
                           <span className={`w-2 h-2 rounded-full shrink-0 ${
                             isBurnt
-                              ? isFireActive ? 'bg-red-500 ring-2 ring-red-100' : 'bg-slate-400 ring-2 ring-slate-100'
-                              : isVerified ? 'bg-emerald-600 ring-2 ring-emerald-100' : 'bg-amber-500 ring-2 ring-amber-100'
+                              ? isFireActive ? 'bg-red-600' : 'bg-slate-400'
+                              : isVerified ? 'bg-emerald-600' : 'bg-amber-500'
                           }`} />
                           <span className="text-[10.5px] font-bold text-slate-700">
                             ولاية {point.wilayaNameAr} ({point.commune})

@@ -52,8 +52,8 @@ export const MiniPinCard: React.FC<MiniPinCardProps> = ({
             <div className="flex items-center gap-1.5 flex-wrap">
               <span className={`w-2 h-2 rounded-full shrink-0 ${
                 isBurntZone
-                  ? isFireActive ? 'bg-red-500 ring-2 ring-red-100' : 'bg-slate-400 ring-2 ring-slate-100'
-                  : isVerified ? 'bg-emerald-600 ring-2 ring-emerald-100' : 'bg-amber-500 ring-2 ring-amber-100'
+                  ? isFireActive ? 'bg-red-600' : 'bg-slate-400'
+                  : isVerified ? 'bg-emerald-600' : 'bg-amber-500'
               }`} />
               <span className={`text-[11px] font-bold ${
                 isBurntZone

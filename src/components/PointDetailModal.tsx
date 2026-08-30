@@ -201,8 +201,8 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
                 <div className="inline-flex items-center gap-1.5">
                   <span className={`w-2 h-2 rounded-full shrink-0 ${
                     point.pointType === 'burnt_zone'
-                      ? (point.status === 'urgent' || point.status === 'active' ? 'bg-red-500 ring-2 ring-red-100' : 'bg-slate-400 ring-2 ring-slate-100')
-                      : (point.verified ? 'bg-emerald-600 ring-2 ring-emerald-100' : 'bg-amber-500 ring-2 ring-amber-100')
+                      ? (point.status === 'urgent' || point.status === 'active' ? 'bg-red-600' : 'bg-slate-400')
+                      : (point.verified ? 'bg-emerald-600' : 'bg-amber-500')
                   }`} />
                   <span className={`text-xs font-bold ${
                     point.pointType === 'burnt_zone'
