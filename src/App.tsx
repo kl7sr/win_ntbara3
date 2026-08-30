@@ -278,8 +278,6 @@ export function App() {
         totalPoints={activeVisiblePoints.length}
         currentLanguage={language}
         onSelectLanguage={handleLanguageChange}
-        showFireZones={showFireZones}
-        onToggleFireZones={setShowFireZones}
       />
 
       {/* 3. Main Full-Screen Map */}
@@ -295,19 +293,26 @@ export function App() {
           selectedWilaya={selectedWilaya}
         />
 
-        {/* Floating "البدء من جديد / تغيير الولاية" Chip on Map - Only when a wilaya is selected */}
-        {selectedWilaya && !isWelcomeModalOpen && !isWilayaResultsModalOpen && (
-          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[400] flex items-center pointer-events-auto animate-in fade-in slide-in-from-top-2 duration-200">
+        {/* Clean Floating Fire Toggle on Map */}
+        {!isWelcomeModalOpen && !isWilayaResultsModalOpen && (
+          <div className="absolute top-3 left-3 z-[400] flex items-center pointer-events-auto animate-in fade-in duration-200">
             <button
               type="button"
-              onClick={() => setIsWilayaResultsModalOpen(true)}
-              className="px-4 py-2 bg-white/95 backdrop-blur-md hover:bg-white text-slate-800 hover:text-emerald-800 text-xs font-black rounded-full shadow-xl border border-slate-200 flex items-center gap-1.5 transition active:scale-95 whitespace-nowrap"
-              title="عرض مراكز الولاية أو التغيير"
+              onClick={() => setShowFireZones(!showFireZones)}
+              className={`px-3 py-1.5 rounded-full shadow-lg border text-xs font-bold flex items-center gap-1.5 transition active:scale-95 whitespace-nowrap ${
+                showFireZones
+                  ? 'bg-red-600 text-white border-red-700 shadow-red-500/20'
+                  : 'bg-white/95 hover:bg-white text-slate-700 border-slate-200'
+              }`}
+              title="إظهار أو إخفاء مناطق الحرائق"
             >
-              <RotateCcw className="w-3.5 h-3.5 text-emerald-700" />
-              <span>
-                ولاية {selectedWilayaObj?.nameAr} (عرض المراكز / تغيير)
-              </span>
+              <input
+                type="checkbox"
+                checked={showFireZones}
+                onChange={() => {}}
+                className="w-3.5 h-3.5 accent-red-600 rounded pointer-events-none"
+              />
+              <span>مناطق الحرائق</span>
             </button>
           </div>
         )}
