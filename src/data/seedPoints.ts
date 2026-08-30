@@ -23,7 +23,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: true,
     createdBy: 'admin',
     createdAt: '2026-08-29T10:00:00Z',
-    googleMapsUrl: 'https://maps.google.com/?q=36.6583,5.7924+(منطقة+تاكسنة+جيجل)',
+    googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Texenna,+Jijel',
   },
   {
     id: 'fire-jijel-ziama',
@@ -44,7 +44,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: true,
     createdBy: 'admin',
     createdAt: '2026-08-29T10:30:00Z',
-    googleMapsUrl: 'https://maps.google.com/?q=36.6744,5.4808+(زيامة+منصورية+جيجل)',
+    googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Ziama+Mansouriah,+Jijel',
   },
   {
     id: 'fire-bejaia-toudja',
@@ -65,7 +65,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: true,
     createdBy: 'admin',
     createdAt: '2026-08-29T12:00:00Z',
-    googleMapsUrl: 'https://maps.google.com/?q=36.7583,4.9083+(غابات+توجة+وأدكار+بجاية)',
+    googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Toudja,+Béjaïa',
   },
   {
     id: 'fire-tizi-yakouren',
@@ -86,7 +86,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: true,
     createdBy: 'admin',
     createdAt: '2026-08-29T12:30:00Z',
-    googleMapsUrl: 'https://maps.google.com/?q=36.7333,4.4333+(غابة+اليعقوران+تيزي+وزو)',
+    googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Yakouren,+Tizi+Ouzou',
   },
 
   // ==========================================
@@ -111,7 +111,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: true,
     createdBy: 'admin',
     createdAt: '2026-08-28T10:00:00Z',
-    googleMapsUrl: 'https://maps.google.com/?q=36.769248,3.054194+(Croissant-Rouge+Algérien+National+HQ)',
+    googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Croissant+Rouge+Algérien,+Boulevard+Mohamed+V,+Alger',
   },
   {
     id: 'sma-scouts-birkhadem',
@@ -154,7 +154,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: true,
     createdBy: 'admin',
     createdAt: '2026-08-28T10:30:00Z',
-    googleMapsUrl: 'https://maps.google.com/?q=36.190184,5.409386+(Croissant-Rouge+Algérien+Comité+de+Sétif)',
+    googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Croissant+Rouge+Algérien,+Rue+du+8+Mai+1945,+Sétif',
   },
   {
     id: 'cra-bejaia',
@@ -176,7 +176,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: true,
     createdBy: 'admin',
     createdAt: '2026-08-28T11:00:00Z',
-    googleMapsUrl: 'https://maps.google.com/?q=36.748247,5.057485+(Croissant-Rouge+Algérien+Béjaïa)',
+    googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Croissant+Rouge+Algérien,+Boulevard+Krim+Belkacem,+Béjaïa',
   },
   {
     id: 'cra-tizi-ouzou',
@@ -198,7 +198,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: true,
     createdBy: 'admin',
     createdAt: '2026-08-28T12:00:00Z',
-    googleMapsUrl: 'https://maps.google.com/?q=36.715495,4.051422+(Croissant-Rouge+Algérien+Tizi-Ouzou)',
+    googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Croissant+Rouge+Algérien,+Tizi+Ouzou',
   },
   {
     id: 'cra-tazmalt',
@@ -219,7 +219,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: false,
     createdBy: 'admin',
     createdAt: '2026-08-28T13:00:00Z',
-    googleMapsUrl: 'https://maps.google.com/?q=36.384899,4.400293+(Croissant+Rouge+Tazmalt)',
+    googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Croissant+Rouge+Tazmalt,+Béjaïa',
   },
   {
     id: 'cra-annaba',
@@ -241,7 +241,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: false,
     createdBy: 'admin',
     createdAt: '2026-08-28T14:00:00Z',
-    googleMapsUrl: 'https://maps.google.com/?q=36.901529,7.751941+(Croissant-Rouge+Algérien+Annaba)',
+    googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Croissant+Rouge+Algérien,+Annaba',
   },
   {
     id: 'cra-el-tarf',
@@ -264,7 +264,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: true,
     createdBy: 'admin',
     createdAt: '2026-08-28T15:00:00Z',
-    googleMapsUrl: 'https://maps.google.com/?q=36.768464,8.311082+(Croissant+Rouge+Algérien+El+Tarf)',
+    googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Croissant+Rouge+Algérien,+El+Tarf',
   },
   {
     id: 'cra-guelma',
@@ -285,6 +285,6 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
     featured: false,
     createdBy: 'admin',
     createdAt: '2026-08-28T16:00:00Z',
-    googleMapsUrl: 'https://maps.google.com/?q=36.464888,7.430481+(Croissant+Rouge+Algérien+Guelma)',
+    googleMapsUrl: 'https://www.google.com/maps/search/?api=1&query=Croissant+Rouge+Algérien,+Guelma',
   }
 ];

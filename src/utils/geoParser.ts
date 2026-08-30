@@ -62,31 +62,33 @@ export function parseGoogleMapsLinkOrCoords(input: string): ParsedLocation | nul
     return { lat, lng, source: 'raw_coords' };
   }
 
-  // 5. Check for DMS
-  const dmsMatch = cleanInput.match(/(\d+)°(\d+)'([\d.]+)"?([NS])[,\s]+(\d+)°(\d+)'([\d.]+)"?([EW])/i);
+  // 5. Check for DMS (Degrees, Minutes, Seconds) e.g. 36°45'13.7"N 3°03'32.0"E
+  const dmsMatch = cleanInput.match(/(\d+)°(\d+)'([\d.]+)"([NSEW])[,\s]+(\d+)°(\d+)'([\d.]+)"([NSEW])/i);
   if (dmsMatch) {
-    let lat = parseInt(dmsMatch[1]) + parseInt(dmsMatch[2]) / 60 + parseFloat(dmsMatch[3]) / 3600;
-    if (dmsMatch[4].toUpperCase() === 'S') lat = -lat;
+    const latDeg = parseFloat(dmsMatch[1]);
+    const latMin = parseFloat(dmsMatch[2]);
+    const latSec = parseFloat(dmsMatch[3]);
+    const latDir = dmsMatch[4].toUpperCase();
 
-    let lng = parseInt(dmsMatch[5]) + parseInt(dmsMatch[6]) / 60 + parseFloat(dmsMatch[7]) / 3600;
-    if (dmsMatch[8].toUpperCase() === 'W') lng = -lng;
+    const lngDeg = parseFloat(dmsMatch[5]);
+    const lngMin = parseFloat(dmsMatch[6]);
+    const lngSec = parseFloat(dmsMatch[7]);
+    const lngDir = dmsMatch[8].toUpperCase();
+
+    let lat = latDeg + latMin / 60 + latSec / 3600;
+    if (latDir === 'S') lat = -lat;
+
+    let lng = lngDeg + lngMin / 60 + lngSec / 3600;
+    if (lngDir === 'W') lng = -lng;
 
     return { lat, lng, source: 'dms' };
-  }
-
-  // 6. Generic search for consecutive numbers
-  const anyPairMatch = cleanInput.match(/([1-3]\d\.\d{3,})[^\d.-]+([0-1]?\d\.\d{3,})/);
-  if (anyPairMatch) {
-    const lat = parseFloat(anyPairMatch[1]);
-    const lng = parseFloat(anyPairMatch[2]);
-    return { lat, lng, source: 'raw_coords' };
   }
 
   return null;
 }
 
 /**
- * Calculates distance between two points in Kilometers using Haversine formula
+ * Calculates distance between two points in km (Haversine formula)
  */
 export function calculateDistanceKm(lat1: number, lon1: number, lat2: number, lon2: number): number {
   const R = 6371; // Radius of the earth in km
@@ -117,11 +119,12 @@ export function formatDistance(distanceKm: number, lang: 'ar' | 'fr' | 'en' = 'a
 }
 
 /**
- * Build Google Maps Navigation URL with named place label
+ * Build Google Maps Place Search URL so Google Maps opens the verified place card directly
  */
-export function getGoogleMapsDirUrl(lat: number, lng: number, label?: string): string {
-  if (label) {
-    return `https://maps.google.com/?q=${lat},${lng}+(${encodeURIComponent(label)})`;
+export function getGoogleMapsDirUrl(lat: number, lng: number, title?: string, address?: string): string {
+  if (title) {
+    const query = encodeURIComponent(`${title} ${address || ''}`.trim());
+    return `https://www.google.com/maps/search/?api=1&query=${query}`;
   }
-  return `https://maps.google.com/?q=${lat},${lng}`;
+  return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
 }

@@ -1,7 +1,7 @@
 import { CharityPoint } from '../types';
 import { SEED_CHARITY_POINTS } from '../data/seedPoints';
 
-const STORAGE_KEY = 'win_ntbara3_points_unified_v13';
+const STORAGE_KEY = 'win_ntbara3_points_unified_v14';
 const ADMIN_PASS_KEY = 'win_ntbara3_admin_pass';
 
 // Cloudflare Pages Secret / Environment Variable
