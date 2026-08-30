@@ -103,29 +103,6 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
     setTimeout(() => setCopiedLink(false), 2000);
   };
 
-  const handleOpenPhotoInNewTab = (imgUrl: string) => {
-    const newTab = window.open();
-    if (newTab) {
-      newTab.document.write(`
-        <!DOCTYPE html>
-        <html lang="ar">
-          <head>
-            <title>صورة المركز</title>
-            <meta name="viewport" content="width=device-width, initial-scale=1.0">
-            <style>
-              body { margin: 0; background: #000; display: flex; align-items: center; justify-content: center; min-height: 100vh; }
-              img { max-width: 100vw; max-height: 100vh; object-fit: contain; }
-            </style>
-          </head>
-          <body>
-            <img src="${imgUrl}" alt="Photo" />
-          </body>
-        </html>
-      `);
-      newTab.document.close();
-    }
-  };
-
   return (
     <>
       <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs">
@@ -439,22 +416,14 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
           {/* Top Actions Bar */}
           <div className="absolute top-4 inset-x-4 flex items-center justify-between z-10" onClick={(e) => e.stopPropagation()}>
             <div className="flex items-center gap-2">
-              <button
-                type="button"
-                onClick={() => handleOpenPhotoInNewTab(selectedPhotoPreview)}
-                className="px-3 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow transition"
-              >
-                <ExternalLink className="w-4 h-4" />
-                <span>فتح في نافذة كاملة</span>
-              </button>
-
               <a
                 href={selectedPhotoPreview}
                 download="charity-point-photo.jpg"
-                className="p-1.5 bg-white/20 hover:bg-white/30 text-white rounded-xl transition"
+                className="px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow transition"
                 title="تحميل الصورة"
               >
                 <Download className="w-4 h-4" />
+                <span>تحميل الصورة</span>
               </a>
             </div>
 
