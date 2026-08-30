@@ -10,7 +10,10 @@ import {
   Navigation,
   ShieldCheck,
   Flame,
-  Globe
+  Globe,
+  Info,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { CharityPoint, UserLocation, AidCategory } from '../types';
 import { WILAYAS, AID_CATEGORIES_META } from '../data/wilayas';
@@ -47,6 +50,7 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
 }) => {
   const [searchQuery, setSearchQuery] = useState('');
   const [verificationFilter, setVerificationFilter] = useState<'all' | 'verified' | 'unconfirmed'>('all');
+  const [showNeighboringDropdown, setShowNeighboringDropdown] = useState(false);
 
   const t = TRANSLATIONS[currentLanguage];
 
@@ -179,13 +183,9 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
             return (
               <div
                 key={point.id}
-                onClick={() => {
-                  onSelectPoint(point);
-                  onClose();
-                }}
-                className="p-3.5 bg-white border border-slate-200 hover:border-slate-300 rounded-2xl shadow-xs hover:shadow-md transition cursor-pointer space-y-2.5 text-right group"
+                className="p-3.5 bg-white border border-slate-200 hover:border-slate-300 rounded-2xl shadow-xs hover:shadow-md transition space-y-2.5 text-right group"
               >
-                {/* Top Meta Line: Status Dot + Type Tag + Distance */}
+                {/* Top Row: Status Dot + Status Label + Distance Badge */}
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 min-w-0">
                     <span className={`w-2 h-2 rounded-full shrink-0 ${
@@ -202,13 +202,6 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
                         ? (isFireExtinguished ? 'تم الإخماد' : 'بؤرة حريق نشطة')
                         : (isVerified ? 'موقع مؤكد' : 'غير مؤكد')}
                     </span>
-
-                    {point.organizer && (
-                      <>
-                        <span className="text-slate-300 text-[10px]">•</span>
-                        <span className="text-[11px] text-slate-500 truncate font-medium">{point.organizer}</span>
-                      </>
-                    )}
                   </div>
 
                   {point.distance !== null && (
@@ -222,80 +215,37 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
                   )}
                 </div>
 
-                {/* Main Content Row with Optional Thumbnail / Contextual Icon */}
-                <div className="flex items-start gap-3">
-                  {/* Photo Thumbnail if available */}
-                  {(point.imageUrl || (point.images && point.images.length > 0)) ? (
-                    <img
-                      src={point.imageUrl || point.images![0]}
-                      alt={point.title}
-                      className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-slate-100 shrink-0 bg-slate-100"
-                      loading="lazy"
-                    />
-                  ) : (
-                    <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border ${
-                      isBurnt
-                        ? 'bg-red-50 text-red-700 border-red-100'
-                        : isVerified
-                        ? 'bg-slate-100 text-slate-700 border-slate-200'
-                        : 'bg-amber-50/60 text-amber-800 border-amber-100'
-                    }`}>
-                      {isBurnt ? (
-                        <Flame className="w-5 h-5" />
-                      ) : (
-                        <MapPin className="w-5 h-5 text-slate-700" />
-                      )}
-                    </div>
-                  )}
-
-                  {/* Title, Address & Aid Tags */}
-                  <div className="flex-1 min-w-0 space-y-1">
-                    <h4 className="text-xs sm:text-sm font-black text-slate-900 group-hover:text-slate-800 leading-snug">
-                      {point.title}
-                    </h4>
-                    <p className="text-[11px] text-slate-500 truncate">
-                      {point.wilayaNameAr} - {point.commune} {point.address && `(${point.address})`}
-                    </p>
-
-                    {/* Aid Category Tags or Fire zone description for instant scanning */}
-                    {isBurnt && point.urgentDescription ? (
-                      <p className="text-[10.5px] text-red-700 font-medium line-clamp-1 bg-red-50 px-2 py-0.5 rounded-md mt-1 border border-red-100">
-                        {point.urgentDescription}
-                      </p>
-                    ) : point.aidCategories && point.aidCategories.length > 0 ? (
-                      <div className="flex items-center gap-1 flex-wrap pt-0.5">
-                        {point.aidCategories.slice(0, 3).map((catKey) => {
-                          const meta = AID_CATEGORIES_META[catKey];
-                          return (
-                            <span
-                              key={catKey}
-                              className="text-[9.5px] bg-slate-100 text-slate-600 font-medium px-1.5 py-0.5 rounded border border-slate-200/60"
-                            >
-                              {meta ? meta.labelAr.split(' ')[0] : catKey}
-                            </span>
-                          );
-                        })}
-                        {point.aidCategories.length > 3 && (
-                          <span className="text-[9.5px] text-slate-400 font-bold">
-                            +{point.aidCategories.length - 3}
-                          </span>
-                        )}
-                      </div>
-                    ) : null}
-                  </div>
+                {/* Title & Location Line (Clean & Readable) */}
+                <div 
+                  className="cursor-pointer space-y-0.5"
+                  onClick={() => {
+                    onSelectPoint(point);
+                    onClose();
+                  }}
+                >
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-slate-800 leading-snug">
+                    {point.title}
+                  </h4>
+                  <p className="text-[11px] text-slate-500">
+                    {point.wilayaNameAr} - {point.commune}
+                  </p>
                 </div>
 
-                {/* Clean Compact Action Row */}
-                <div className="flex items-center gap-2 pt-1.5 border-t border-slate-100">
-                  {!isBurnt && point.phone && (
+                {/* 3 Compact Action Buttons: Call | Directions | Details */}
+                <div className="grid grid-cols-3 gap-1.5 pt-1 border-t border-slate-100">
+                  {!isBurnt && point.phone ? (
                     <a
                       href={`tel:${point.phone}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="flex-1 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-95 text-center"
+                      className="py-1.5 px-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-2xs transition active:scale-95 text-center"
                     >
-                      <Phone className="w-3.5 h-3.5" />
-                      <span>اتصال ({point.phone})</span>
+                      <Phone className="w-3.5 h-3.5 shrink-0" />
+                      <span className="truncate">اتصال</span>
                     </a>
+                  ) : (
+                    <div className="py-1.5 px-2 bg-slate-50 text-slate-400 rounded-xl text-xs text-center font-medium flex items-center justify-center">
+                      بدون هاتف
+                    </div>
                   )}
 
                   <a
@@ -303,95 +253,138 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className={`flex-1 py-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 text-center ${
-                      !isBurnt && point.phone
-                        ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
-                        : 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-2xs font-bold'
-                    }`}
+                    className="py-1.5 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 active:scale-95 text-center"
                   >
-                    <Navigation className="w-3.5 h-3.5" />
-                    <span>الاتجاهات</span>
+                    <Navigation className="w-3.5 h-3.5 shrink-0" />
+                    <span className="truncate">الاتجاهات</span>
                   </a>
+
+                  <button
+                    type="button"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      onSelectPoint(point);
+                      onClose();
+                    }}
+                    className="py-1.5 px-2 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-2xs transition active:scale-95 text-center"
+                  >
+                    <Info className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                    <span className="truncate">التفاصيل</span>
+                  </button>
                 </div>
               </div>
             );
           })
         )}
 
-        {/* Smart Neighboring Border Centers Section */}
+        {/* Smart Neighboring Border Centers Dropdown (Closed by default) */}
         {partitioned && partitioned.borderNeighborPoints.length > 0 && (
-          <div className="pt-4 border-t-2 border-dashed border-slate-200 space-y-2">
-            <div className="bg-slate-100/90 border border-slate-200 rounded-2xl p-3 text-right">
-              <h4 className="text-xs font-bold text-slate-900">
-                مراكز قريبة من حدود ولاية {partitioned.selectedWilaya.nameAr}
-              </h4>
-              <p className="text-[10.5px] text-slate-500 mt-0.5">
-                مراكز تبرع بالولايات المجاورة قد تكون أقرب لموقعك:
-              </p>
-            </div>
+          <div className="pt-3 border-t border-slate-200 space-y-2">
+            <button
+              type="button"
+              onClick={() => setShowNeighboringDropdown(!showNeighboringDropdown)}
+              className="w-full p-3 bg-white hover:bg-slate-50 border border-slate-300 rounded-2xl font-bold text-xs text-slate-800 flex items-center justify-between transition shadow-xs active:scale-[0.99]"
+            >
+              <div className="flex items-center gap-2">
+                <span className="w-5 h-5 rounded-full bg-slate-100 text-slate-700 text-[10px] font-black flex items-center justify-center border border-slate-200">
+                  {partitioned.borderNeighborPoints.length}
+                </span>
+                <span className="font-bold text-slate-800">
+                  مراكز قريبة في الولايات المجاورة
+                </span>
+              </div>
+              {showNeighboringDropdown ? (
+                <ChevronUp className="w-4 h-4 text-slate-500" />
+              ) : (
+                <ChevronDown className="w-4 h-4 text-slate-500" />
+              )}
+            </button>
 
-            {partitioned.borderNeighborPoints.map(({ point, distanceToWilayaCenterKm }) => {
-              const isBurnt = point.pointType === 'burnt_zone';
-              const isFireActive = isBurnt && (point.status === 'urgent' || point.status === 'active');
-              const isFireExtinguished = isBurnt && (point.status === 'extinguished' || point.status === 'full');
-              const isVerified = point.verified;
+            {/* Dropdown Content */}
+            {showNeighboringDropdown && (
+              <div className="space-y-2.5 animate-in fade-in slide-in-from-top-1 duration-150">
+                {partitioned.borderNeighborPoints.map(({ point, distanceToWilayaCenterKm }) => {
+                  const isBurnt = point.pointType === 'burnt_zone';
+                  const isFireActive = isBurnt && (point.status === 'urgent' || point.status === 'active');
+                  const isFireExtinguished = isBurnt && (point.status === 'extinguished' || point.status === 'full');
+                  const isVerified = point.verified;
 
-              const googleMapsUrl = point.googleMapsUrl || getGoogleMapsDirUrl(point.lat, point.lng, point.title);
+                  const googleMapsUrl = point.googleMapsUrl || getGoogleMapsDirUrl(point.lat, point.lng, point.title);
 
-              return (
-                <div
-                  key={point.id}
-                  onClick={() => {
-                    onSelectPoint(point);
-                    onClose();
-                  }}
-                  className="p-3 bg-white border border-slate-200 hover:border-slate-300 rounded-2xl shadow-xs hover:shadow-md transition cursor-pointer text-right space-y-2"
-                >
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-1.5">
-                      <span className={`w-2 h-2 rounded-full shrink-0 ${
-                        isBurnt
-                          ? isFireActive ? 'bg-red-500 ring-2 ring-red-100' : 'bg-slate-400 ring-2 ring-slate-100'
-                          : isVerified ? 'bg-emerald-600 ring-2 ring-emerald-100' : 'bg-amber-500 ring-2 ring-amber-100'
-                      }`} />
-                      <span className="text-[10.5px] font-bold text-slate-700">
-                        ولاية {point.wilayaNameAr} ({point.commune})
-                      </span>
-                    </div>
-                    <span className="text-[10px] text-slate-500 font-medium">
-                      ~ {distanceToWilayaCenterKm} كم
-                    </span>
-                  </div>
-
-                  <h5 className="text-xs font-bold text-slate-900">{point.title}</h5>
-
-                  <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
-                    {!isBurnt && point.phone && (
-                      <a
-                        href={`tel:${point.phone}`}
-                        onClick={(e) => e.stopPropagation()}
-                        className="flex-1 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[11px] rounded-xl text-center shadow-2xs transition"
-                      >
-                        اتصال
-                      </a>
-                    )}
-                    <a
-                      href={googleMapsUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      onClick={(e) => e.stopPropagation()}
-                      className={`flex-1 py-1.5 rounded-xl text-[11px] font-semibold text-center transition ${
-                        !isBurnt && point.phone
-                          ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
-                          : 'bg-emerald-700 hover:bg-emerald-800 text-white font-bold shadow-2xs'
-                      }`}
+                  return (
+                    <div
+                      key={point.id}
+                      className="p-3 bg-white border border-slate-200 hover:border-slate-300 rounded-2xl shadow-xs hover:shadow-md transition text-right space-y-2"
                     >
-                      الاتجاهات
-                    </a>
-                  </div>
-                </div>
-              );
-            })}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center gap-1.5">
+                          <span className={`w-2 h-2 rounded-full shrink-0 ${
+                            isBurnt
+                              ? isFireActive ? 'bg-red-500 ring-2 ring-red-100' : 'bg-slate-400 ring-2 ring-slate-100'
+                              : isVerified ? 'bg-emerald-600 ring-2 ring-emerald-100' : 'bg-amber-500 ring-2 ring-amber-100'
+                          }`} />
+                          <span className="text-[10.5px] font-bold text-slate-700">
+                            ولاية {point.wilayaNameAr} ({point.commune})
+                          </span>
+                        </div>
+                        <span className="text-[10px] text-slate-500 font-medium">
+                          ~ {distanceToWilayaCenterKm} كم
+                        </span>
+                      </div>
+
+                      <h5 
+                        className="text-xs font-bold text-slate-900 cursor-pointer"
+                        onClick={() => {
+                          onSelectPoint(point);
+                          onClose();
+                        }}
+                      >
+                        {point.title}
+                      </h5>
+
+                      <div className="grid grid-cols-3 gap-1.5 pt-1 border-t border-slate-100">
+                        {!isBurnt && point.phone ? (
+                          <a
+                            href={`tel:${point.phone}`}
+                            onClick={(e) => e.stopPropagation()}
+                            className="py-1.5 px-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl text-center shadow-2xs transition flex items-center justify-center gap-1"
+                          >
+                            <Phone className="w-3.5 h-3.5 shrink-0" />
+                            <span className="truncate">اتصال</span>
+                          </a>
+                        ) : (
+                          <div className="py-1.5 px-2 bg-slate-50 text-slate-400 rounded-xl text-xs text-center font-medium flex items-center justify-center">
+                            بدون هاتف
+                          </div>
+                        )}
+                        <a
+                          href={googleMapsUrl}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          onClick={(e) => e.stopPropagation()}
+                          className="py-1.5 px-2 rounded-xl text-xs font-semibold text-center transition bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 flex items-center justify-center gap-1"
+                        >
+                          <Navigation className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">الاتجاهات</span>
+                        </a>
+                        <button
+                          type="button"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            onSelectPoint(point);
+                            onClose();
+                          }}
+                          className="py-1.5 px-2 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-2xs transition active:scale-95 text-center"
+                        >
+                          <Info className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                          <span className="truncate">التفاصيل</span>
+                        </button>
+                      </div>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
           </div>
         )}
       </div>

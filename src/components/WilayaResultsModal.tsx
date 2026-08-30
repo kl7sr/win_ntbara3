@@ -120,9 +120,9 @@ export const WilayaResultsModal: React.FC<WilayaResultsModalProps> = ({
                 return (
                   <div
                     key={point.id}
-                    className="p-3.5 sm:p-4 bg-white border border-slate-200 hover:border-slate-300 rounded-2xl shadow-xs space-y-2.5 text-right hover:shadow-md transition"
+                    className="p-3.5 bg-white border border-slate-200 hover:border-slate-300 rounded-2xl shadow-xs space-y-2.5 text-right hover:shadow-md transition"
                   >
-                    {/* Header: Inline Status Dot & Organizer */}
+                    {/* Header: Inline Status Dot */}
                     <div className="flex items-center justify-between gap-2">
                       <div className="flex items-center gap-1.5 min-w-0">
                         <span className={`w-2 h-2 rounded-full shrink-0 ${
@@ -139,107 +139,56 @@ export const WilayaResultsModal: React.FC<WilayaResultsModalProps> = ({
                             ? (isFireExtinguished ? 'تم الإخماد' : 'بؤرة حريق نشطة')
                             : (isVerified ? 'موقع مؤكد' : 'غير مؤكد')}
                         </span>
-                        {point.organizer && (
-                          <>
-                            <span className="text-slate-300 text-[10px]">•</span>
-                            <span className="text-[11px] text-slate-500 truncate font-medium">{point.organizer}</span>
-                          </>
-                        )}
                       </div>
                     </div>
 
-                    {/* Middle: Anchor + Title + Address + Aid Tags */}
+                    {/* Middle: Title & Location */}
                     <div 
-                      className="flex items-start gap-3 cursor-pointer"
+                      className="cursor-pointer space-y-0.5"
                       onClick={() => onOpenFullDetails(point)}
                     >
-                      {/* Photo Thumbnail if available */}
-                      {(point.imageUrl || (point.images && point.images.length > 0)) ? (
-                        <img
-                          src={point.imageUrl || point.images![0]}
-                          alt={point.title}
-                          className="w-14 h-14 sm:w-16 sm:h-16 rounded-xl object-cover border border-slate-100 shrink-0 bg-slate-100"
-                          loading="lazy"
-                        />
+                      <h4 className="text-xs sm:text-sm font-bold text-slate-900 leading-snug">
+                        {point.title}
+                      </h4>
+                      <p className="text-[11px] text-slate-500">
+                        {point.wilayaNameAr} - {point.commune}
+                      </p>
+                    </div>
+
+                    {/* Action Buttons: 3-Button Row (Call | Directions | Details) */}
+                    <div className="grid grid-cols-3 gap-1.5 pt-1 border-t border-slate-100">
+                      {!isBurnt && point.phone ? (
+                        <a
+                          href={`tel:${point.phone}`}
+                          className="py-1.5 px-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1 shadow-2xs transition active:scale-95 text-center"
+                        >
+                          <Phone className="w-3.5 h-3.5 shrink-0" />
+                          <span className="truncate">اتصال</span>
+                        </a>
                       ) : (
-                        <div className={`w-11 h-11 rounded-xl flex items-center justify-center shrink-0 border ${
-                          isBurnt
-                            ? 'bg-red-50 text-red-700 border-red-100'
-                            : isVerified
-                            ? 'bg-slate-100 text-slate-700 border-slate-200'
-                            : 'bg-amber-50/60 text-amber-800 border-amber-100'
-                        }`}>
-                          {isBurnt ? (
-                            <Flame className="w-5 h-5" />
-                          ) : (
-                            <MapPin className="w-5 h-5 text-slate-700" />
-                          )}
+                        <div className="py-1.5 px-2 bg-slate-50 text-slate-400 rounded-xl text-xs text-center font-medium flex items-center justify-center">
+                          بدون هاتف
                         </div>
                       )}
 
-                      <div className="flex-1 min-w-0 space-y-1">
-                        <h4 className="text-xs sm:text-sm font-black text-slate-900 leading-snug">
-                          {point.title}
-                        </h4>
-                        <p className="text-[11px] text-slate-500 truncate">
-                          {point.wilayaNameAr} - {point.commune} {point.address && `(${point.address})`}
-                        </p>
-
-                        {/* Aid Category Tags or Fire zone description for instant scanning */}
-                        {isBurnt && point.urgentDescription ? (
-                          <p className="text-[10.5px] text-red-700 font-medium line-clamp-1 bg-red-50 px-2 py-0.5 rounded-md mt-1 border border-red-100">
-                            {point.urgentDescription}
-                          </p>
-                        ) : point.aidCategories && point.aidCategories.length > 0 ? (
-                          <div className="flex items-center gap-1 flex-wrap pt-0.5">
-                            {point.aidCategories.slice(0, 3).map((catKey) => {
-                              const meta = AID_CATEGORIES_META[catKey];
-                              return (
-                                <span
-                                  key={catKey}
-                                  className="text-[9.5px] bg-slate-100 text-slate-600 font-medium px-1.5 py-0.5 rounded border border-slate-200/60"
-                                >
-                                  {meta ? meta.labelAr.split(' ')[0] : catKey}
-                                </span>
-                              );
-                            })}
-                            {point.aidCategories.length > 3 && (
-                              <span className="text-[9.5px] text-slate-400 font-bold">
-                                +{point.aidCategories.length - 3}
-                              </span>
-                            )}
-                          </div>
-                        ) : null}
-                      </div>
-                    </div>
-
-                    {/* Action Buttons: Primary (Call) vs Secondary (Directions) */}
-                    <div className="flex items-center gap-2 pt-1.5 border-t border-slate-100">
-                      {/* Call Button - Only for Donation Centers */}
-                      {!isBurnt && point.phone && (
-                        <a
-                          href={`tel:${point.phone}`}
-                          className="flex-1 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-2xs transition active:scale-95 text-center"
-                        >
-                          <Phone className="w-3.5 h-3.5" />
-                          <span>اتصال ({point.phone})</span>
-                        </a>
-                      )}
-
-                      {/* Directions Button */}
                       <a
                         href={googleMapsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className={`flex-1 py-1.5 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 text-center ${
-                          !isBurnt && point.phone
-                            ? 'bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200'
-                            : 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-2xs font-bold'
-                        }`}
+                        className="py-1.5 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 active:scale-95 text-center"
                       >
-                        <Navigation className="w-3.5 h-3.5" />
-                        <span>الاتجاهات</span>
+                        <Navigation className="w-3.5 h-3.5 shrink-0" />
+                        <span className="truncate">الاتجاهات</span>
                       </a>
+
+                      <button
+                        type="button"
+                        onClick={() => onOpenFullDetails(point)}
+                        className="py-1.5 px-2 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-2xs transition active:scale-95 text-center"
+                      >
+                        <Info className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                        <span className="truncate">التفاصيل</span>
+                      </button>
                     </div>
                   </div>
                 );
@@ -289,7 +238,7 @@ export const WilayaResultsModal: React.FC<WilayaResultsModalProps> = ({
                         className="p-3 bg-white border border-slate-200 hover:border-slate-300 rounded-2xl shadow-xs space-y-2 text-right hover:shadow-md transition"
                       >
                         <div 
-                          className="cursor-pointer space-y-1"
+                          className="cursor-pointer space-y-0.5"
                           onClick={() => onOpenFullDetails(point)}
                         >
                           <div className="flex items-center justify-between">
@@ -310,33 +259,41 @@ export const WilayaResultsModal: React.FC<WilayaResultsModalProps> = ({
                           <h5 className="text-xs sm:text-sm font-bold text-slate-900 hover:text-emerald-800">
                             {point.title}
                           </h5>
-                          <p className="text-[11px] text-slate-500">{point.commune} ({point.address})</p>
                         </div>
 
-                        <div className={`grid ${point.pointType === 'burnt_zone' ? 'grid-cols-1' : 'grid-cols-2'} gap-2 pt-1 border-t border-slate-100`}>
-                          {point.pointType !== 'burnt_zone' && point.phone && (
+                        <div className="grid grid-cols-3 gap-1.5 pt-1 border-t border-slate-100">
+                          {point.pointType !== 'burnt_zone' && point.phone ? (
                             <a
                               href={`tel:${point.phone}`}
                               className="py-1.5 px-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1 shadow-2xs transition active:scale-95 text-center"
                             >
-                              <Phone className="w-3.5 h-3.5" />
-                              <span>اتصال</span>
+                              <Phone className="w-3.5 h-3.5 shrink-0" />
+                              <span className="truncate">اتصال</span>
                             </a>
+                          ) : (
+                            <div className="py-1.5 px-2 bg-slate-50 text-slate-400 rounded-xl text-xs text-center font-medium flex items-center justify-center">
+                              بدون هاتف
+                            </div>
                           )}
 
                           <a
                             href={googleMapsUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className={`py-1.5 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition border border-slate-200 active:scale-95 text-center ${
-                              point.pointType !== 'burnt_zone' && point.phone
-                                ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                                : 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-2xs font-bold'
-                            }`}
+                            className="py-1.5 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 active:scale-95 text-center"
                           >
-                            <Navigation className="w-3.5 h-3.5" />
-                            <span>الاتجاهات</span>
+                            <Navigation className="w-3.5 h-3.5 shrink-0" />
+                            <span className="truncate">الاتجاهات</span>
                           </a>
+
+                          <button
+                            type="button"
+                            onClick={() => onOpenFullDetails(point)}
+                            className="py-1.5 px-2 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-2xs transition active:scale-95 text-center"
+                          >
+                            <Info className="w-3.5 h-3.5 text-slate-300 shrink-0" />
+                            <span className="truncate">التفاصيل</span>
+                          </button>
                         </div>
                       </div>
                     );
