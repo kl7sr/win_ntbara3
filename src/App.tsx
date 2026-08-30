@@ -344,30 +344,6 @@ export function App() {
           onRequestUserLocation={requestUserLocation}
           selectedWilaya={selectedWilaya}
         />
-
-        {/* Clean Floating Fire Toggle on Map (Top Right) - Only when no modal/drawer is active */}
-        {!isWelcomeModalOpen && !isWilayaResultsModalOpen && !isNearestDrawerOpen && !selectedPoint && !isAddModalOpen && !isAdminOpen && (
-          <div className="absolute top-2.5 right-2.5 z-20 flex items-center pointer-events-auto animate-in fade-in duration-200">
-            <button
-              type="button"
-              onClick={() => setShowFireZones(!showFireZones)}
-              className={`px-2.5 py-1 rounded-full shadow-md border text-[11px] font-bold flex items-center gap-1.5 transition active:scale-95 whitespace-nowrap ${
-                showFireZones
-                  ? 'bg-red-600 text-white border-red-700 shadow-red-500/20'
-                  : 'bg-white/95 hover:bg-white text-slate-700 border-slate-200 backdrop-blur-xs'
-              }`}
-              title="إظهار أو إخفاء مناطق الحرائق"
-            >
-              <input
-                type="checkbox"
-                checked={showFireZones}
-                onChange={() => {}}
-                className="w-3 h-3 accent-red-600 rounded pointer-events-none"
-              />
-              <span>مناطق الحرائق</span>
-            </button>
-          </div>
-        )}
       </main>
 
       {/* 4. Bottom Navigation Bar (5 Action Items - Compact & Dynamic) */}
@@ -453,6 +429,8 @@ export function App() {
         isOpen={isLegendModalOpen}
         onClose={() => setIsLegendModalOpen(false)}
         currentLanguage={language}
+        showFireZones={showFireZones}
+        onToggleFireZones={setShowFireZones}
       />
 
       {/* 8. Technical Support & Report Modal */}

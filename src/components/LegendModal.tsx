@@ -6,12 +6,16 @@ interface LegendModalProps {
   isOpen: boolean;
   onClose: () => void;
   currentLanguage?: Language;
+  showFireZones?: boolean;
+  onToggleFireZones?: (show: boolean) => void;
 }
 
 export const LegendModal: React.FC<LegendModalProps> = ({
   isOpen,
   onClose,
   currentLanguage = 'ar',
+  showFireZones = true,
+  onToggleFireZones,
 }) => {
   if (!isOpen) return null;
 
@@ -32,7 +36,7 @@ export const LegendModal: React.FC<LegendModalProps> = ({
             </div>
             <div>
               <h3 className="text-base font-bold text-slate-900">مفتاح الخريطة</h3>
-              <p className="text-xs text-slate-500">دلالات ألوان ورموز النقاط</p>
+              <p className="text-xs text-slate-500">دلالات ألوان ورموز النقاط والتحكم في الطبقات</p>
             </div>
           </div>
 
@@ -46,6 +50,29 @@ export const LegendModal: React.FC<LegendModalProps> = ({
 
         {/* Body */}
         <div className="p-4 space-y-3 text-right">
+          {/* Fire Zones Interactive Toggle Switch */}
+          {onToggleFireZones && (
+            <div className="p-3.5 bg-red-50/90 border border-red-200 rounded-2xl flex items-center justify-between gap-3 shadow-xs">
+              <div className="flex items-center gap-3">
+                <span className="w-4 h-4 rounded-full bg-red-600 shrink-0 shadow-xs"></span>
+                <div>
+                  <h4 className="text-xs font-bold text-red-950">إظهار مناطق الحرائق على الخريطة</h4>
+                  <p className="text-[11px] text-red-700 mt-0.5">تفعيل أو إخفاء طبقة مناطق وبؤر الحرائق</p>
+                </div>
+              </div>
+
+              <label className="relative inline-flex items-center cursor-pointer shrink-0">
+                <input
+                  type="checkbox"
+                  checked={showFireZones}
+                  onChange={(e) => onToggleFireZones(e.target.checked)}
+                  className="sr-only peer"
+                />
+                <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+              </label>
+            </div>
+          )}
+
           {/* 1. Verified Donation Hub */}
           <div className="p-3 bg-emerald-50/60 border border-emerald-200 rounded-2xl flex items-center gap-3">
             <span className="w-4 h-4 rounded-full bg-emerald-700 shrink-0 shadow-xs"></span>
