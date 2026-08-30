@@ -145,7 +145,7 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         : (isVerified ? '#065f46' : '#92400e');
 
       const popupHtml = `
-        <div style="padding: 14px; font-family: 'Cairo', system-ui, sans-serif; direction: rtl; text-align: right; background: #ffffff; border-right: 4px solid ${accentColor}; border-radius: 20px;">
+        <div style="padding: 14px; font-family: 'Cairo', system-ui, sans-serif; direction: rtl; text-align: right; background: #ffffff; border: 1px solid #e2e8f0; border-radius: 20px;">
           <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 5px;">
             <span style="width: 7px; height: 7px; border-radius: 50%; background: ${statusDotColor}; flex-shrink: 0;"></span>
             <span style="font-size: 11px; font-weight: 700; color: ${statusTextColor};">

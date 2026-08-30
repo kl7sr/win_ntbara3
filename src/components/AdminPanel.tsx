@@ -1170,7 +1170,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     filterList(charityPoints).map((point) => (
                       <div
                         key={point.id}
-                        className={`p-4 bg-white border border-slate-200/90 ${point.verified ? 'border-r-4 border-r-emerald-600' : 'border-r-4 border-r-amber-500'} rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition shadow-xs hover:shadow-md`}
+                        className="p-4 bg-white border border-slate-200 hover:border-slate-300 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition shadow-xs hover:shadow-md"
                       >
                         <div className="space-y-1 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
@@ -1277,7 +1277,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       return (
                         <div
                           key={point.id}
-                          className={`p-3.5 bg-white border border-slate-200/90 ${isExtinguished ? 'border-r-4 border-r-slate-400' : 'border-r-4 border-r-red-500'} rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs hover:shadow-md transition`}
+                          className="p-3.5 bg-white border border-slate-200 hover:border-slate-300 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs hover:shadow-md transition"
                         >
                           <div className="space-y-1 flex-1">
                             <div className="flex items-center gap-2">

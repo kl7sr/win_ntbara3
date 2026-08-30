@@ -5,11 +5,7 @@ import {
   Info, 
   X, 
   MapPin, 
-  ShieldCheck, 
-  Flame, 
-  Wind, 
-  CheckCircle2,
-  ExternalLink
+  Flame
 } from 'lucide-react';
 import { CharityPoint, UserLocation } from '../types';
 import { calculateDistanceKm } from '../utils/proximity';
@@ -43,18 +39,12 @@ export const MiniPinCard: React.FC<MiniPinCardProps> = ({
 
   const isBurntZone = point.pointType === 'burnt_zone';
   const isExtinguished = point.status === 'extinguished';
-
   const isFireActive = isBurntZone && (point.status === 'urgent' || point.status === 'active');
-  const isFireExtinguished = isBurntZone && (point.status === 'extinguished' || point.status === 'full');
   const isVerified = point.verified;
-
-  const borderAccentClass = isBurntZone
-    ? isFireActive ? 'border-r-4 border-r-red-500' : 'border-r-4 border-r-slate-400'
-    : isVerified ? 'border-r-4 border-r-emerald-600' : 'border-r-4 border-r-amber-500';
 
   return (
     <div className="fixed bottom-20 sm:bottom-6 inset-x-3 sm:inset-x-auto sm:right-6 sm:w-96 z-40 animate-in slide-in-from-bottom duration-200">
-      <div className={`bg-white/98 backdrop-blur-md border border-slate-200/90 ${borderAccentClass} rounded-3xl p-4 shadow-2xl space-y-3 text-right`}>
+      <div className="bg-white/98 backdrop-blur-md border border-slate-200 rounded-3xl p-4 shadow-2xl space-y-3 text-right">
         {/* Top Header: Title & Badges & Close Button */}
         <div className="flex items-start justify-between gap-2 border-b border-slate-100 pb-2.5">
           <div className="space-y-1 flex-1 min-w-0">
@@ -87,7 +77,7 @@ export const MiniPinCard: React.FC<MiniPinCardProps> = ({
             </h3>
 
             <p className="text-xs text-slate-500 flex items-center gap-1 font-medium">
-              <MapPin className="w-3.5 h-3.5 text-emerald-700 shrink-0" />
+              <MapPin className="w-3.5 h-3.5 text-slate-500 shrink-0" />
               <span>{point.wilayaNameAr} - {point.commune}</span>
             </p>
           </div>
@@ -106,7 +96,7 @@ export const MiniPinCard: React.FC<MiniPinCardProps> = ({
           {/* 1. Direct Phone Call */}
           <a
             href={`tel:${point.phone}`}
-            className="py-2.5 px-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl text-xs font-bold flex flex-col items-center justify-center gap-1 transition shadow-xs active:scale-95 text-center"
+            className="py-2.5 px-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-2xl text-xs font-bold flex flex-col items-center justify-center gap-1 transition shadow-2xs active:scale-95 text-center"
           >
             <Phone className="w-4 h-4" />
             <span className="truncate">{t.callNumber}</span>
@@ -117,7 +107,7 @@ export const MiniPinCard: React.FC<MiniPinCardProps> = ({
             href={googleMapsUrl}
             target="_blank"
             rel="noopener noreferrer"
-            className="py-2.5 px-2 bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200/90 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-1 transition active:scale-95 text-center"
+            className="py-2.5 px-2 bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 rounded-2xl text-xs font-semibold flex flex-col items-center justify-center gap-1 transition active:scale-95 text-center"
           >
             <Navigation className="w-4 h-4 text-slate-700" />
             <span className="truncate">الاتجاهات</span>
@@ -127,9 +117,9 @@ export const MiniPinCard: React.FC<MiniPinCardProps> = ({
           <button
             type="button"
             onClick={() => onOpenFullDetails(point)}
-            className="py-2.5 px-2 bg-slate-900 hover:bg-black text-white rounded-2xl text-xs font-bold flex flex-col items-center justify-center gap-1 transition shadow-xs active:scale-95 text-center"
+            className="py-2.5 px-2 bg-slate-900 hover:bg-black text-white rounded-2xl text-xs font-bold flex flex-col items-center justify-center gap-1 transition shadow-2xs active:scale-95 text-center"
           >
-            <Info className="w-4 h-4 text-emerald-400" />
+            <Info className="w-4 h-4 text-slate-300" />
             <span className="truncate">التفاصيل</span>
           </button>
         </div>
