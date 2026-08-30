@@ -52,6 +52,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
   // Images state
   const [attachedImages, setAttachedImages] = useState<string[]>([]);
   const [imageLoading, setImageLoading] = useState(false);
+  const [showTermsModal, setShowTermsModal] = useState(false);
 
   // GPS Coordinates (Default: Algiers)
   const [lat, setLat] = useState<number>(initialCoords?.lat || 36.7538);
@@ -614,6 +615,24 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
             </div>
           </div>
 
+          {/* Legal Disclaimer / Terms of Use Notice */}
+          <div className="p-3 bg-slate-50 border border-slate-200 rounded-xl text-[11px] text-slate-600 space-y-1">
+            <div className="flex items-center gap-1.5 font-bold text-slate-800">
+              <ShieldCheck className="w-4 h-4 text-emerald-700 shrink-0" />
+              <span>إخلاء المسؤولية وشروط الاستخدام</span>
+            </div>
+            <p className="leading-relaxed">
+              «وين نتبرع» منصة تطوعية مستقلة لعرض المعلومات ولا تجمع أي تبرعات أو أموال. بإرسالك لهذه النقطة، أنت تقر بصحة ودقة البيانات وتوافق على{' '}
+              <button
+                type="button"
+                onClick={() => setShowTermsModal(true)}
+                className="text-emerald-700 font-bold underline hover:text-emerald-800 inline-block"
+              >
+                شروط الاستخدام وإخلاء المسؤولية
+              </button>.
+            </p>
+          </div>
+
           {/* Submit Button */}
           <div className="pt-2 border-t border-slate-200 flex items-center justify-end gap-3">
             <button
@@ -634,6 +653,95 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
           </div>
         </form>
       </div>
-    </div>
+
+      {/* Full Terms & Disclaimer Modal */}
+      {showTermsModal && (
+        <div 
+          className="fixed inset-0 z-[120] flex items-center justify-center p-3 sm:p-6 bg-slate-950/70 backdrop-blur-xs overflow-y-auto animate-in fade-in duration-150"
+          onClick={() => setShowTermsModal(false)}
+        >
+          <div 
+            className="bg-white border border-slate-200 rounded-3xl w-full max-w-xl max-h-[88vh] flex flex-col shadow-2xl overflow-hidden animate-in zoom-in-95 duration-150 text-right"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ShieldCheck className="w-5 h-5 text-emerald-700" />
+                <h3 className="text-sm font-bold text-slate-900">شروط الاستخدام وإخلاء المسؤولية</h3>
+              </div>
+              <button 
+                onClick={() => setShowTermsModal(false)}
+                className="p-1.5 text-slate-400 hover:text-slate-700 rounded-lg hover:bg-slate-200"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="p-5 overflow-y-auto space-y-4 text-xs text-slate-700 leading-relaxed">
+              <div className="p-3 bg-emerald-50 border border-emerald-200 rounded-xl text-emerald-900 text-[11px]">
+                مسودة أولية — ينصح بمراجعتها من طرف محامٍ مختص قبل اعتمادها رسمياً.
+              </div>
+
+              <section className="space-y-1.5">
+                <h4 className="font-bold text-slate-900 text-sm">1. طبيعة المنصة</h4>
+                <p>«وين نتبرع» هي أداة رقمية تطوعية تهدف إلى تسهيل وصول المواطنين لمعلومات حول نقاط جمع التبرعات والمناطق المتضررة في الجزائر.</p>
+                <p className="font-semibold text-slate-800">المنصة ليست:</p>
+                <ul className="list-disc list-inside space-y-0.5 text-slate-600 pr-2">
+                  <li>جهة حكومية أو رسمية تابعة للدولة الجزائرية</li>
+                  <li>جمعية خيرية أو منظمة إغاثية مرخّصة</li>
+                  <li>جامعة أو مستلمة للتبرعات بأي شكل (لا تُجمع أي أموال أو مواد عبر المنصة نفسها)</li>
+                </ul>
+                <p>دور المنصة يقتصر على عرض وتنظيم معلومات يقدمها المستخدمون والجمعيات لتسهيل التواصل المباشر دون وساطة.</p>
+              </section>
+
+              <section className="space-y-1.5">
+                <h4 className="font-bold text-slate-900 text-sm">2. مسؤولية المحتوى</h4>
+                <ul className="list-disc list-inside space-y-0.5 text-slate-600 pr-2">
+                  <li>المعلومات المعروضة على الخريطة (عناوين، أرقام هواتف، صور، احتياجات) يتم إدخالها من طرف المستخدمين أو الجمعيات أو تُجلب تلقائياً من مصادر خارجية (مثل Google Maps).</li>
+                  <li>النقاط التي تحمل علامة "غير مؤكدة" لم يتم التحقق منها من طرف فريق المنصة، وعلى المستخدم الاتصال بالمنسق للتأكد قبل التنقل.</li>
+                  <li>كل شخص أو جمعية تضيف نقطة تبرع هي المسؤولة الوحيدة عن صحة ودقة المعلومات التي تقدمها.</li>
+                </ul>
+              </section>
+
+              <section className="space-y-1.5">
+                <h4 className="font-bold text-slate-900 text-sm">3. إخلاء المسؤولية</h4>
+                <p className="font-semibold text-slate-800">القائمون على تطوير وتشغيل المنصة:</p>
+                <ul className="list-disc list-inside space-y-0.5 text-slate-600 pr-2">
+                  <li>لا يضمنون دقة أو حداثة أو اكتمال أي معلومة معروضة على الخريطة.</li>
+                  <li>غير مسؤولين عن أي نزاع أو ضرر أو خسارة مادية أو معنوية تنتج عن استخدام المعلومات المعروضة.</li>
+                  <li>غير مسؤولين عن أفعال أو تصرفات الجمعيات أو الأفراد المذكورين على المنصة.</li>
+                  <li>يحتفظون بالحق في تعديل أو حذف أي نقطة أو محتوى دون إشعار مسبق.</li>
+                </ul>
+                <p>المنصة تُقدَّم "كما هي" (as-is) دون أي ضمان لاستمرارية الخدمة أو خلوها من الأعطال التقنية.</p>
+              </section>
+
+              <section className="space-y-1.5">
+                <h4 className="font-bold text-slate-900 text-sm">4. مسؤولية المستخدم</h4>
+                <ul className="list-disc list-inside space-y-0.5 text-slate-600 pr-2">
+                  <li>مسؤول عن التحقق من صحة أي معلومة قبل التصرف بناءً عليها (خاصة النقاط غير المؤكدة).</li>
+                  <li>مسؤول عن دقة أي معلومة يضيفها بنفسه (اسم المركز، الهاتف، العنوان، الصور).</li>
+                  <li>لن يستخدم المنصة لنشر معلومات كاذبة أو مضللة أو لأغراض احتيالية.</li>
+                  <li>يتحمل بمفرده أي قرار يتخذه بناءً على المعلومات المعروضة.</li>
+                </ul>
+              </section>
+
+              <section className="space-y-1.5">
+                <h4 className="font-bold text-slate-900 text-sm">5. التواصل والدعم</h4>
+                <p>لأي مشكلة تقنية أو بلاغ عن معلومة خاطئة، يُرجى التواصل عبر الأرقام ووسائل الاتصال المذكورة داخل التطبيق.</p>
+              </section>
+            </div>
+
+            <div className="p-3 bg-slate-50 border-t border-slate-200">
+              <button
+                type="button"
+                onClick={() => setShowTermsModal(false)}
+                className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs transition shadow-sm"
+              >
+                فهمت وموافق
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
   );
 };
