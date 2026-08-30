@@ -147,12 +147,12 @@ export function formatDistance(distanceKm: number, lang: 'ar' | 'fr' | 'en' = 'a
 }
 
 /**
- * Build Google Maps Place Search URL so Google Maps opens the verified place card directly
+ * Build Google Maps URL that opens the exact pin location using lat/lng coordinates
  */
-export function getGoogleMapsDirUrl(lat: number, lng: number, title?: string, address?: string): string {
+export function getGoogleMapsDirUrl(lat: number, lng: number, title?: string, _address?: string): string {
+  // Always use exact coordinates so the pin lands on the right spot
   if (title) {
-    const query = encodeURIComponent(`${title} ${address || ''}`.trim());
-    return `https://www.google.com/maps/search/?api=1&query=${query}`;
+    return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}&query_place_id=${encodeURIComponent(title)}`;
   }
-  return `https://www.google.com/maps/search/?api=1&query=${lat},${lng}`;
+  return `https://www.google.com/maps?q=${lat},${lng}&z=17`;
 }

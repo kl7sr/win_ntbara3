@@ -129,9 +129,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (verifyAdminPassword(passInput)) {
-      // Store the actual password the user typed so API calls send the correct secret header
       setAdminAuthenticated(true);
-      setAdminPasscode(passInput.trim()); // <-- THIS is what gets sent as X-Admin-Password
       setIsAuthenticated(true);
       onAdminAuthChange?.(true);
       setAuthError('');
