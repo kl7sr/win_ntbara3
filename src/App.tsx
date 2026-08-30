@@ -15,6 +15,7 @@ import { Language, TRANSLATIONS } from './i18n/translations';
 import { WILAYAS } from './data/wilayas';
 import { 
   getStoredPoints, 
+  savePoints,
   addPoint as saveNewPointLocal, 
   updatePoint as saveUpdatedPointLocal, 
   deletePoint as removePointLocal,
@@ -82,7 +83,7 @@ export function App() {
   // Notification Toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
-  // Load points directly from Cloudflare D1 Database (with instant local fallback)
+  // Load points directly from Cloudflare D1 Database (with instant local fallback and photo preservation)
   const loadPoints = useCallback(async () => {
     try {
       const initial = getStoredPoints();
@@ -90,7 +91,16 @@ export function App() {
 
       const livePoints = await fetchLivePointsFromD1();
       if (livePoints && livePoints.length > 0) {
-        setPoints([...livePoints]);
+        // Merge live points with local photos so uploaded images are never lost on refresh
+        const merged = livePoints.map((lp) => {
+          const localMatch = initial.find((ip) => ip.id === lp.id);
+          if (localMatch && localMatch.images && localMatch.images.length > 0 && (!lp.images || lp.images.length === 0)) {
+            return { ...lp, images: localMatch.images, imageUrl: localMatch.imageUrl };
+          }
+          return lp;
+        });
+        setPoints(merged);
+        savePoints(merged);
       }
     } catch (e) {
       console.error('Error loading points:', e);

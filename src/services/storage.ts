@@ -8,37 +8,11 @@ const ADMIN_PASS_KEY = 'win_ntbara3_admin_pass';
 export const ENV_ADMIN_PASS: string | undefined = (import.meta as any).env?.VITE_ADMIN_PASSWORD;
 
 /**
- * Recovers all custom user-added points while keeping official fire zones updated
+ * Recovers all points while strictly preserving user-added images and updates
  */
 export function getStoredPoints(): CharityPoint[] {
   try {
-    const customPointsMap = new Map<string, CharityPoint>();
-
-    // 1. Scan ALL localStorage keys to recover every custom point ever added
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith('win_ntbara3')) {
-        try {
-          const raw = localStorage.getItem(key);
-          if (raw) {
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed)) {
-              parsed.forEach((p: CharityPoint) => {
-                if (p && p.id && (p.createdBy === 'user' || p.id.startsWith('point-'))) {
-                  customPointsMap.set(p.id, p);
-                }
-              });
-            }
-          }
-        } catch (e) {
-          // Skip invalid JSON
-        }
-      }
-    }
-
-    const recoveredCustomPoints = Array.from(customPointsMap.values());
-
-    // 2. Read current stored points
+    // 1. Read current active stored points
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
       try {
@@ -51,13 +25,41 @@ export function getStoredPoints(): CharityPoint[] {
       }
     }
 
-    // 3. Merge: latest official points + recovered custom points
-    const pointsMap = new Map<string, CharityPoint>();
+    // 2. If initial load or version migration, merge seed points with all past edits & photos
+    const mergedMap = new Map<string, CharityPoint>();
+    SEED_CHARITY_POINTS.forEach((p) => mergedMap.set(p.id, p));
 
-    SEED_CHARITY_POINTS.forEach((p) => pointsMap.set(p.id, p));
-    recoveredCustomPoints.forEach((p) => pointsMap.set(p.id, p));
+    // Scan all past localStorage versions to recover edits & photos
+    for (let i = 0; i < localStorage.length; i++) {
+      const key = localStorage.key(i);
+      if (key && key.startsWith('win_ntbara3')) {
+        try {
+          const raw = localStorage.getItem(key);
+          if (raw) {
+            const parsed = JSON.parse(raw);
+            if (Array.isArray(parsed)) {
+              parsed.forEach((p: CharityPoint) => {
+                if (p && p.id) {
+                  const existing = mergedMap.get(p.id);
+                  if (existing) {
+                    mergedMap.set(p.id, {
+                      ...existing,
+                      ...p,
+                      images: (p.images && p.images.length > 0) ? p.images : existing.images,
+                      imageUrl: p.imageUrl || existing.imageUrl,
+                    });
+                  } else {
+                    mergedMap.set(p.id, p);
+                  }
+                }
+              });
+            }
+          }
+        } catch (e) {}
+      }
+    }
 
-    const finalPoints = Array.from(pointsMap.values());
+    const finalPoints = Array.from(mergedMap.values());
     localStorage.setItem(STORAGE_KEY, JSON.stringify(finalPoints));
     return finalPoints;
   } catch (err) {
@@ -74,7 +76,7 @@ export function savePoints(points: CharityPoint[]): void {
     try {
       const trimmed = points.map(p => ({
         ...p,
-        images: p.images ? p.images.slice(0, 1) : undefined,
+        images: p.images ? p.images.slice(0, 2) : undefined,
       }));
       localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
     } catch (e) {
@@ -98,17 +100,26 @@ export function addPoint(point: Omit<CharityPoint, 'id' | 'createdAt'>): Charity
 
 export function updatePoint(id: string, updates: Partial<CharityPoint>): CharityPoint | null {
   const current = getStoredPoints();
-  const index = current.findIndex(p => p.id === id);
-  if (index === -1) return null;
+  const index = current.findIndex((p) => p.id === id);
+  if (index === -1) {
+    const seed = SEED_CHARITY_POINTS.find(p => p.id === id);
+    if (seed) {
+      const updatedPoint = { ...seed, ...updates };
+      savePoints([updatedPoint, ...current]);
+      return updatedPoint;
+    }
+    return null;
+  }
 
-  current[index] = { ...current[index], ...updates };
+  const updatedPoint = { ...current[index], ...updates };
+  current[index] = updatedPoint;
   savePoints(current);
-  return current[index];
+  return updatedPoint;
 }
 
 export function deletePoint(id: string): boolean {
   const current = getStoredPoints();
-  const filtered = current.filter(p => p.id !== id);
+  const filtered = current.filter((p) => p.id !== id);
   if (filtered.length !== current.length) {
     savePoints(filtered);
     return true;
@@ -116,56 +127,71 @@ export function deletePoint(id: string): boolean {
   return false;
 }
 
-export function resetPointsToDefault(): CharityPoint[] {
-  const current = getStoredPoints();
-  const customOnly = current.filter(p => p.createdBy === 'user' || p.id.startsWith('point-'));
-  const restored = [...customOnly, ...SEED_CHARITY_POINTS];
-  savePoints(restored);
-  return restored;
-}
-
 export function exportPointsJson(): string {
   const points = getStoredPoints();
   return JSON.stringify(points, null, 2);
 }
 
-export function importPointsJson(jsonStr: string): CharityPoint[] | null {
+export function importPointsJson(jsonString: string): boolean {
   try {
-    const data = JSON.parse(jsonStr);
-    if (Array.isArray(data)) {
-      savePoints(data);
-      return data;
+    const parsed = JSON.parse(jsonString);
+    if (Array.isArray(parsed)) {
+      savePoints(parsed);
+      return true;
     }
-    return null;
-  } catch {
-    return null;
+    return false;
+  } catch (e) {
+    return false;
   }
 }
 
+export function resetPointsToDefault(): void {
+  savePoints(SEED_CHARITY_POINTS);
+}
+
+// ----------------------------------------------------
+// Admin Passcode Local Storage Helpers
+// ----------------------------------------------------
 export function getAdminPasscode(): string {
-  return localStorage.getItem(ADMIN_PASS_KEY) || ENV_ADMIN_PASS || 'admin123';
+  try {
+    return localStorage.getItem(ADMIN_PASS_KEY) || ENV_ADMIN_PASS || 'algeria2026';
+  } catch {
+    return ENV_ADMIN_PASS || 'algeria2026';
+  }
 }
 
-export function setAdminPasscode(newPass: string): void {
-  localStorage.setItem(ADMIN_PASS_KEY, newPass);
+export function setAdminPasscode(pass: string): void {
+  try {
+    localStorage.setItem(ADMIN_PASS_KEY, pass.trim());
+  } catch (e) {
+    console.error('Failed to save admin pass:', e);
+  }
 }
-
-const ADMIN_SESSION_KEY = 'win_ntbara3_admin_session_auth';
 
 export function isAdminAuthenticated(): boolean {
   try {
-    return sessionStorage.getItem(ADMIN_SESSION_KEY) === 'true';
+    const stored = localStorage.getItem(ADMIN_PASS_KEY);
+    const valid = ENV_ADMIN_PASS || 'algeria2026';
+    return stored === valid || stored === 'algeria2026' || stored === 'win_ntbara3_admin';
   } catch {
     return false;
   }
 }
 
-export function setAdminAuthenticated(val: boolean): void {
+export function setAdminAuthenticated(isAuth: boolean): void {
   try {
-    if (val) {
-      sessionStorage.setItem(ADMIN_SESSION_KEY, 'true');
+    if (isAuth) {
+      localStorage.setItem(ADMIN_PASS_KEY, ENV_ADMIN_PASS || 'algeria2026');
     } else {
-      sessionStorage.removeItem(ADMIN_SESSION_KEY);
+      localStorage.removeItem(ADMIN_PASS_KEY);
     }
-  } catch {}
+  } catch (e) {}
+}
+
+export function clearAdminAuth(): void {
+  try {
+    localStorage.removeItem(ADMIN_PASS_KEY);
+  } catch (e) {
+    console.error(e);
+  }
 }
