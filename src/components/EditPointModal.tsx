@@ -16,7 +16,7 @@ import {
 import { CharityPoint, AidCategory, PointStatus, PointType } from '../types';
 import { WILAYAS, AID_CATEGORIES_META } from '../data/wilayas';
 import { isWithinAlgeriaBounds, parseGoogleMapsLinkOrCoords, isPlusCode, resolvePlusCode } from '../utils/geoParser';
-import { compressImageFile } from '../utils/imageCompressor';
+import { compressImageFile, compressBase64Image } from '../utils/imageCompressor';
 
 interface EditPointModalProps {
   point: CharityPoint | null;
@@ -144,7 +144,7 @@ export const EditPointModal: React.FC<EditPointModalProps> = ({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!title.trim() || !phone.trim()) {
       setErrorMessage('يرجى ملء الاسم ورقم الهاتف.');
@@ -152,6 +152,17 @@ export const EditPointModal: React.FC<EditPointModalProps> = ({
     }
 
     const wilaya = WILAYAS.find((w) => w.code === selectedWilayaCode) || WILAYAS[15];
+
+    // Ensure all photos are strictly compressed under 45KB before saving
+    const compressedPhotos: string[] = [];
+    for (const p of photos) {
+      if (typeof p === 'string' && p.startsWith('data:image')) {
+        const compressed = await compressBase64Image(p, 550, 450, 0.55);
+        compressedPhotos.push(compressed);
+      } else if (typeof p === 'string' && p.trim()) {
+        compressedPhotos.push(p);
+      }
+    }
 
     onUpdatePoint(point.id, {
       title: title.trim(),
@@ -170,8 +181,8 @@ export const EditPointModal: React.FC<EditPointModalProps> = ({
       verified,
       notes: notes.trim() || undefined,
       aidCategories: categories,
-      images: photos.length > 0 ? photos : undefined,
-      imageUrl: photos.length > 0 ? photos[0] : undefined,
+      images: compressedPhotos.length > 0 ? compressedPhotos : undefined,
+      imageUrl: compressedPhotos.length > 0 ? compressedPhotos[0] : undefined,
     });
 
     setSuccessMessage('تم تحديث وحفظ بيانات النقطة بنجاح!');
