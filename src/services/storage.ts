@@ -245,6 +245,12 @@ export function clearAdminAuth(): void {
 
 export function verifyAdminPassword(input: string): boolean {
   const trimmed = input.trim();
-  const correct = ENV_ADMIN_PASS || localStorage.getItem(ADMIN_PASS_KEY) || 'algeria2026';
-  return trimmed === correct.trim();
+  if (!trimmed) return false;
+  // If VITE_ADMIN_PASSWORD is set at build time, verify against it
+  if (ENV_ADMIN_PASS && ENV_ADMIN_PASS.trim()) {
+    return trimmed === ENV_ADMIN_PASS.trim();
+  }
+  // Otherwise accept any non-empty password (server-side will reject wrong ones via 401)
+  // The typed password gets stored via setAdminPasscode and sent in X-Admin-Password header
+  return trimmed.length >= 4;
 }
