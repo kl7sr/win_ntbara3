@@ -29,35 +29,38 @@ export const LegendModal: React.FC<LegendModalProps> = ({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header */}
-        <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
-          <div className="flex items-center gap-2">
-            <div className="p-2 bg-emerald-100 text-emerald-800 rounded-xl">
-              <Layers className="w-5 h-5" />
+        <div className="px-5 py-4 bg-white border-b border-slate-100 flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-9 h-9 bg-emerald-50 text-emerald-800 border border-emerald-200/80 rounded-xl flex items-center justify-center shadow-xs">
+              <Layers className="w-5 h-5 text-emerald-700" />
             </div>
             <div>
-              <h3 className="text-base font-bold text-slate-900">مفتاح الخريطة</h3>
-              <p className="text-xs text-slate-500">دلالات ألوان ورموز النقاط والتحكم في الطبقات</p>
+              <h3 className="text-sm sm:text-base font-black text-slate-900">مفتاح الخريطة</h3>
+              <p className="text-[11px] text-slate-500">دلالات ألوان ورموز النقاط والطبقات</p>
             </div>
           </div>
 
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-200 transition"
+            className="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition active:scale-95"
+            title="إغلاق"
           >
             <X className="w-5 h-5" />
           </button>
         </div>
 
         {/* Body */}
-        <div className="p-4 space-y-3 text-right">
-          {/* Fire Zones Interactive Toggle Switch */}
+        <div className="p-4 sm:p-5 space-y-4 text-right">
+          {/* Fire Layer Interactive Toggle */}
           {onToggleFireZones && (
-            <div className="p-3.5 bg-red-50/90 border border-red-200 rounded-2xl flex items-center justify-between gap-3 shadow-xs">
-              <div className="flex items-center gap-3">
-                <span className="w-4 h-4 rounded-full bg-red-600 shrink-0 shadow-xs"></span>
+            <div className="p-3 bg-slate-50 border border-slate-200 rounded-2xl flex items-center justify-between gap-3">
+              <div className="flex items-center gap-2.5">
+                <div className="w-8 h-8 rounded-xl bg-red-100/80 text-red-700 flex items-center justify-center shrink-0">
+                  <Flame className="w-4 h-4" />
+                </div>
                 <div>
-                  <h4 className="text-xs font-bold text-red-950">إظهار مناطق الحرائق على الخريطة</h4>
-                  <p className="text-[11px] text-red-700 mt-0.5">تفعيل أو إخفاء طبقة مناطق وبؤر الحرائق</p>
+                  <h4 className="text-xs font-bold text-slate-900">إظهار مناطق الحرائق على الخريطة</h4>
+                  <p className="text-[10.5px] text-slate-500">تفعيل أو إخفاء علامات بؤر الحرائق</p>
                 </div>
               </div>
 
@@ -68,55 +71,58 @@ export const LegendModal: React.FC<LegendModalProps> = ({
                   onChange={(e) => onToggleFireZones(e.target.checked)}
                   className="sr-only peer"
                 />
-                <div className="w-11 h-6 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-red-600"></div>
+                <div className="w-10 h-5 bg-slate-300 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-emerald-700"></div>
               </label>
             </div>
           )}
 
-          {/* 1. Verified Donation Hub */}
-          <div className="p-3 bg-emerald-50/60 border border-emerald-200 rounded-2xl flex items-center gap-3">
-            <span className="w-4 h-4 rounded-full bg-emerald-700 shrink-0 shadow-xs"></span>
-            <div className="flex-1">
-              <h4 className="text-xs font-bold text-emerald-950">نقطة تبرع مؤكدة (رسمية)</h4>
-              <p className="text-[11px] text-emerald-800 mt-0.5">مراكز الهلال الأحمر الجزائري، الكشافة، والجمعيات المعتمدة.</p>
+          {/* Unified Legend Elements Card */}
+          <div className="bg-white border border-slate-200 rounded-2xl divide-y divide-slate-100 overflow-hidden shadow-xs">
+            {/* 1. Verified Donation Hub */}
+            <div className="p-3.5 flex items-start gap-3 hover:bg-slate-50/60 transition">
+              <span className="w-3.5 h-3.5 rounded-full bg-emerald-600 ring-4 ring-emerald-100 shrink-0 mt-0.5"></span>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-xs font-bold text-slate-900">نقطة تبرع مؤكدة</h4>
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">مراكز الهلال الأحمر الجزائري، الكشافة الإسلامية والجمعيات المعتمدة.</p>
+              </div>
             </div>
-          </div>
 
-          {/* 2. Unconfirmed Point */}
-          <div className="p-3 bg-amber-50/60 border border-amber-200 rounded-2xl flex items-center gap-3">
-            <span className="w-4 h-4 rounded-full bg-amber-600 shrink-0 shadow-xs"></span>
-            <div className="flex-1">
-              <h4 className="text-xs font-bold text-amber-950">نقطة تبرع غير مؤكدة</h4>
-              <p className="text-[11px] text-amber-800 mt-0.5">مبادرات تطوعية ومستودعات شعبية (يرجى الاتصال للتأكد قبل التنقل).</p>
+            {/* 2. Unconfirmed Point */}
+            <div className="p-3.5 flex items-start gap-3 hover:bg-slate-50/60 transition">
+              <span className="w-3.5 h-3.5 rounded-full bg-amber-500 ring-4 ring-amber-100 shrink-0 mt-0.5"></span>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-xs font-bold text-slate-900">نقطة تبرع غير مؤكدة</h4>
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">مبادرات تطوعية ومستودعات شعبية (يُرجى الاتصال للتأكد قبل التنقل).</p>
+              </div>
             </div>
-          </div>
 
-          {/* 3. Contained Fire */}
-          <div className="p-3 bg-slate-100 border border-slate-300 rounded-2xl flex items-center gap-3">
-            <span className="w-4 h-4 rounded-full bg-slate-600 shrink-0 shadow-xs"></span>
-            <div className="flex-1">
-              <h4 className="text-xs font-bold text-slate-900">حرائق تم إخمادها والسيطرة عليها</h4>
-              <p className="text-[11px] text-slate-600 mt-0.5">مناطق غابية منكوبة تم إخماد النيران بها وهي في طور الإغاثة.</p>
+            {/* 3. Active Fire */}
+            <div className="p-3.5 flex items-start gap-3 hover:bg-slate-50/60 transition">
+              <span className="w-3.5 h-3.5 rounded-full bg-red-600 ring-4 ring-red-100 shrink-0 mt-0.5"></span>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-xs font-bold text-slate-900">بؤرة حريق نشطة</h4>
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">مناطق عمليات وتدخل الحماية المدنية (يرجى توخي الحذر والابتعاد).</p>
+              </div>
             </div>
-          </div>
 
-          {/* 4. Active Fire */}
-          <div className="p-3 bg-red-50 border border-red-200 rounded-2xl flex items-center gap-3">
-            <span className="w-4 h-4 rounded-full bg-red-600 shrink-0 shadow-xs"></span>
-            <div className="flex-1">
-              <h4 className="text-xs font-bold text-red-950">بؤر حرائق نشطة</h4>
-              <p className="text-[11px] text-red-700 mt-0.5">مناطق عمليات الحماية المدنية (يرجى توخي الحذر والابتعاد).</p>
+            {/* 4. Contained Fire */}
+            <div className="p-3.5 flex items-start gap-3 hover:bg-slate-50/60 transition">
+              <span className="w-3.5 h-3.5 rounded-full bg-slate-500 ring-4 ring-slate-200 shrink-0 mt-0.5"></span>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-xs font-bold text-slate-900">حرائق تم إخمادها</h4>
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">مناطق تم إخماد النيران والسيطرة عليها وهي في طور الإغاثة.</p>
+              </div>
             </div>
           </div>
         </div>
 
         {/* Footer */}
-        <div className="p-3 bg-slate-50 border-t border-slate-200">
+        <div className="p-4 bg-slate-50 border-t border-slate-100">
           <button
             onClick={onClose}
-            className="w-full py-2.5 bg-slate-900 hover:bg-black text-white text-xs font-bold rounded-xl transition active:scale-98"
+            className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold rounded-xl shadow-sm transition active:scale-98"
           >
-            فهمت
+            إغلاق
           </button>
         </div>
       </div>
