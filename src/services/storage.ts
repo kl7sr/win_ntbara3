@@ -1,67 +1,29 @@
 import { CharityPoint } from '../types';
 import { SEED_CHARITY_POINTS } from '../data/seedPoints';
 
-const STORAGE_KEY = 'win_ntbara3_points_unified_v14';
+const STORAGE_KEY = 'win_ntbara3_clean_v16';
 const ADMIN_PASS_KEY = 'win_ntbara3_admin_pass';
 
 // Cloudflare Pages Secret / Environment Variable
 export const ENV_ADMIN_PASS: string | undefined = (import.meta as any).env?.VITE_ADMIN_PASSWORD;
 
 /**
- * Recovers all points while strictly preserving user-added images and updates
+ * Loads only real verified points and valid newly-added user points
  */
 export function getStoredPoints(): CharityPoint[] {
   try {
-    // 1. Read current active stored points
     const saved = localStorage.getItem(STORAGE_KEY);
     if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed) && parsed.length > 0) {
-          return parsed;
-        }
-      } catch (e) {
-        console.warn('Error reading master storage:', e);
+      const parsed = JSON.parse(saved);
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
       }
     }
 
-    // 2. If initial load or version migration, merge seed points with all past edits & photos
-    const mergedMap = new Map<string, CharityPoint>();
-    SEED_CHARITY_POINTS.forEach((p) => mergedMap.set(p.id, p));
-
-    // Scan all past localStorage versions to recover edits & photos
-    for (let i = 0; i < localStorage.length; i++) {
-      const key = localStorage.key(i);
-      if (key && key.startsWith('win_ntbara3')) {
-        try {
-          const raw = localStorage.getItem(key);
-          if (raw) {
-            const parsed = JSON.parse(raw);
-            if (Array.isArray(parsed)) {
-              parsed.forEach((p: CharityPoint) => {
-                if (p && p.id) {
-                  const existing = mergedMap.get(p.id);
-                  if (existing) {
-                    mergedMap.set(p.id, {
-                      ...existing,
-                      ...p,
-                      images: (p.images && p.images.length > 0) ? p.images : existing.images,
-                      imageUrl: p.imageUrl || existing.imageUrl,
-                    });
-                  } else {
-                    mergedMap.set(p.id, p);
-                  }
-                }
-              });
-            }
-          }
-        } catch (e) {}
-      }
-    }
-
-    const finalPoints = Array.from(mergedMap.values());
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(finalPoints));
-    return finalPoints;
+    // Clean initial load: ONLY official verified seed points!
+    const cleanList = [...SEED_CHARITY_POINTS];
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(cleanList));
+    return cleanList;
   } catch (err) {
     console.error('Failed to load points from localStorage', err);
     return SEED_CHARITY_POINTS;
@@ -72,16 +34,7 @@ export function savePoints(points: CharityPoint[]): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(points));
   } catch (err: any) {
-    console.warn('LocalStorage save warning, trimming photos to fit quota:', err);
-    try {
-      const trimmed = points.map(p => ({
-        ...p,
-        images: p.images ? p.images.slice(0, 2) : undefined,
-      }));
-      localStorage.setItem(STORAGE_KEY, JSON.stringify(trimmed));
-    } catch (e) {
-      console.error('Critical quota error:', e);
-    }
+    console.warn('LocalStorage save error:', err);
   }
 }
 
