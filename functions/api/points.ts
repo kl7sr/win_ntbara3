@@ -276,7 +276,7 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
     }
     if (updates.images !== undefined) {
       try {
-        const imagesStr = updates.images ? JSON.stringify(updates.images) : null;
+        const imagesStr = (Array.isArray(updates.images) && updates.images.length > 0) ? JSON.stringify(updates.images) : null;
         await db.prepare("UPDATE points SET images = ? WHERE id = ?").bind(imagesStr, id).run();
       } catch (imgErr: any) {
         console.error("Failed to update images in D1:", imgErr?.message);

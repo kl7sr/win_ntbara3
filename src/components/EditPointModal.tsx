@@ -181,7 +181,7 @@ export const EditPointModal: React.FC<EditPointModalProps> = ({
       verified,
       notes: notes.trim() || undefined,
       aidCategories: categories,
-      images: compressedPhotos.length > 0 ? compressedPhotos : undefined,
+      images: compressedPhotos.length > 0 ? compressedPhotos : [],
       imageUrl: compressedPhotos.length > 0 ? compressedPhotos[0] : undefined,
     });
 

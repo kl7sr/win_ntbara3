@@ -62,6 +62,16 @@ function getPermanentPhotosMap(): Record<string, string[]> {
   return map;
 }
 
+function deletePermanentPhotos(pointId: string): void {
+  try {
+    const current = getPermanentPhotosMap();
+    delete current[pointId];
+    localStorage.setItem(PERMANENT_PHOTOS_KEY, JSON.stringify(current));
+  } catch (e) {
+    console.warn('Failed to delete from permanent photo store:', e);
+  }
+}
+
 function savePermanentPhotos(pointId: string, images: string[]): void {
   try {
     const current = getPermanentPhotosMap();
@@ -182,8 +192,12 @@ export function addPoint(point: Omit<CharityPoint, 'id' | 'createdAt'>): Charity
 }
 
 export function updatePoint(id: string, updates: Partial<CharityPoint>): CharityPoint | null {
-  if (updates.images && updates.images.length > 0) {
-    savePermanentPhotos(id, updates.images);
+  if (updates.images !== undefined) {
+    if (updates.images && updates.images.length > 0) {
+      savePermanentPhotos(id, updates.images);
+    } else {
+      deletePermanentPhotos(id);
+    }
   }
 
   const current = getStoredPoints();
