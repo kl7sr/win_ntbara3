@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { EmergencyBanner } from './components/EmergencyBanner';
 import { Navbar } from './components/Navbar';
 import { MapComponent } from './components/MapComponent';
@@ -15,6 +15,7 @@ import { ReportSupportModal } from './components/ReportSupportModal';
 import { CharityPoint, UserLocation } from './types';
 import { Language, TRANSLATIONS } from './i18n/translations';
 import { WILAYAS } from './data/wilayas';
+import { SEED_CHARITY_POINTS } from './data/seedPoints';
 import { 
   getStoredPoints, 
   savePoints,
@@ -33,15 +34,31 @@ import { CheckCircle2, Plus, Compass, Map as MapIcon, RotateCcw, MapPin, Layers,
 
 export function App() {
   const [points, setPoints] = useState<CharityPoint[]>([]);
-  const [selectedPoint, setSelectedPoint] = useState<CharityPoint | null>(null);
+  const isInitialMount = useRef(true);
+
+  // Directly initialize selectedPoint from URL ?point=... so deep links open immediately!
+  const [selectedPoint, setSelectedPoint] = useState<CharityPoint | null>(() => {
+    try {
+      if (typeof window !== 'undefined') {
+        const params = new URLSearchParams(window.location.search);
+        const pointId = params.get('point') || (window.location.hash.startsWith('#point-') ? window.location.hash.replace('#point-', '') : null);
+        if (pointId) {
+          const initial = getStoredPoints();
+          return initial.find(p => p.id === pointId) || SEED_CHARITY_POINTS.find(p => p.id === pointId) || null;
+        }
+      }
+    } catch {}
+    return null;
+  });
+
   const [editingPoint, setEditingPoint] = useState<CharityPoint | null>(null);
   const [isAdminSession, setIsAdminSession] = useState<boolean>(() => isAdminAuthenticated());
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
 
   // Modals & Panels
   const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState<boolean>(() => {
-    // If opening via direct share deep-link ?point=..., don't show welcome modal
-    if (typeof window !== 'undefined' && window.location.search.includes('point=')) {
+    // If opening via direct share deep-link ?point=..., NEVER show welcome modal
+    if (typeof window !== 'undefined' && (window.location.search.includes('point=') || window.location.hash.includes('point-'))) {
       return false;
     }
     return true;
@@ -115,17 +132,18 @@ export function App() {
     loadPoints();
   }, [loadPoints]);
 
-  // Handle URL deep linking (e.g. win-ntbara3.pages.dev/?point=cra-national-hq)
+  // Handle URL deep linking (e.g. win-ntbara3.pages.dev/?point=sma-scouts-birkhadem)
   useEffect(() => {
-    if (points.length === 0) return;
     try {
       const params = new URLSearchParams(window.location.search);
       const pointIdFromUrl = params.get('point') || (window.location.hash.startsWith('#point-') ? window.location.hash.replace('#point-', '') : null);
       if (pointIdFromUrl) {
-        const target = points.find((p) => p.id === pointIdFromUrl);
+        const target = points.find((p) => p.id === pointIdFromUrl) || SEED_CHARITY_POINTS.find((p) => p.id === pointIdFromUrl);
         if (target) {
           setSelectedPoint(target);
+          setSelectedWilaya(target.wilayaCode);
           setIsWelcomeModalOpen(false);
+          setIsNearestDrawerOpen(false);
         }
       }
     } catch {}
@@ -133,6 +151,10 @@ export function App() {
 
   // Sync selected point with browser URL query
   useEffect(() => {
+    if (isInitialMount.current) {
+      isInitialMount.current = false;
+      return;
+    }
     try {
       if (selectedPoint) {
         const newUrl = `${window.location.pathname}?point=${encodeURIComponent(selectedPoint.id)}`;
