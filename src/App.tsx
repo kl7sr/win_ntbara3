@@ -7,6 +7,7 @@ import { AddPointModal } from './components/AddPointModal';
 import { NearestListDrawer } from './components/NearestListDrawer';
 import { AdminPanel } from './components/AdminPanel';
 import { EditPointModal } from './components/EditPointModal';
+import { InstallAppBanner } from './components/InstallAppBanner';
 import { CharityPoint, UserLocation } from './types';
 import { 
   getStoredPoints, 
@@ -308,6 +309,9 @@ export function App() {
         onEditPoint={(point) => setEditingPoint(point)}
         onAdminAuthChange={(isAuth) => setIsAdminSession(isAuth)}
       />
+
+      {/* 10. Phone App Install Prompt (PWA) */}
+      <InstallAppBanner />
 
       {/* Toast Notification */}
       {toastMessage && (
