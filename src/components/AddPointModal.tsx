@@ -743,5 +743,6 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
           </div>
         </div>
       )}
+    </div>
   );
 };
