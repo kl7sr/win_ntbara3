@@ -53,7 +53,9 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
     ? calculateDistanceKm(userLocation.lat, userLocation.lng, point.lat, point.lng)
     : null;
 
-  const googleMapsUrl = getGoogleMapsDirUrl(point.lat, point.lng, point.title);
+  const googleMapsUrl = (point.googleMapsUrl && point.googleMapsUrl.trim().length > 0)
+    ? point.googleMapsUrl.trim()
+    : getGoogleMapsDirUrl(point.lat, point.lng, point.title);
   
   // Real uploaded images
   const images = (point.images && point.images.length > 0)

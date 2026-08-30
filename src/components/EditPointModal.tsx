@@ -15,7 +15,7 @@ import {
 } from 'lucide-react';
 import { CharityPoint, AidCategory, PointStatus, PointType } from '../types';
 import { WILAYAS, AID_CATEGORIES_META } from '../data/wilayas';
-import { isWithinAlgeriaBounds, parseGoogleMapsLinkOrCoords, isPlusCode, resolvePlusCode } from '../utils/geoParser';
+import { isWithinAlgeriaBounds, parseGoogleMapsLinkOrCoords, isPlusCode, resolvePlusCode, getGoogleMapsDirUrl } from '../utils/geoParser';
 import { compressImageFile, compressBase64Image } from '../utils/imageCompressor';
 
 interface EditPointModalProps {
@@ -164,6 +164,10 @@ export const EditPointModal: React.FC<EditPointModalProps> = ({
       }
     }
 
+    const updatedGoogleMapsUrl = locationInput.includes('http')
+      ? locationInput.trim()
+      : (point.googleMapsUrl || getGoogleMapsDirUrl(editedLat, editedLng, title.trim()));
+
     onUpdatePoint(point.id, {
       title: title.trim(),
       organizer: organizer.trim() || 'فاعل خير / متطوعين',
@@ -183,6 +187,7 @@ export const EditPointModal: React.FC<EditPointModalProps> = ({
       aidCategories: categories,
       images: compressedPhotos.length > 0 ? compressedPhotos : [],
       imageUrl: compressedPhotos.length > 0 ? compressedPhotos[0] : undefined,
+      googleMapsUrl: updatedGoogleMapsUrl,
     });
 
     setSuccessMessage('تم تحديث وحفظ بيانات النقطة بنجاح!');

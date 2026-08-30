@@ -344,6 +344,9 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
         });
       }
     }
+    if (updates.googleMapsUrl !== undefined) {
+      await db.prepare("UPDATE points SET google_maps_url = ? WHERE id = ?").bind(updates.googleMapsUrl || null, id).run();
+    }
 
     return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });
   } catch (err: any) {
