@@ -175,7 +175,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
     const imagesJson = body.images ? JSON.stringify(body.images) : (body.imageUrl ? JSON.stringify([body.imageUrl]) : null);
 
     await db.prepare(`
-      INSERT INTO points (
+      INSERT OR REPLACE INTO points (
         id, title, organizer, phone, alt_phone, wilaya_code, wilaya_name_ar, wilaya_name_fr,
         commune, address, lat, lng, aid_categories, status, point_type, urgent_description,
         notes, hours, verified, featured, created_by, created_at, images, google_maps_url

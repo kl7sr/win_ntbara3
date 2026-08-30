@@ -92,3 +92,55 @@ export async function deleteLivePointFromD1(id: string): Promise<boolean> {
     return false;
   }
 }
+
+/**
+ * Bulk exports all local points directly into Cloudflare D1 database
+ */
+export async function bulkExportAllLocalPointsToD1(
+  points: CharityPoint[],
+  onProgress?: (current: number, total: number) => void
+): Promise<{ success: number; failed: number }> {
+  let success = 0;
+  let failed = 0;
+  const adminPass = getAdminPasscode();
+
+  for (let i = 0; i < points.length; i++) {
+    const p = points[i];
+    try {
+      // 1. Try to create / upsert point via POST
+      const postRes = await fetch('/api/points', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-Admin-Password': adminPass,
+        },
+        body: JSON.stringify(p),
+      });
+
+      if (postRes.ok) {
+        success++;
+      } else {
+        // 2. If it already exists, update it via PUT
+        const putRes = await fetch('/api/points', {
+          method: 'PUT',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-Admin-Password': adminPass,
+          },
+          body: JSON.stringify({ id: p.id, updates: p }),
+        });
+        if (putRes.ok) {
+          success++;
+        } else {
+          failed++;
+        }
+      }
+    } catch {
+      failed++;
+    }
+
+    onProgress?.(i + 1, points.length);
+  }
+
+  return { success, failed };
+}

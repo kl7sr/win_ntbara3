@@ -25,12 +25,14 @@ import {
   Loader2,
   Edit,
   HeartHandshake,
-  LogOut
+  LogOut,
+  CloudUpload
 } from 'lucide-react';
 import { CharityPoint, AidCategory, PointStatus, PointType } from '../types';
 import { WILAYAS } from '../data/wilayas';
 import { parseGoogleMapsLinkOrCoords, getGoogleMapsDirUrl, isWithinAlgeriaBounds } from '../utils/geoParser';
 import { compressImageFile } from '../utils/imageCompressor';
+import { bulkExportAllLocalPointsToD1 } from '../services/apiService';
 import { 
   getAdminPasscode, 
   setAdminPasscode, 
@@ -122,6 +124,31 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   // Settings
   const [newPass, setNewPass] = useState('');
   const [passChangeMsg, setPassChangeMsg] = useState('');
+
+  // Bulk Cloud Sync State
+  const [isBulkSyncing, setIsBulkSyncing] = useState(false);
+  const [bulkSyncProgress, setBulkSyncProgress] = useState('');
+  const [bulkSyncResult, setBulkSyncResult] = useState('');
+
+  const handleBulkSyncToD1 = async () => {
+    setIsBulkSyncing(true);
+    setBulkSyncResult('');
+    setBulkSyncProgress('0/' + points.length);
+
+    try {
+      const res = await bulkExportAllLocalPointsToD1(points, (curr, total) => {
+        setBulkSyncProgress(`${curr}/${total}`);
+      });
+      setBulkSyncResult(`✅ تم تصدير ${res.success} نقطة إلى قاعدة بيانات السحابة بنجاح!`);
+      setTimeout(() => {
+        onReloadPoints();
+      }, 1000);
+    } catch (e: any) {
+      setBulkSyncResult('❌ حدث خطأ: ' + (e?.message || 'يرجى المحاولة مجدداً'));
+    } finally {
+      setIsBulkSyncing(false);
+    }
+  };
 
   const charityPoints = points.filter((p) => p.pointType !== 'burnt_zone');
   const firePoints = points.filter((p) => p.pointType === 'burnt_zone');
@@ -1038,6 +1065,44 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                       حفظ كلمة المرور الجديدة
                     </button>
                   </form>
+                </div>
+
+                {/* Cloudflare D1 Cloud Sync */}
+                <div className="bg-emerald-50 border border-emerald-300 rounded-2xl p-5 space-y-3">
+                  <div className="flex items-center gap-2 text-emerald-900 font-bold text-sm">
+                    <CloudUpload className="w-5 h-5 text-emerald-700" />
+                    <span>مزامنة وتصدير جميع البيانات إلى السحابة (Cloudflare D1)</span>
+                  </div>
+                  <p className="text-slate-600 text-xs leading-relaxed">
+                    يقوم برفع وتصدير جميع نقاط التبرع، مناطق الحرائق، والصور المخزنة محلياً مباشرة إلى قاعدة بيانات Cloudflare D1 السحابية، لتصبح متاحة فوراً لجميع الهواتف والمستخدمين.
+                  </p>
+                  
+                  <div className="pt-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
+                    <button
+                      type="button"
+                      disabled={isBulkSyncing}
+                      onClick={handleBulkSyncToD1}
+                      className="px-5 py-3 bg-emerald-700 hover:bg-emerald-800 disabled:opacity-50 text-white font-bold rounded-xl shadow-md transition flex items-center justify-center gap-2 text-xs sm:text-sm"
+                    >
+                      {isBulkSyncing ? (
+                        <>
+                          <Loader2 className="w-4 h-4 animate-spin" />
+                          <span>جاري المزامنة مع السحابة ({bulkSyncProgress})...</span>
+                        </>
+                      ) : (
+                        <>
+                          <CloudUpload className="w-4 h-4" />
+                          <span>تصدير ورفع جميع النقاط إلى السحابة الآن 🚀</span>
+                        </>
+                      )}
+                    </button>
+
+                    {bulkSyncResult && (
+                      <span className="text-xs font-bold text-emerald-800 bg-white border border-emerald-300 px-3 py-2 rounded-xl">
+                        {bulkSyncResult}
+                      </span>
+                    )}
+                  </div>
                 </div>
 
                 {/* Backups */}
