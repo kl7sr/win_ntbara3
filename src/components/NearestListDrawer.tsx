@@ -139,7 +139,7 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
               onChange={(e) => onSelectWilaya(e.target.value ? Number(e.target.value) : null)}
               className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-lg px-2 py-1.5 focus:outline-none"
             >
-              <option value="">كل الولايات</option>
+              <option value="">{currentLanguage === 'ar' ? 'اختر الولاية' : 'Choisir la wilaya'}</option>
               {WILAYAS.map((w) => (
                 <option key={w.code} value={w.code}>
                   {w.code} - {w.nameAr}
@@ -151,32 +151,11 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
           <button
             type="button"
             onClick={onRequestLocation}
-            className="px-2.5 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-lg flex items-center gap-1 shrink-0 border border-emerald-200"
+            className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-lg flex items-center gap-1 shrink-0 border border-emerald-200"
           >
             <LocateFixed className="w-3.5 h-3.5" />
             <span>GPS</span>
           </button>
-
-          {onToggleFireZones && (
-            <button
-              type="button"
-              onClick={() => onToggleFireZones(!showFireZones)}
-              className={`px-2 py-1.5 rounded-lg border text-xs font-bold flex items-center gap-1 shrink-0 transition ${
-                showFireZones
-                  ? 'bg-red-50 text-red-800 border-red-300 shadow-xs'
-                  : 'bg-slate-50 hover:bg-slate-100 text-slate-600 border-slate-200'
-              }`}
-              title="إظهار أو إخفاء مناطق الحرائق"
-            >
-              <input
-                type="checkbox"
-                checked={showFireZones}
-                onChange={() => {}}
-                className="w-3.5 h-3.5 rounded text-red-600 accent-red-600 pointer-events-none"
-              />
-              <span>حرائق</span>
-            </button>
-          )}
         </div>
       </div>
 

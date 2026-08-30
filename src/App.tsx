@@ -293,9 +293,9 @@ export function App() {
           selectedWilaya={selectedWilaya}
         />
 
-        {/* Clean Floating Fire Toggle on Map (Top Right) */}
-        {!isWelcomeModalOpen && !isWilayaResultsModalOpen && (
-          <div className="absolute top-3 right-3 z-[400] flex items-center pointer-events-auto animate-in fade-in duration-200">
+        {/* Clean Floating Fire Toggle on Map (Top Right) - Only when no modal/drawer is active */}
+        {!isWelcomeModalOpen && !isWilayaResultsModalOpen && !isNearestDrawerOpen && !selectedPoint && !isAddModalOpen && !isAdminOpen && (
+          <div className="absolute top-3 right-3 z-20 flex items-center pointer-events-auto animate-in fade-in duration-200">
             <button
               type="button"
               onClick={() => setShowFireZones(!showFireZones)}
