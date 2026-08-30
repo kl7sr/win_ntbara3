@@ -141,3 +141,13 @@
   background: #f1f5f9 !important;
 }
 
+/* Make Leaflet map attribution non-clickable */
+.leaflet-control-attribution,
+.leaflet-control-attribution a {
+  pointer-events: none !important;
+  cursor: default !important;
+  text-decoration: none !important;
+  color: #64748b !important;
+  user-select: none !important;
+}
+
