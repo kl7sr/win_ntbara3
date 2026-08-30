@@ -11,7 +11,8 @@ import {
   Camera,
   Image as ImageIcon,
   Trash2,
-  Link as LinkIcon
+  Link as LinkIcon,
+  ShieldCheck
 } from 'lucide-react';
 import { CharityPoint, AidCategory, PointStatus } from '../types';
 import { WILAYAS, AID_CATEGORIES_META } from '../data/wilayas';
