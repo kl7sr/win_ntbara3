@@ -1170,17 +1170,14 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                     filterList(charityPoints).map((point) => (
                       <div
                         key={point.id}
-                        className="p-4 bg-white border border-slate-200 hover:border-slate-300 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition shadow-xs"
+                        className={`p-4 bg-white border border-slate-200/90 ${point.verified ? 'border-r-4 border-r-emerald-600' : 'border-r-4 border-r-amber-500'} rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-4 transition shadow-xs hover:shadow-md`}
                       >
                         <div className="space-y-1 flex-1">
                           <div className="flex items-center gap-2 flex-wrap">
+                            <span className={`w-2 h-2 rounded-full shrink-0 ${point.verified ? 'bg-emerald-600 ring-2 ring-emerald-100' : 'bg-amber-500 ring-2 ring-amber-100'}`} />
                             <span className="font-bold text-slate-900 text-sm sm:text-base">{point.title}</span>
-                            <span className="text-slate-600 text-xs">({point.wilayaNameAr} - {point.commune})</span>
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                              point.verified
-                                ? 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                                : 'bg-amber-50 text-amber-800 border-amber-300'
-                            }`}>
+                            <span className="text-slate-500 text-xs">({point.wilayaNameAr} - {point.commune})</span>
+                            <span className={`text-[11px] font-bold ${point.verified ? 'text-emerald-800' : 'text-amber-800'}`}>
                               {point.verified ? 'مؤكد ✓' : 'غير مؤكد'}
                             </span>
                           </div>
@@ -1275,24 +1272,23 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                   </div>
 
                   <div className="flex-1 overflow-y-auto space-y-3 pr-1">
-                    {firePoints.map((point) => (
-                      <div
-                        key={point.id}
-                        className="p-3.5 bg-white border border-slate-200 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs"
-                      >
-                        <div className="space-y-1 flex-1">
-                          <div className="flex items-center gap-2">
-                            <span className="font-bold text-slate-900 text-sm">{point.title}</span>
-                            <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
-                              point.status === 'extinguished'
-                                ? 'bg-slate-100 text-slate-700 border-slate-300'
-                                : 'bg-red-50 text-red-700 border-red-200'
-                            }`}>
-                              {point.status === 'extinguished' ? 'تم الإخماد' : 'حريق نشط'}
-                            </span>
+                    {firePoints.map((point) => {
+                      const isExtinguished = point.status === 'extinguished';
+                      return (
+                        <div
+                          key={point.id}
+                          className={`p-3.5 bg-white border border-slate-200/90 ${isExtinguished ? 'border-r-4 border-r-slate-400' : 'border-r-4 border-r-red-500'} rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs hover:shadow-md transition`}
+                        >
+                          <div className="space-y-1 flex-1">
+                            <div className="flex items-center gap-2">
+                              <span className={`w-2 h-2 rounded-full shrink-0 ${isExtinguished ? 'bg-slate-400 ring-2 ring-slate-100' : 'bg-red-500 ring-2 ring-red-100'}`} />
+                              <span className="font-bold text-slate-900 text-sm">{point.title}</span>
+                              <span className={`text-[11px] font-bold ${isExtinguished ? 'text-slate-600' : 'text-red-700'}`}>
+                                {isExtinguished ? 'تم الإخماد' : 'حريق نشط'}
+                              </span>
+                            </div>
+                            <p className="text-xs text-slate-500">{point.wilayaNameAr} - {point.commune} ({point.address})</p>
                           </div>
-                          <p className="text-xs text-slate-600">{point.wilayaNameAr} - {point.commune} ({point.address})</p>
-                        </div>
 
                         <div className="flex items-center gap-2 shrink-0">
                           <button
@@ -1322,7 +1318,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                           </button>
                         </div>
                       </div>
-                    ))}
+                    );
+                  })}
                   </div>
                 </div>
 

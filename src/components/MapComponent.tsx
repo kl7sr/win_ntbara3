@@ -128,38 +128,49 @@ export const MapComponent: React.FC<MapComponentProps> = ({
 
       const googleMapsUrl = point.googleMapsUrl || `https://maps.google.com/?q=${point.lat},${point.lng}`;
 
+      const accentColor = isBurntZone
+        ? (isFireActive ? '#ef4444' : '#94a3b8')
+        : (isVerified ? '#059669' : '#f59e0b');
+
+      const statusDotColor = isBurntZone
+        ? (isFireActive ? '#ef4444' : '#94a3b8')
+        : (isVerified ? '#059669' : '#f59e0b');
+
+      const statusText = isBurntZone
+        ? (isFireExtinguished ? 'تم الإخماد' : 'بؤرة حريق نشطة')
+        : (isVerified ? 'موقع مؤكد' : 'غير مؤكد');
+
+      const statusTextColor = isBurntZone
+        ? (isFireActive ? '#b91c1c' : '#475569')
+        : (isVerified ? '#065f46' : '#92400e');
+
       const popupHtml = `
-        <div style="padding: 12px; font-family: 'Cairo', system-ui, sans-serif; direction: rtl; text-align: right; background: #ffffff;">
-          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
-            <span style="font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; border: 1px solid ${
-              isBurntZone ? '#fecaca' : isVerified ? '#a7f3d0' : '#e2e8f0'
-            }; background: ${
-              isBurntZone ? '#fef2f2' : isVerified ? '#ecfdf5' : '#f8fafc'
-            }; color: ${
-              isBurntZone ? '#b91c1c' : isVerified ? '#047857' : '#475569'
-            };">
-              ${isBurntZone ? (isFireExtinguished ? 'تم الإخماد' : 'حريق نشط') : (isVerified ? 'موقع مؤكد' : 'غير مؤكد')}
+        <div style="padding: 14px; font-family: 'Cairo', system-ui, sans-serif; direction: rtl; text-align: right; background: #ffffff; border-right: 4px solid ${accentColor}; border-radius: 20px;">
+          <div style="display: flex; align-items: center; gap: 6px; margin-bottom: 5px;">
+            <span style="width: 7px; height: 7px; border-radius: 50%; background: ${statusDotColor}; flex-shrink: 0;"></span>
+            <span style="font-size: 11px; font-weight: 700; color: ${statusTextColor};">
+              ${statusText}
             </span>
           </div>
 
-          <div style="font-weight: 800; font-size: 13px; color: #0f172a; line-height: 1.3; margin-bottom: 3px;">
+          <div style="font-weight: 800; font-size: 13.5px; color: #0f172a; line-height: 1.35; margin-bottom: 4px;">
             ${point.title}
           </div>
 
-          <div style="font-size: 11px; color: #64748b; margin-bottom: 10px;">
+          <div style="font-size: 11px; color: #64748b; font-weight: 600; margin-bottom: 12px;">
             ${point.wilayaNameAr} - ${point.commune}
           </div>
 
-          <div style="display: grid; grid-template-columns: ${isBurntZone ? '1fr 1fr' : '1fr 1fr 1fr'}; gap: 5px;">
+          <div style="display: grid; grid-template-columns: ${isBurntZone ? '1fr 1fr' : '1fr 1fr 1fr'}; gap: 6px;">
             ${!isBurntZone && point.phone ? `
-              <a href="tel:${point.phone}" style="display: flex; align-items: center; justify-content: center; background: #006633; color: #ffffff; padding: 7px 4px; border-radius: 10px; font-size: 11px; font-weight: 700; text-decoration: none; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+              <a href="tel:${point.phone}" style="display: flex; align-items: center; justify-content: center; background: #047857; color: #ffffff; padding: 7.5px 4px; border-radius: 12px; font-size: 11px; font-weight: 800; text-decoration: none; box-shadow: 0 1px 2px rgba(4,120,87,0.15);">
                 اتصال
               </a>
             ` : ''}
-            <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: center; background: #f8fafc; color: #1e293b; padding: 7px 4px; border-radius: 10px; font-size: 11px; font-weight: 700; text-decoration: none; border: 1px solid #cbd5e1;">
+            <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: center; background: #f8fafc; color: #334155; padding: 7.5px 4px; border-radius: 12px; font-size: 11px; font-weight: 700; text-decoration: none; border: 1px solid #e2e8f0;">
               الاتجاهات
             </a>
-            <button onclick="window.__openPointDetails('${point.id}')" style="display: flex; align-items: center; justify-content: center; background: #0f172a; color: #ffffff; padding: 7px 4px; border-radius: 10px; font-size: 11px; font-weight: 700; border: none; cursor: pointer;">
+            <button onclick="window.__openPointDetails('${point.id}')" style="display: flex; align-items: center; justify-content: center; background: #0f172a; color: #ffffff; padding: 7.5px 4px; border-radius: 12px; font-size: 11px; font-weight: 700; border: none; cursor: pointer;">
               التفاصيل
             </button>
           </div>

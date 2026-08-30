@@ -110,31 +110,40 @@ export const WilayaResultsModal: React.FC<WilayaResultsModalProps> = ({
             ) : (
               inWilaya.map((point) => {
                 const isBurnt = point.pointType === 'burnt_zone';
+                const isFireActive = isBurnt && (point.status === 'urgent' || point.status === 'active');
+                const isFireExtinguished = isBurnt && (point.status === 'extinguished' || point.status === 'full');
+                const isVerified = point.verified;
+
+                const borderAccentClass = isBurnt
+                  ? isFireActive ? 'border-r-4 border-r-red-500' : 'border-r-4 border-r-slate-400'
+                  : isVerified ? 'border-r-4 border-r-emerald-600' : 'border-r-4 border-r-amber-500';
+
                 const googleMapsUrl = point.googleMapsUrl || getGoogleMapsDirUrl(point.lat, point.lng);
 
                 return (
                   <div
                     key={point.id}
-                    className="p-3.5 sm:p-4 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-3 text-right hover:border-emerald-300 transition"
+                    className={`p-3.5 sm:p-4 bg-white border border-slate-200/90 ${borderAccentClass} rounded-2xl shadow-xs space-y-3 text-right hover:shadow-md transition`}
                   >
-                    {/* Header: Badge & Title */}
+                    {/* Header: Inline Status Dot & Title */}
                     <div 
                       className="cursor-pointer space-y-1"
                       onClick={() => onOpenFullDetails(point)}
                     >
-                      <div className="flex items-center justify-between gap-2">
-                        <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border ${
+                      <div className="flex items-center gap-1.5 mb-1">
+                        <span className={`w-2 h-2 rounded-full shrink-0 ${
                           isBurnt
-                            ? point.status === 'extinguished'
-                              ? 'bg-slate-100 text-slate-700 border-slate-300'
-                              : 'bg-red-50 text-red-700 border-red-200'
-                            : point.verified
-                            ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                            : 'bg-slate-100 text-slate-700 border-slate-300'
+                            ? isFireActive ? 'bg-red-500 ring-2 ring-red-100' : 'bg-slate-400 ring-2 ring-slate-100'
+                            : isVerified ? 'bg-emerald-600 ring-2 ring-emerald-100' : 'bg-amber-500 ring-2 ring-amber-100'
+                        }`} />
+                        <span className={`text-[11px] font-bold ${
+                          isBurnt
+                            ? isFireActive ? 'text-red-700' : 'text-slate-600'
+                            : isVerified ? 'text-emerald-800' : 'text-amber-800'
                         }`}>
                           {isBurnt
-                            ? (point.status === 'extinguished' ? 'تم الإخماد' : 'حريق نشط')
-                            : (point.verified ? 'موقع مؤكد' : 'غير مؤكد')}
+                            ? (isFireExtinguished ? 'تم الإخماد' : 'بؤرة حريق نشطة')
+                            : (isVerified ? 'موقع مؤكد' : 'غير مؤكد')}
                         </span>
                       </div>
 
@@ -147,15 +156,15 @@ export const WilayaResultsModal: React.FC<WilayaResultsModalProps> = ({
                       </p>
                     </div>
 
-                    {/* Action Buttons: Call & Directions */}
+                    {/* Action Buttons: Primary (Call) vs Secondary (Directions) */}
                     <div className={`grid ${isBurnt ? 'grid-cols-1' : 'grid-cols-2'} gap-2 pt-1 border-t border-slate-100`}>
                       {/* Call Button - Only for Donation Centers */}
                       {!isBurnt && point.phone && (
                         <a
                           href={`tel:${point.phone}`}
-                          className="py-2 px-3 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition active:scale-95"
+                          className="py-2 px-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 shadow-xs transition active:scale-95 text-center"
                         >
-                          <Phone className="w-3.5 h-3.5 text-emerald-700" />
+                          <Phone className="w-3.5 h-3.5" />
                           <span>اتصال</span>
                         </a>
                       )}
@@ -165,9 +174,13 @@ export const WilayaResultsModal: React.FC<WilayaResultsModalProps> = ({
                         href={googleMapsUrl}
                         target="_blank"
                         rel="noopener noreferrer"
-                        className="py-2 px-3 bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold rounded-xl text-xs flex items-center justify-center gap-1.5 transition border border-slate-200 active:scale-95"
+                        className={`py-2 px-3 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 text-center ${
+                          !isBurnt && point.phone
+                            ? 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200'
+                            : 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs font-bold'
+                        }`}
                       >
-                        <Navigation className="w-3.5 h-3.5 text-slate-700" />
+                        <Navigation className="w-3.5 h-3.5" />
                         <span>الاتجاهات</span>
                       </a>
                     </div>
@@ -206,22 +219,38 @@ export const WilayaResultsModal: React.FC<WilayaResultsModalProps> = ({
               {showBorderDropdown && (
                 <div className="space-y-2.5 animate-in fade-in slide-in-from-top-1 duration-150">
                   {borderPoints.map(({ point, distanceToWilayaCenterKm }) => {
+                    const isBurnt = point.pointType === 'burnt_zone';
+                    const isFireActive = isBurnt && (point.status === 'urgent' || point.status === 'active');
+                    const isFireExtinguished = isBurnt && (point.status === 'extinguished' || point.status === 'full');
+                    const isVerified = point.verified;
+
+                    const borderAccentClass = isBurnt
+                      ? isFireActive ? 'border-r-4 border-r-red-500' : 'border-r-4 border-r-slate-400'
+                      : isVerified ? 'border-r-4 border-r-emerald-600' : 'border-r-4 border-r-amber-500';
+
                     const googleMapsUrl = point.googleMapsUrl || getGoogleMapsDirUrl(point.lat, point.lng);
 
                     return (
                       <div
                         key={point.id}
-                        className="p-3.5 bg-white border border-slate-200 rounded-2xl shadow-xs space-y-2.5 text-right hover:border-emerald-300 transition"
+                        className={`p-3.5 bg-white border border-slate-200/90 ${borderAccentClass} rounded-2xl shadow-xs space-y-2.5 text-right hover:shadow-md transition`}
                       >
                         <div 
                           className="cursor-pointer space-y-1"
                           onClick={() => onOpenFullDetails(point)}
                         >
                           <div className="flex items-center justify-between">
-                            <span className="text-[10px] font-bold bg-slate-100 text-slate-700 px-2 py-0.5 rounded-md border border-slate-200">
-                              ولاية {point.wilayaNameAr}
-                            </span>
-                            <span className="text-[11px] text-emerald-800 font-bold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-100">
+                            <div className="flex items-center gap-1.5">
+                              <span className={`w-2 h-2 rounded-full shrink-0 ${
+                                isBurnt
+                                  ? isFireActive ? 'bg-red-500 ring-2 ring-red-100' : 'bg-slate-400 ring-2 ring-slate-100'
+                                  : isVerified ? 'bg-emerald-600 ring-2 ring-emerald-100' : 'bg-amber-500 ring-2 ring-amber-100'
+                              }`} />
+                              <span className="text-[10px] font-bold text-slate-700">
+                                ولاية {point.wilayaNameAr}
+                              </span>
+                            </div>
+                            <span className="text-[10.5px] text-slate-500 font-medium">
                               ~ {distanceToWilayaCenterKm} كم
                             </span>
                           </div>
@@ -235,9 +264,9 @@ export const WilayaResultsModal: React.FC<WilayaResultsModalProps> = ({
                           {point.pointType !== 'burnt_zone' && point.phone && (
                             <a
                               href={`tel:${point.phone}`}
-                              className="py-1.5 px-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-lg text-xs flex items-center justify-center gap-1 transition active:scale-95"
+                              className="py-1.5 px-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs flex items-center justify-center gap-1 shadow-xs transition active:scale-95 text-center"
                             >
-                              <Phone className="w-3.5 h-3.5 text-emerald-700" />
+                              <Phone className="w-3.5 h-3.5" />
                               <span>اتصال</span>
                             </a>
                           )}
@@ -246,9 +275,13 @@ export const WilayaResultsModal: React.FC<WilayaResultsModalProps> = ({
                             href={googleMapsUrl}
                             target="_blank"
                             rel="noopener noreferrer"
-                            className="py-1.5 px-2 bg-slate-50 hover:bg-slate-100 text-slate-800 font-bold rounded-lg text-xs flex items-center justify-center gap-1 transition border border-slate-200 active:scale-95"
+                            className={`py-1.5 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition border border-slate-200 active:scale-95 text-center ${
+                              point.pointType !== 'burnt_zone' && point.phone
+                                ? 'bg-slate-50 hover:bg-slate-100 text-slate-700'
+                                : 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs font-bold'
+                            }`}
                           >
-                            <Navigation className="w-3.5 h-3.5 text-slate-700" />
+                            <Navigation className="w-3.5 h-3.5" />
                             <span>الاتجاهات</span>
                           </a>
                         </div>

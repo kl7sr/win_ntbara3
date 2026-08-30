@@ -197,32 +197,27 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
           {/* Header Details Bar */}
           <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-start justify-between gap-3">
             <div className="flex-1">
-              <div className="flex items-center gap-2 mb-1 flex-wrap">
-                {point.pointType === 'burnt_zone' ? (
-                  point.status === 'urgent' || point.status === 'active' ? (
-                    <span className="inline-flex items-center gap-1 bg-red-50 text-red-800 border border-red-300 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                      🔥 منطقة حرائق نشطة (بحاجة لإغاثة)
-                    </span>
-                  ) : (
-                    <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 border border-slate-300 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                      💨 حريق تم إخماده / غير نشط
-                    </span>
-                  )
-                ) : point.verified ? (
-                  <span className="inline-flex items-center gap-1 bg-emerald-50 text-emerald-800 border border-emerald-300 text-[10px] font-semibold px-2 py-0.5 rounded-md">
-                    <ShieldCheck className="w-3 h-3 text-emerald-700" />
-                    موقع مؤكد وموثوق
+              <div className="flex items-center gap-2 mb-1.5 flex-wrap">
+                <div className="inline-flex items-center gap-1.5">
+                  <span className={`w-2 h-2 rounded-full shrink-0 ${
+                    point.pointType === 'burnt_zone'
+                      ? (point.status === 'urgent' || point.status === 'active' ? 'bg-red-500 ring-2 ring-red-100' : 'bg-slate-400 ring-2 ring-slate-100')
+                      : (point.verified ? 'bg-emerald-600 ring-2 ring-emerald-100' : 'bg-amber-500 ring-2 ring-amber-100')
+                  }`} />
+                  <span className={`text-xs font-bold ${
+                    point.pointType === 'burnt_zone'
+                      ? (point.status === 'urgent' || point.status === 'active' ? 'text-red-700' : 'text-slate-600')
+                      : (point.verified ? 'text-emerald-800' : 'text-amber-800')
+                  }`}>
+                    {point.pointType === 'burnt_zone'
+                      ? (point.status === 'urgent' || point.status === 'active' ? 'بؤرة حرائق نشطة' : 'حريق تم إخماده')
+                      : (point.verified ? 'موقع مؤكد وموثوق' : 'غير مؤكد رسمياً (يُرجى الاتصال للتأكد)')}
                   </span>
-                ) : (
-                  <span className="inline-flex items-center gap-1 bg-amber-50 text-amber-800 border border-amber-300 text-[10px] font-semibold px-2 py-0.5 rounded-md">
-                    <AlertTriangle className="w-3 h-3 text-amber-600" />
-                    غير مؤكد رسمياً (اتصل قبل الذهاب)
-                  </span>
-                )}
+                </div>
 
                 {distance !== null && (
-                  <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 text-[10px] font-semibold px-2 py-0.5 rounded-md border border-slate-300">
-                    <Navigation className="w-3 h-3 text-slate-600" />
+                  <span className="inline-flex items-center gap-1 bg-slate-100 text-slate-700 text-[10.5px] font-bold px-2 py-0.5 rounded-full border border-slate-200 mr-auto">
+                    <Navigation className="w-3 h-3 text-slate-500" />
                     يبعد {formatDistance(distance, 'ar')}
                   </span>
                 )}

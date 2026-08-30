@@ -170,6 +170,14 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
         ) : (
           filtered.map((point) => {
             const isBurnt = point.pointType === 'burnt_zone';
+            const isFireActive = isBurnt && (point.status === 'urgent' || point.status === 'active');
+            const isFireExtinguished = isBurnt && (point.status === 'extinguished' || point.status === 'full');
+            const isVerified = point.verified;
+
+            const borderAccentClass = isBurnt
+              ? isFireActive ? 'border-r-4 border-r-red-500' : 'border-r-4 border-r-slate-400'
+              : isVerified ? 'border-r-4 border-r-emerald-600' : 'border-r-4 border-r-amber-500';
+
             const googleMapsUrl = point.googleMapsUrl || getGoogleMapsDirUrl(point.lat, point.lng, point.title);
 
             return (
@@ -179,45 +187,49 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
                   onSelectPoint(point);
                   onClose();
                 }}
-                className="p-3.5 bg-white border border-slate-200 hover:border-emerald-500 rounded-2xl shadow-xs hover:shadow-md transition cursor-pointer space-y-2 group text-right"
+                className={`p-3.5 bg-white border border-slate-200/90 ${borderAccentClass} rounded-2xl shadow-xs hover:shadow-md transition cursor-pointer space-y-2.5 group text-right`}
               >
-                <div className="flex items-start justify-between gap-2">
-                  <div className="space-y-0.5 flex-1">
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full border inline-block mb-1 ${
+                <div>
+                  {/* Inline Status Dot & Distance */}
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <span className={`w-2 h-2 rounded-full shrink-0 ${
                       isBurnt
-                        ? 'bg-red-50 text-red-700 border-red-200'
-                        : point.verified
-                        ? 'bg-emerald-50 text-emerald-800 border-emerald-200'
-                        : 'bg-slate-100 text-slate-700 border-slate-300'
+                        ? isFireActive ? 'bg-red-500 ring-2 ring-red-100' : 'bg-slate-400 ring-2 ring-slate-100'
+                        : isVerified ? 'bg-emerald-600 ring-2 ring-emerald-100' : 'bg-amber-500 ring-2 ring-amber-100'
+                    }`} />
+                    <span className={`text-[11px] font-bold ${
+                      isBurnt
+                        ? isFireActive ? 'text-red-700' : 'text-slate-600'
+                        : isVerified ? 'text-emerald-800' : 'text-amber-800'
                     }`}>
                       {isBurnt
-                        ? (point.status === 'extinguished' ? 'تم الإخماد' : 'حريق نشط')
-                        : (point.verified ? 'موقع مؤكد' : 'غير مؤكد')}
+                        ? (isFireExtinguished ? 'تم الإخماد' : 'بؤرة حريق نشطة')
+                        : (isVerified ? 'موقع مؤكد' : 'غير مؤكد')}
                     </span>
-                    <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-emerald-800 transition">
-                      {point.title}
-                    </h4>
-                    <p className="text-[11px] text-slate-500">
-                      {point.wilayaNameAr} - {point.commune}
-                    </p>
+                    {point.distance !== null && (
+                      <span className="text-[10px] text-slate-500 font-medium mr-auto bg-slate-100 px-2 py-0.5 rounded-full">
+                        يبعد {point.distance} كم
+                      </span>
+                    )}
                   </div>
 
-                  {point.distance !== null && (
-                    <span className="text-[11px] font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded-lg shrink-0 border border-emerald-200">
-                      {point.distance} كم
-                    </span>
-                  )}
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-emerald-800 transition">
+                    {point.title}
+                  </h4>
+                  <p className="text-[11px] text-slate-500 mt-0.5">
+                    {point.wilayaNameAr} - {point.commune}
+                  </p>
                 </div>
 
-                {/* Action Buttons */}
-                <div className={`flex items-center gap-2 pt-1 border-t border-slate-100`}>
+                {/* Action Buttons: Primary (Call) vs Secondary (Directions) */}
+                <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
                   {!isBurnt && point.phone && (
                     <a
                       href={`tel:${point.phone}`}
                       onClick={(e) => e.stopPropagation()}
-                      className="flex-1 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 transition active:scale-95"
+                      className="flex-1 py-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 shadow-xs transition active:scale-95 text-center"
                     >
-                      <Phone className="w-3 h-3" />
+                      <Phone className="w-3.5 h-3.5" />
                       <span>اتصال</span>
                     </a>
                   )}
@@ -227,9 +239,13 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
                     target="_blank"
                     rel="noopener noreferrer"
                     onClick={(e) => e.stopPropagation()}
-                    className="flex-1 py-1.5 bg-slate-100 hover:bg-slate-200 text-slate-800 rounded-lg text-[11px] font-bold flex items-center justify-center gap-1 transition active:scale-95"
+                    className={`flex-1 py-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1.5 transition active:scale-95 text-center ${
+                      !isBurnt && point.phone
+                        ? 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200'
+                        : 'bg-emerald-700 hover:bg-emerald-800 text-white shadow-xs font-bold'
+                    }`}
                   >
-                    <Navigation className="w-3 h-3" />
+                    <Navigation className="w-3.5 h-3.5" />
                     <span>الاتجاهات</span>
                   </a>
                 </div>
@@ -241,17 +257,25 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
         {/* Smart Neighboring Border Centers Section */}
         {partitioned && partitioned.borderNeighborPoints.length > 0 && (
           <div className="pt-4 border-t-2 border-dashed border-slate-200 space-y-2">
-            <div className="bg-amber-50 border border-amber-200 rounded-xl p-2.5 text-right">
+            <div className="bg-amber-50/80 border border-amber-200/80 rounded-2xl p-3 text-right">
               <h4 className="text-xs font-bold text-amber-900">
                 مراكز قريبة من حدود ولاية {partitioned.selectedWilaya.nameAr}
               </h4>
-              <p className="text-[10px] text-amber-700">
+              <p className="text-[10.5px] text-amber-700 mt-0.5">
                 قد تكون هذه المراكز أقرب إليك جغرافياً في الولايات المجاورة:
               </p>
             </div>
 
             {partitioned.borderNeighborPoints.map(({ point, distanceToWilayaCenterKm }) => {
               const isBurnt = point.pointType === 'burnt_zone';
+              const isFireActive = isBurnt && (point.status === 'urgent' || point.status === 'active');
+              const isFireExtinguished = isBurnt && (point.status === 'extinguished' || point.status === 'full');
+              const isVerified = point.verified;
+
+              const borderAccentClass = isBurnt
+                ? isFireActive ? 'border-r-4 border-r-red-500' : 'border-r-4 border-r-slate-400'
+                : isVerified ? 'border-r-4 border-r-emerald-600' : 'border-r-4 border-r-amber-500';
+
               const googleMapsUrl = point.googleMapsUrl || getGoogleMapsDirUrl(point.lat, point.lng, point.title);
 
               return (
@@ -261,25 +285,35 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
                     onSelectPoint(point);
                     onClose();
                   }}
-                  className="p-3 bg-slate-50 border border-slate-200 hover:border-emerald-500 rounded-xl transition cursor-pointer text-right space-y-1.5"
+                  className={`p-3 bg-white border border-slate-200/90 ${borderAccentClass} rounded-2xl shadow-xs hover:shadow-md transition cursor-pointer text-right space-y-2`}
                 >
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-bold bg-white text-slate-700 px-2 py-0.5 rounded-md border border-slate-200">
-                      ولاية {point.wilayaNameAr}
-                    </span>
-                    <span className="text-[10px] text-slate-500 font-semibold">
-                      ~ {distanceToWilayaCenterKm} كم من مركز الولاية
-                    </span>
-                  </div>
-                  <h5 className="text-xs font-bold text-slate-900">{point.title}</h5>
-                  <p className="text-[10px] text-slate-500">{point.commune} ({point.address})</p>
+                  <div>
+                    <div className="flex items-center justify-between mb-1">
+                      <div className="flex items-center gap-1.5">
+                        <span className={`w-2 h-2 rounded-full shrink-0 ${
+                          isBurnt
+                            ? isFireActive ? 'bg-red-500 ring-2 ring-red-100' : 'bg-slate-400 ring-2 ring-slate-100'
+                            : isVerified ? 'bg-emerald-600 ring-2 ring-emerald-100' : 'bg-amber-500 ring-2 ring-amber-100'
+                        }`} />
+                        <span className="text-[10px] font-bold text-slate-700">
+                          ولاية {point.wilayaNameAr}
+                        </span>
+                      </div>
+                      <span className="text-[10px] text-slate-500 font-medium">
+                        ~ {distanceToWilayaCenterKm} كم من مركز الولاية
+                      </span>
+                    </div>
 
-                  <div className="flex items-center gap-2 pt-1">
+                    <h5 className="text-xs font-bold text-slate-900">{point.title}</h5>
+                    <p className="text-[10.5px] text-slate-500">{point.commune} ({point.address})</p>
+                  </div>
+
+                  <div className="flex items-center gap-2 pt-1 border-t border-slate-100">
                     {!isBurnt && point.phone && (
                       <a
                         href={`tel:${point.phone}`}
                         onClick={(e) => e.stopPropagation()}
-                        className="flex-1 py-1 bg-white text-emerald-800 font-bold text-[10px] rounded border border-slate-200 text-center"
+                        className="flex-1 py-1.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-[11px] rounded-xl text-center shadow-xs transition"
                       >
                         اتصال
                       </a>
@@ -289,7 +323,11 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
                       target="_blank"
                       rel="noopener noreferrer"
                       onClick={(e) => e.stopPropagation()}
-                      className="flex-1 py-1 bg-white text-slate-700 font-bold text-[10px] rounded border border-slate-200 text-center"
+                      className={`flex-1 py-1.5 rounded-xl text-[11px] font-semibold text-center transition ${
+                        !isBurnt && point.phone
+                          ? 'bg-slate-50 hover:bg-slate-100 text-slate-700 border border-slate-200'
+                          : 'bg-emerald-700 hover:bg-emerald-800 text-white font-bold shadow-xs'
+                      }`}
                     >
                       الاتجاهات
                     </a>
