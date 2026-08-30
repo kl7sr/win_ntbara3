@@ -158,6 +158,17 @@ export function App() {
           setIsWelcomeModalOpen(false);
           setIsNearestDrawerOpen(false);
         }
+      } else if (selectedPoint) {
+        // Keep currently open point synced with latest live data (including photos)
+        const fresh = points.find((p) => p.id === selectedPoint.id);
+        if (fresh && (
+          fresh.images?.length !== selectedPoint.images?.length || 
+          fresh.imageUrl !== selectedPoint.imageUrl ||
+          fresh.lat !== selectedPoint.lat ||
+          fresh.lng !== selectedPoint.lng
+        )) {
+          setSelectedPoint(fresh);
+        }
       }
     } catch {}
   }, [points]);
