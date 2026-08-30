@@ -42,34 +42,40 @@ function getDatabase(context: EventContext<Env, any, any>): D1Database | null {
   return null;
 }
 
-const INIT_SQL = `
-CREATE TABLE IF NOT EXISTS points (
-  id TEXT PRIMARY KEY,
-  title TEXT NOT NULL,
-  organizer TEXT,
-  phone TEXT NOT NULL,
-  alt_phone TEXT,
-  wilaya_code INTEGER NOT NULL,
-  wilaya_name_ar TEXT NOT NULL,
-  wilaya_name_fr TEXT NOT NULL,
-  commune TEXT NOT NULL,
-  address TEXT NOT NULL,
-  lat REAL NOT NULL,
-  lng REAL NOT NULL,
-  aid_categories TEXT NOT NULL,
-  status TEXT DEFAULT 'active',
-  point_type TEXT DEFAULT 'charity_hub',
-  urgent_description TEXT,
-  notes TEXT,
-  hours TEXT,
-  verified INTEGER DEFAULT 0,
-  featured INTEGER DEFAULT 0,
-  created_by TEXT DEFAULT 'user',
-  created_at TEXT NOT NULL,
-  images TEXT,
-  google_maps_url TEXT
-);
-`;
+async function ensurePointsTable(db: D1Database): Promise<void> {
+  try {
+    await db.prepare(`
+      CREATE TABLE IF NOT EXISTS points (
+        id TEXT PRIMARY KEY,
+        title TEXT NOT NULL,
+        organizer TEXT,
+        phone TEXT NOT NULL,
+        alt_phone TEXT,
+        wilaya_code INTEGER NOT NULL,
+        wilaya_name_ar TEXT NOT NULL,
+        wilaya_name_fr TEXT NOT NULL,
+        commune TEXT NOT NULL,
+        address TEXT NOT NULL,
+        lat REAL NOT NULL,
+        lng REAL NOT NULL,
+        aid_categories TEXT NOT NULL,
+        status TEXT DEFAULT 'active',
+        point_type TEXT DEFAULT 'charity_hub',
+        urgent_description TEXT,
+        notes TEXT,
+        hours TEXT,
+        verified INTEGER DEFAULT 0,
+        featured INTEGER DEFAULT 0,
+        created_by TEXT DEFAULT 'user',
+        created_at TEXT NOT NULL,
+        images TEXT,
+        google_maps_url TEXT
+      )
+    `).run();
+  } catch (e: any) {
+    console.error('Error in ensurePointsTable:', e);
+  }
+}
 
 function checkAdminAuth(request: Request, env: any): boolean {
   const secretPass = env.VITE_ADMIN_PASSWORD || env.ADMIN_PASSWORD || env.ADMIN_PASS || env.ADMIN_KEY || env.PASSWORD;
@@ -102,7 +108,7 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
   }
 
   try {
-    await db.exec(INIT_SQL);
+    await ensurePointsTable(db);
 
     const { results } = await db.prepare("SELECT * FROM points ORDER BY created_at DESC").all();
 
@@ -187,7 +193,7 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
   }
 
   try {
-    await db.exec(INIT_SQL);
+    await ensurePointsTable(db);
 
     const body: any = await context.request.json();
 
@@ -279,6 +285,8 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
   }
 
   try {
+    await ensurePointsTable(db);
+
     const body: any = await context.request.json();
     const { id, updates } = body;
 
