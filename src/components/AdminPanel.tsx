@@ -34,6 +34,7 @@ import { compressImageFile } from '../utils/imageCompressor';
 import { 
   getAdminPasscode, 
   setAdminPasscode, 
+  verifyAdminPassword,
   exportPointsJson, 
   importPointsJson, 
   resetPointsToDefault,
@@ -127,8 +128,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
-    const correctPass = getAdminPasscode();
-    if (passInput.trim() === correctPass.trim()) {
+    if (verifyAdminPassword(passInput)) {
       setAdminAuthenticated(true);
       setIsAuthenticated(true);
       onAdminAuthChange?.(true);
