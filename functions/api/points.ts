@@ -275,12 +275,24 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
       await db.prepare("UPDATE points SET notes = ? WHERE id = ?").bind(updates.notes, id).run();
     }
     if (updates.images !== undefined) {
-      await db.prepare("UPDATE points SET images = ? WHERE id = ?").bind(JSON.stringify(updates.images), id).run();
+      try {
+        const imagesStr = updates.images ? JSON.stringify(updates.images) : null;
+        await db.prepare("UPDATE points SET images = ? WHERE id = ?").bind(imagesStr, id).run();
+      } catch (imgErr: any) {
+        console.error("Failed to update images in D1:", imgErr?.message);
+        return new Response(JSON.stringify({ error: `Image update error: ${imgErr?.message}` }), {
+          status: 400,
+          headers: { "Content-Type": "application/json" }
+        });
+      }
     }
 
     return new Response(JSON.stringify({ success: true }), { headers: { "Content-Type": "application/json" } });
   } catch (err: any) {
-    return new Response(JSON.stringify({ error: err.message }), { status: 500 });
+    return new Response(JSON.stringify({ error: err.message || "Internal server error" }), { 
+      status: 500,
+      headers: { "Content-Type": "application/json" }
+    });
   }
 };
 

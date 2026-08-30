@@ -123,7 +123,7 @@ export const EditPointModal: React.FC<EditPointModalProps> = ({
     try {
       const newImages: string[] = [];
       for (let i = 0; i < Math.min(files.length, 3); i++) {
-        const compressed = await compressImageFile(files[i], 800, 600, 0.7);
+        const compressed = await compressImageFile(files[i], 550, 450, 0.55);
         newImages.push(compressed);
       }
       setPhotos((prev) => [...prev, ...newImages].slice(0, 3));
