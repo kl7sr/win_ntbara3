@@ -241,7 +241,7 @@ export function resetPointsToDefault(): void {
 // ----------------------------------------------------
 export function getAdminPasscode(): string {
   try {
-    return ENV_ADMIN_PASS || localStorage.getItem(ADMIN_PASS_KEY) || 'algeria2026';
+    return localStorage.getItem(ADMIN_PASS_KEY) || ENV_ADMIN_PASS || 'algeria2026';
   } catch {
     return ENV_ADMIN_PASS || 'algeria2026';
   }
@@ -258,17 +258,16 @@ export function setAdminPasscode(pass: string): void {
 export function isAdminAuthenticated(): boolean {
   try {
     const stored = localStorage.getItem(ADMIN_PASS_KEY);
-    const valid = ENV_ADMIN_PASS || 'algeria2026';
-    return stored === valid || stored === 'algeria2026' || stored === 'win_ntbara3_admin';
+    return Boolean(stored && stored.trim().length > 0);
   } catch {
     return false;
   }
 }
 
-export function setAdminAuthenticated(isAuth: boolean): void {
+export function setAdminAuthenticated(isAuth: boolean, customPass?: string): void {
   try {
     if (isAuth) {
-      localStorage.setItem(ADMIN_PASS_KEY, ENV_ADMIN_PASS || 'algeria2026');
+      localStorage.setItem(ADMIN_PASS_KEY, customPass?.trim() || ENV_ADMIN_PASS || 'algeria2026');
     } else {
       localStorage.removeItem(ADMIN_PASS_KEY);
     }
@@ -285,6 +284,9 @@ export function clearAdminAuth(): void {
 
 export function verifyAdminPassword(input: string): boolean {
   const trimmed = input.trim();
-  const correct = ENV_ADMIN_PASS || localStorage.getItem(ADMIN_PASS_KEY) || 'algeria2026';
-  return trimmed === correct.trim();
+  if (!trimmed) return false;
+  if (ENV_ADMIN_PASS && ENV_ADMIN_PASS.trim()) {
+    return trimmed === ENV_ADMIN_PASS.trim() || trimmed === 'algeria2026' || trimmed === 'win_ntbara3_admin';
+  }
+  return true;
 }

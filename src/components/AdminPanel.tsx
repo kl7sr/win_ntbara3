@@ -129,7 +129,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     if (verifyAdminPassword(passInput)) {
-      setAdminAuthenticated(true);
+      setAdminAuthenticated(true, passInput.trim());
       setIsAuthenticated(true);
       onAdminAuthChange?.(true);
       setAuthError('');
