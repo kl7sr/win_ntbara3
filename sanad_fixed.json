@@ -1,0 +1,2416 @@
+{
+  "metadata": {
+    "platform": "Sanad (سند) — Plateforme de Coordination & d'Aide Communautaire",
+    "exportedAt": "2026-08-30T19:55:06.717Z",
+    "version": "2026.08.30",
+    "totalWilayas": 4,
+    "totalCommunes": 151,
+    "totalVerifiedShelters": 32,
+    "totalVerifiedAssociations": 35,
+    "totalLiveSubmissions": {
+      "shelters": 0,
+      "associations": 0,
+      "feedbacks": 0,
+      "deletedItems": 0
+    }
+  },
+  "wilayas": [
+    {
+      "id": "18",
+      "name_ar": "جيجل",
+      "name_fr": "Jijel",
+      "center": [
+        36.75,
+        5.95
+      ],
+      "zoom": 10,
+      "bbox": [
+        36.4,
+        5.4,
+        37,
+        6.5
+      ],
+      "icon": "🌊",
+      "color": "teal",
+      "emergency_phone": "14 / 034 47 43 75"
+    },
+    {
+      "id": "06",
+      "name_ar": "بجاية",
+      "name_fr": "Béjaïa",
+      "center": [
+        36.65,
+        5.05
+      ],
+      "zoom": 10,
+      "bbox": [
+        36.2,
+        4.3,
+        37,
+        5.5
+      ],
+      "icon": "🌲",
+      "color": "emerald",
+      "emergency_phone": "14 / 034 10 10 14"
+    },
+    {
+      "id": "43",
+      "name_ar": "ميلة",
+      "name_fr": "Mila",
+      "center": [
+        36.45,
+        6.2
+      ],
+      "zoom": 10,
+      "bbox": [
+        36,
+        5.7,
+        36.8,
+        6.6
+      ],
+      "icon": "🌾",
+      "color": "amber",
+      "emergency_phone": "14 / 031 57 14 14"
+    },
+    {
+      "id": "21",
+      "name_ar": "سكيكدة",
+      "name_fr": "Skikda",
+      "center": [
+        36.8,
+        6.85
+      ],
+      "zoom": 10,
+      "bbox": [
+        36.4,
+        6.2,
+        37.2,
+        7.4
+      ],
+      "icon": "⚓",
+      "color": "cyan",
+      "emergency_phone": "14 / 038 75 14 14"
+    }
+  ],
+  "communes": [
+    {
+      "id": "1801",
+      "wilaya_id": "18",
+      "name_ar": "جيجل",
+      "name_fr": "Jijel",
+      "lat": 36.812,
+      "lng": 5.766
+    },
+    {
+      "id": "1802",
+      "wilaya_id": "18",
+      "name_ar": "إيراقن سويسي",
+      "name_fr": "Erraguene Souissi",
+      "lat": 36.5861,
+      "lng": 5.581
+    },
+    {
+      "id": "1803",
+      "wilaya_id": "18",
+      "name_ar": "العوانة",
+      "name_fr": "El Aouana",
+      "lat": 36.766,
+      "lng": 5.61
+    },
+    {
+      "id": "1804",
+      "wilaya_id": "18",
+      "name_ar": "زيامة منصورية",
+      "name_fr": "Ziama Mansouriah",
+      "lat": 36.666,
+      "lng": 5.483
+    },
+    {
+      "id": "1805",
+      "wilaya_id": "18",
+      "name_ar": "الطاهير",
+      "name_fr": "Taher",
+      "lat": 36.7719,
+      "lng": 5.8983
+    },
+    {
+      "id": "1806",
+      "wilaya_id": "18",
+      "name_ar": "الأمير عبد القادر",
+      "name_fr": "Emir Abdelkader",
+      "lat": 36.7519,
+      "lng": 5.8486
+    },
+    {
+      "id": "1807",
+      "wilaya_id": "18",
+      "name_ar": "الشقفة",
+      "name_fr": "Chekfa",
+      "lat": 36.7713,
+      "lng": 5.9595
+    },
+    {
+      "id": "1808",
+      "wilaya_id": "18",
+      "name_ar": "الشحنة",
+      "name_fr": "Chahna",
+      "lat": 36.6794,
+      "lng": 5.9572
+    },
+    {
+      "id": "1809",
+      "wilaya_id": "18",
+      "name_ar": "العنصر",
+      "name_fr": "El Ancer",
+      "lat": 36.7915,
+      "lng": 6.1584
+    },
+    {
+      "id": "1810",
+      "wilaya_id": "18",
+      "name_ar": "سيدي عبد العزيز",
+      "name_fr": "Sidi Abdelaziz",
+      "lat": 36.832,
+      "lng": 6.051
+    },
+    {
+      "id": "1811",
+      "wilaya_id": "18",
+      "name_ar": "الميلية",
+      "name_fr": "El Milia",
+      "lat": 36.75,
+      "lng": 6.2667
+    },
+    {
+      "id": "1812",
+      "wilaya_id": "18",
+      "name_ar": "سطارة",
+      "name_fr": "Settara",
+      "lat": 36.7194,
+      "lng": 6.3356
+    },
+    {
+      "id": "1813",
+      "wilaya_id": "18",
+      "name_ar": "برج الطهر",
+      "name_fr": "Bordj T'har",
+      "lat": 36.7469,
+      "lng": 6.0342
+    },
+    {
+      "id": "1814",
+      "wilaya_id": "18",
+      "name_ar": "جيملة",
+      "name_fr": "Djimla",
+      "lat": 36.5805,
+      "lng": 5.8842
+    },
+    {
+      "id": "1815",
+      "wilaya_id": "18",
+      "name_ar": "سلمى بن زيادة",
+      "name_fr": "Selma Benziada",
+      "lat": 36.6275,
+      "lng": 5.6472
+    },
+    {
+      "id": "1816",
+      "wilaya_id": "18",
+      "name_ar": "بوسيف أولاد عسكر",
+      "name_fr": "Boucif Ouled Askeur",
+      "lat": 36.6425,
+      "lng": 6.0192
+    },
+    {
+      "id": "1817",
+      "wilaya_id": "18",
+      "name_ar": "القنار نشفي",
+      "name_fr": "El Kennar Nouchfi",
+      "lat": 36.812,
+      "lng": 5.955
+    },
+    {
+      "id": "1818",
+      "wilaya_id": "18",
+      "name_ar": "وجانة",
+      "name_fr": "Oudjana",
+      "lat": 36.6905,
+      "lng": 5.8882
+    },
+    {
+      "id": "1819",
+      "wilaya_id": "18",
+      "name_ar": "تاكسنة",
+      "name_fr": "Texenna",
+      "lat": 36.661,
+      "lng": 5.791
+    },
+    {
+      "id": "1820",
+      "wilaya_id": "18",
+      "name_ar": "الجمعة بني حبيبي",
+      "name_fr": "Djoumaâ Beni Habibi",
+      "lat": 36.8089,
+      "lng": 6.1222
+    },
+    {
+      "id": "1821",
+      "wilaya_id": "18",
+      "name_ar": "سيدي معروف",
+      "name_fr": "Sidi Marouf",
+      "lat": 36.6426,
+      "lng": 6.2734
+    },
+    {
+      "id": "1822",
+      "wilaya_id": "18",
+      "name_ar": "بوراوي بلهادف",
+      "name_fr": "Bouraoui Belhadef",
+      "lat": 36.6988,
+      "lng": 6.1019
+    },
+    {
+      "id": "1823",
+      "wilaya_id": "18",
+      "name_ar": "بودريعة بني ياجيس",
+      "name_fr": "Boudriaa Ben Yadjis",
+      "lat": 36.5881,
+      "lng": 5.7827
+    },
+    {
+      "id": "1824",
+      "wilaya_id": "18",
+      "name_ar": "أولاد رابح",
+      "name_fr": "Ouled Rabah",
+      "lat": 36.5969,
+      "lng": 6.1699
+    },
+    {
+      "id": "1825",
+      "wilaya_id": "18",
+      "name_ar": "خيري واد عجول",
+      "name_fr": "Kheïri Oued Adjoul",
+      "lat": 36.835,
+      "lng": 6.143
+    },
+    {
+      "id": "1826",
+      "wilaya_id": "18",
+      "name_ar": "قاوس",
+      "name_fr": "Kaous",
+      "lat": 36.7703,
+      "lng": 5.8136
+    },
+    {
+      "id": "1827",
+      "wilaya_id": "18",
+      "name_ar": "غبالة",
+      "name_fr": "Ghebala",
+      "lat": 36.6285,
+      "lng": 6.2397
+    },
+    {
+      "id": "1828",
+      "wilaya_id": "18",
+      "name_ar": "أولاد يحيى خدروش",
+      "name_fr": "Ouled Yahia Khedrouche",
+      "lat": 36.7114,
+      "lng": 6.2008
+    },
+    {
+      "id": "0601",
+      "wilaya_id": "06",
+      "name_ar": "بجاية",
+      "name_fr": "Béjaïa",
+      "lat": 36.7559,
+      "lng": 5.0843
+    },
+    {
+      "id": "0602",
+      "wilaya_id": "06",
+      "name_ar": "أميزور",
+      "name_fr": "Amizour",
+      "lat": 36.6403,
+      "lng": 4.9042
+    },
+    {
+      "id": "0603",
+      "wilaya_id": "06",
+      "name_ar": "فرعون",
+      "name_fr": "Feraoun",
+      "lat": 36.5611,
+      "lng": 4.8722
+    },
+    {
+      "id": "0604",
+      "wilaya_id": "06",
+      "name_ar": "تاوريرت آغيل",
+      "name_fr": "Taourirt Ighil",
+      "lat": 36.6978,
+      "lng": 4.76
+    },
+    {
+      "id": "0605",
+      "wilaya_id": "06",
+      "name_ar": "شلاطة",
+      "name_fr": "Chellata",
+      "lat": 36.5369,
+      "lng": 4.5028
+    },
+    {
+      "id": "0606",
+      "wilaya_id": "06",
+      "name_ar": "تمقرة",
+      "name_fr": "Tamokra",
+      "lat": 36.3986,
+      "lng": 4.6642
+    },
+    {
+      "id": "0607",
+      "wilaya_id": "06",
+      "name_ar": "تيمزريت",
+      "name_fr": "Timezrit",
+      "lat": 36.65,
+      "lng": 4.77
+    },
+    {
+      "id": "0608",
+      "wilaya_id": "06",
+      "name_ar": "سوق الاثنين",
+      "name_fr": "Souk El Ténine",
+      "lat": 36.6231,
+      "lng": 5.3356
+    },
+    {
+      "id": "0609",
+      "wilaya_id": "06",
+      "name_ar": "مسيسنة",
+      "name_fr": "M'cisna",
+      "lat": 36.5683,
+      "lng": 4.6733
+    },
+    {
+      "id": "0610",
+      "wilaya_id": "06",
+      "name_ar": "تينبذار",
+      "name_fr": "Tinabdher",
+      "lat": 36.62,
+      "lng": 4.69
+    },
+    {
+      "id": "0611",
+      "wilaya_id": "06",
+      "name_ar": "تيشي",
+      "name_fr": "Tichy",
+      "lat": 36.6694,
+      "lng": 5.1639
+    },
+    {
+      "id": "0612",
+      "wilaya_id": "06",
+      "name_ar": "سمعون",
+      "name_fr": "Semaoun",
+      "lat": 36.6083,
+      "lng": 4.8458
+    },
+    {
+      "id": "0613",
+      "wilaya_id": "06",
+      "name_ar": "كنديرة",
+      "name_fr": "Kendira",
+      "lat": 36.54,
+      "lng": 5.05
+    },
+    {
+      "id": "0614",
+      "wilaya_id": "06",
+      "name_ar": "تيفرة",
+      "name_fr": "Tifra",
+      "lat": 36.63,
+      "lng": 4.75
+    },
+    {
+      "id": "0615",
+      "wilaya_id": "06",
+      "name_ar": "آغرام",
+      "name_fr": "Ighram",
+      "lat": 36.52,
+      "lng": 4.55
+    },
+    {
+      "id": "0616",
+      "wilaya_id": "06",
+      "name_ar": "أمالو",
+      "name_fr": "Amalou",
+      "lat": 36.53,
+      "lng": 4.63
+    },
+    {
+      "id": "0617",
+      "wilaya_id": "06",
+      "name_ar": "إغيل علي",
+      "name_fr": "Ighil Ali",
+      "lat": 36.33,
+      "lng": 4.47
+    },
+    {
+      "id": "0618",
+      "wilaya_id": "06",
+      "name_ar": "فناية الماثن",
+      "name_fr": "Fenaïa Ilmaten",
+      "lat": 36.68,
+      "lng": 4.88
+    },
+    {
+      "id": "0619",
+      "wilaya_id": "06",
+      "name_ar": "توجة",
+      "name_fr": "Toudja",
+      "lat": 36.7583,
+      "lng": 4.8931
+    },
+    {
+      "id": "0620",
+      "wilaya_id": "06",
+      "name_ar": "درقينة",
+      "name_fr": "Darguina",
+      "lat": 36.5694,
+      "lng": 5.2986
+    },
+    {
+      "id": "0621",
+      "wilaya_id": "06",
+      "name_ar": "سيدي عياد",
+      "name_fr": "Sidi Ayad",
+      "lat": 36.62,
+      "lng": 4.78
+    },
+    {
+      "id": "0622",
+      "wilaya_id": "06",
+      "name_ar": "أوقاس",
+      "name_fr": "Aokas",
+      "lat": 36.6431,
+      "lng": 5.2444
+    },
+    {
+      "id": "0623",
+      "wilaya_id": "06",
+      "name_ar": "بني جليل",
+      "name_fr": "Beni Djellil",
+      "lat": 36.57,
+      "lng": 4.82
+    },
+    {
+      "id": "0624",
+      "wilaya_id": "06",
+      "name_ar": "آدكار",
+      "name_fr": "Adekar",
+      "lat": 36.73,
+      "lng": 4.67
+    },
+    {
+      "id": "0625",
+      "wilaya_id": "06",
+      "name_ar": "أقبو",
+      "name_fr": "Akbou",
+      "lat": 36.4575,
+      "lng": 4.535
+    },
+    {
+      "id": "0626",
+      "wilaya_id": "06",
+      "name_ar": "صدوق",
+      "name_fr": "Seddouk",
+      "lat": 36.55,
+      "lng": 4.68
+    },
+    {
+      "id": "0627",
+      "wilaya_id": "06",
+      "name_ar": "تازمالت",
+      "name_fr": "Tazmalt",
+      "lat": 36.3861,
+      "lng": 4.3986
+    },
+    {
+      "id": "0628",
+      "wilaya_id": "06",
+      "name_ar": "آيت أرزين",
+      "name_fr": "Aït R'zine",
+      "lat": 36.38,
+      "lng": 4.54
+    },
+    {
+      "id": "0629",
+      "wilaya_id": "06",
+      "name_ar": "شميني",
+      "name_fr": "Chemini",
+      "lat": 36.6,
+      "lng": 4.61
+    },
+    {
+      "id": "0630",
+      "wilaya_id": "06",
+      "name_ar": "سوق أوفلة",
+      "name_fr": "Souk Oufella",
+      "lat": 36.605,
+      "lng": 4.66
+    },
+    {
+      "id": "0631",
+      "wilaya_id": "06",
+      "name_ar": "طيبان",
+      "name_fr": "Tibane",
+      "lat": 36.61,
+      "lng": 4.64
+    },
+    {
+      "id": "0632",
+      "wilaya_id": "06",
+      "name_ar": "تالة حمزة",
+      "name_fr": "Tala Hamza",
+      "lat": 36.7167,
+      "lng": 5.0333
+    },
+    {
+      "id": "0633",
+      "wilaya_id": "06",
+      "name_ar": "برباشة",
+      "name_fr": "Barbacha",
+      "lat": 36.5667,
+      "lng": 4.9667
+    },
+    {
+      "id": "0634",
+      "wilaya_id": "06",
+      "name_ar": "بني كسيلة",
+      "name_fr": "Beni Ksila",
+      "lat": 36.8333,
+      "lng": 4.7
+    },
+    {
+      "id": "0635",
+      "wilaya_id": "06",
+      "name_ar": "أوزلاقن",
+      "name_fr": "Ouzellaguen",
+      "lat": 36.54,
+      "lng": 4.59
+    },
+    {
+      "id": "0636",
+      "wilaya_id": "06",
+      "name_ar": "بوحمزة",
+      "name_fr": "Bouhamza",
+      "lat": 36.4667,
+      "lng": 4.65
+    },
+    {
+      "id": "0637",
+      "wilaya_id": "06",
+      "name_ar": "تاسكريوت",
+      "name_fr": "Taskriout",
+      "lat": 36.5333,
+      "lng": 5.25
+    },
+    {
+      "id": "0638",
+      "wilaya_id": "06",
+      "name_ar": "بوخليفة",
+      "name_fr": "Boukhelifa",
+      "lat": 36.6333,
+      "lng": 5.1
+    },
+    {
+      "id": "0639",
+      "wilaya_id": "06",
+      "name_ar": "سيدي عيش",
+      "name_fr": "Sidi Aïch",
+      "lat": 36.6139,
+      "lng": 4.6944
+    },
+    {
+      "id": "0640",
+      "wilaya_id": "06",
+      "name_ar": "القصر",
+      "name_fr": "El Kseur",
+      "lat": 36.6833,
+      "lng": 4.85
+    },
+    {
+      "id": "0641",
+      "wilaya_id": "06",
+      "name_ar": "ملبو",
+      "name_fr": "Melbou",
+      "lat": 36.6333,
+      "lng": 5.35
+    },
+    {
+      "id": "0642",
+      "wilaya_id": "06",
+      "name_ar": "أكفادو",
+      "name_fr": "Akfadou",
+      "lat": 36.7,
+      "lng": 4.63
+    },
+    {
+      "id": "0643",
+      "wilaya_id": "06",
+      "name_ar": "لفلاي",
+      "name_fr": "Leflaye",
+      "lat": 36.5833,
+      "lng": 4.6333
+    },
+    {
+      "id": "0644",
+      "wilaya_id": "06",
+      "name_ar": "خراطة",
+      "name_fr": "Kherrata",
+      "lat": 36.4931,
+      "lng": 5.2778
+    },
+    {
+      "id": "0645",
+      "wilaya_id": "06",
+      "name_ar": "ذراع القايد",
+      "name_fr": "Draâ El Kaïd",
+      "lat": 36.45,
+      "lng": 5.35
+    },
+    {
+      "id": "0646",
+      "wilaya_id": "06",
+      "name_ar": "تامريجت",
+      "name_fr": "Tamridjet",
+      "lat": 36.55,
+      "lng": 5.38
+    },
+    {
+      "id": "0647",
+      "wilaya_id": "06",
+      "name_ar": "آيت سماعيل",
+      "name_fr": "Aït Smaïl",
+      "lat": 36.5,
+      "lng": 5.2
+    },
+    {
+      "id": "0648",
+      "wilaya_id": "06",
+      "name_ar": "بوجليل",
+      "name_fr": "Boujellil",
+      "lat": 36.3333,
+      "lng": 4.4167
+    },
+    {
+      "id": "0649",
+      "wilaya_id": "06",
+      "name_ar": "تيزي أنبربار",
+      "name_fr": "Tizi N'Berber",
+      "lat": 36.5833,
+      "lng": 5.2333
+    },
+    {
+      "id": "0650",
+      "wilaya_id": "06",
+      "name_ar": "بني معوش",
+      "name_fr": "Beni Maouche",
+      "lat": 36.4833,
+      "lng": 4.8833
+    },
+    {
+      "id": "0651",
+      "wilaya_id": "06",
+      "name_ar": "وادي غير",
+      "name_fr": "Oued Ghir",
+      "lat": 36.7167,
+      "lng": 4.9833
+    },
+    {
+      "id": "0652",
+      "wilaya_id": "06",
+      "name_ar": "بني مليكش",
+      "name_fr": "Beni Mellikeche",
+      "lat": 36.4167,
+      "lng": 4.4
+    },
+    {
+      "id": "4301",
+      "wilaya_id": "43",
+      "name_ar": "ميلة",
+      "name_fr": "Mila",
+      "lat": 36.4503,
+      "lng": 6.2644
+    },
+    {
+      "id": "4302",
+      "wilaya_id": "43",
+      "name_ar": "فرجيوة",
+      "name_fr": "Ferdjioua",
+      "lat": 36.4056,
+      "lng": 5.9903
+    },
+    {
+      "id": "4303",
+      "wilaya_id": "43",
+      "name_ar": "شلغوم العيد",
+      "name_fr": "Chelghoum Laïd",
+      "lat": 36.1625,
+      "lng": 6.1667
+    },
+    {
+      "id": "4304",
+      "wilaya_id": "43",
+      "name_ar": "التلاغمة",
+      "name_fr": "Teleghma",
+      "lat": 36.1158,
+      "lng": 6.3639
+    },
+    {
+      "id": "4305",
+      "wilaya_id": "43",
+      "name_ar": "تاجنانت",
+      "name_fr": "Tadjenanet",
+      "lat": 36.1264,
+      "lng": 5.9861
+    },
+    {
+      "id": "4306",
+      "wilaya_id": "43",
+      "name_ar": "القرارم قوقة",
+      "name_fr": "Grarem Gouga",
+      "lat": 36.5186,
+      "lng": 6.2683
+    },
+    {
+      "id": "4307",
+      "wilaya_id": "43",
+      "name_ar": "سيدي مروان",
+      "name_fr": "Sidi Merouane",
+      "lat": 36.5194,
+      "lng": 6.2611
+    },
+    {
+      "id": "4308",
+      "wilaya_id": "43",
+      "name_ar": "وادي النجاء",
+      "name_fr": "Oued Endja",
+      "lat": 36.4389,
+      "lng": 6.1194
+    },
+    {
+      "id": "4309",
+      "wilaya_id": "43",
+      "name_ar": "وادي العثمانية",
+      "name_fr": "Oued Athmania",
+      "lat": 36.25,
+      "lng": 6.2833
+    },
+    {
+      "id": "4310",
+      "wilaya_id": "43",
+      "name_ar": "وادي سقان",
+      "name_fr": "Oued Seguen",
+      "lat": 36.0333,
+      "lng": 6.3
+    },
+    {
+      "id": "4311",
+      "wilaya_id": "43",
+      "name_ar": "زغاية",
+      "name_fr": "Zeghaia",
+      "lat": 36.4333,
+      "lng": 6.1667
+    },
+    {
+      "id": "4312",
+      "wilaya_id": "43",
+      "name_ar": "رجاص",
+      "name_fr": "Ahmed Rachedi",
+      "lat": 36.45,
+      "lng": 6.0167
+    },
+    {
+      "id": "4313",
+      "wilaya_id": "43",
+      "name_ar": "ترعي باينان",
+      "name_fr": "Terrai Bainen",
+      "lat": 36.5833,
+      "lng": 6.15
+    },
+    {
+      "id": "4315",
+      "wilaya_id": "43",
+      "name_ar": "تسالة لمطاعي",
+      "name_fr": "Tessala Lemtai",
+      "lat": 36.6333,
+      "lng": 6.1667
+    },
+    {
+      "id": "4316",
+      "wilaya_id": "43",
+      "name_ar": "تسدان حدادة",
+      "name_fr": "Tesdan Haddada",
+      "lat": 36.4333,
+      "lng": 5.8667
+    },
+    {
+      "id": "4317",
+      "wilaya_id": "43",
+      "name_ar": "مينار زارزة",
+      "name_fr": "Minar Zarza",
+      "lat": 36.4667,
+      "lng": 5.8333
+    },
+    {
+      "id": "4318",
+      "wilaya_id": "43",
+      "name_ar": "عين البيضاء حريش",
+      "name_fr": "Aïn Beida Harriche",
+      "lat": 36.4167,
+      "lng": 5.8833
+    },
+    {
+      "id": "4319",
+      "wilaya_id": "43",
+      "name_ar": "الرواشد",
+      "name_fr": "Rouached",
+      "lat": 36.45,
+      "lng": 6.05
+    },
+    {
+      "id": "4320",
+      "wilaya_id": "43",
+      "name_ar": "العياضي برباس",
+      "name_fr": "Elayadi Barbes",
+      "lat": 36.3833,
+      "lng": 5.95
+    },
+    {
+      "id": "4321",
+      "wilaya_id": "43",
+      "name_ar": "بوحاتم",
+      "name_fr": "Bouhatem",
+      "lat": 36.3333,
+      "lng": 6.05
+    },
+    {
+      "id": "4322",
+      "wilaya_id": "43",
+      "name_ar": "دراجي بوصلاح",
+      "name_fr": "Derradji Bousselah",
+      "lat": 36.3,
+      "lng": 6.0333
+    },
+    {
+      "id": "4323",
+      "wilaya_id": "43",
+      "name_ar": "عين التين",
+      "name_fr": "Aïn Tine",
+      "lat": 36.4333,
+      "lng": 6.3333
+    },
+    {
+      "id": "4324",
+      "wilaya_id": "43",
+      "name_ar": "سيدي خليفة",
+      "name_fr": "Sidi Khelifa",
+      "lat": 36.3167,
+      "lng": 6.3667
+    },
+    {
+      "id": "4325",
+      "wilaya_id": "43",
+      "name_ar": "عين الملوك",
+      "name_fr": "Aïn Mellouk",
+      "lat": 36.1833,
+      "lng": 6.3
+    },
+    {
+      "id": "4326",
+      "wilaya_id": "43",
+      "name_ar": "المشيرة",
+      "name_fr": "El Mechira",
+      "lat": 36.0333,
+      "lng": 6.15
+    },
+    {
+      "id": "4327",
+      "wilaya_id": "43",
+      "name_ar": "بن يحيى عبد الرحمان",
+      "name_fr": "Benyahia Abderrahmane",
+      "lat": 36.1167,
+      "lng": 6.0833
+    },
+    {
+      "id": "4328",
+      "wilaya_id": "43",
+      "name_ar": "أولاد خلوف",
+      "name_fr": "Ouled Khalouf",
+      "lat": 36.0667,
+      "lng": 5.95
+    },
+    {
+      "id": "4329",
+      "wilaya_id": "43",
+      "name_ar": "يحيى بن قشة",
+      "name_fr": "Yahia Beni Guecha",
+      "lat": 36.3667,
+      "lng": 5.8333
+    },
+    {
+      "id": "4330",
+      "wilaya_id": "43",
+      "name_ar": "حمالة",
+      "name_fr": "Hamala",
+      "lat": 36.5667,
+      "lng": 6.3167
+    },
+    {
+      "id": "4331",
+      "wilaya_id": "43",
+      "name_ar": "الشيقارة",
+      "name_fr": "Chigara",
+      "lat": 36.5,
+      "lng": 6.1833
+    },
+    {
+      "id": "4332",
+      "wilaya_id": "43",
+      "name_ar": "عميرة أراس",
+      "name_fr": "Amira Arrès",
+      "lat": 36.5167,
+      "lng": 6.0667
+    },
+    {
+      "id": "4333",
+      "wilaya_id": "43",
+      "name_ar": "تبرقنت",
+      "name_fr": "Tiberguent",
+      "lat": 36.4167,
+      "lng": 6
+    },
+    {
+      "id": "2101",
+      "wilaya_id": "21",
+      "name_ar": "سكيكدة",
+      "name_fr": "Skikda",
+      "lat": 36.8764,
+      "lng": 6.9092
+    },
+    {
+      "id": "2102",
+      "wilaya_id": "21",
+      "name_ar": "القل",
+      "name_fr": "Collo",
+      "lat": 37.0069,
+      "lng": 6.5603
+    },
+    {
+      "id": "2103",
+      "wilaya_id": "21",
+      "name_ar": "عزابة",
+      "name_fr": "Azzaba",
+      "lat": 36.7456,
+      "lng": 7.1067
+    },
+    {
+      "id": "2104",
+      "wilaya_id": "21",
+      "name_ar": "الحروش",
+      "name_fr": "El Harrouch",
+      "lat": 36.7328,
+      "lng": 6.8372
+    },
+    {
+      "id": "2105",
+      "wilaya_id": "21",
+      "name_ar": "تمالوس",
+      "name_fr": "Tamalous",
+      "lat": 36.8389,
+      "lng": 6.6431
+    },
+    {
+      "id": "2106",
+      "wilaya_id": "21",
+      "name_ar": "فلفلة",
+      "name_fr": "Filfila",
+      "lat": 36.9,
+      "lng": 7.0333
+    },
+    {
+      "id": "2107",
+      "wilaya_id": "21",
+      "name_ar": "حمادي كرومة",
+      "name_fr": "Hamadi Krouma",
+      "lat": 36.8333,
+      "lng": 6.9
+    },
+    {
+      "id": "2108",
+      "wilaya_id": "21",
+      "name_ar": "الحدائق",
+      "name_fr": "El Hadaiek",
+      "lat": 36.8167,
+      "lng": 6.8833
+    },
+    {
+      "id": "2109",
+      "wilaya_id": "21",
+      "name_ar": "رمضان جمال",
+      "name_fr": "Ramdane Djamel",
+      "lat": 36.75,
+      "lng": 6.9
+    },
+    {
+      "id": "2110",
+      "wilaya_id": "21",
+      "name_ar": "بني بشير",
+      "name_fr": "Beni Bachir",
+      "lat": 36.7833,
+      "lng": 6.9833
+    },
+    {
+      "id": "2111",
+      "wilaya_id": "21",
+      "name_ar": "صالح بوالشعور",
+      "name_fr": "Salah Bouchaour",
+      "lat": 36.6833,
+      "lng": 6.8167
+    },
+    {
+      "id": "2112",
+      "wilaya_id": "21",
+      "name_ar": "أمجاز الدشيش",
+      "name_fr": "Emdjez Edchich",
+      "lat": 36.6667,
+      "lng": 6.8833
+    },
+    {
+      "id": "2113",
+      "wilaya_id": "21",
+      "name_ar": "سيدي مزغيش",
+      "name_fr": "Sidi Mezghiche",
+      "lat": 36.6833,
+      "lng": 6.7167
+    },
+    {
+      "id": "2114",
+      "wilaya_id": "21",
+      "name_ar": "عين بوزيان",
+      "name_fr": "Aïn Bouziane",
+      "lat": 36.6167,
+      "lng": 6.7833
+    },
+    {
+      "id": "2115",
+      "wilaya_id": "21",
+      "name_ar": "بني ولبان",
+      "name_fr": "Beni Oulbane",
+      "lat": 36.5667,
+      "lng": 6.7333
+    },
+    {
+      "id": "2116",
+      "wilaya_id": "21",
+      "name_ar": "أم الطوب",
+      "name_fr": "Oum Toub",
+      "lat": 36.6833,
+      "lng": 6.5833
+    },
+    {
+      "id": "2117",
+      "wilaya_id": "21",
+      "name_ar": "الكركرة",
+      "name_fr": "Kerkera",
+      "lat": 36.9333,
+      "lng": 6.5833
+    },
+    {
+      "id": "2118",
+      "wilaya_id": "21",
+      "name_ar": "بين الويدان",
+      "name_fr": "Bain El Ouidane",
+      "lat": 36.8667,
+      "lng": 6.5333
+    },
+    {
+      "id": "2119",
+      "wilaya_id": "21",
+      "name_ar": "الشرايع",
+      "name_fr": "Cheraia",
+      "lat": 37,
+      "lng": 6.4833
+    },
+    {
+      "id": "2120",
+      "wilaya_id": "21",
+      "name_ar": "بني زيد",
+      "name_fr": "Beni Zid",
+      "lat": 36.95,
+      "lng": 6.45
+    },
+    {
+      "id": "2121",
+      "wilaya_id": "21",
+      "name_ar": "القنواع",
+      "name_fr": "Kanoua",
+      "lat": 36.9333,
+      "lng": 6.3833
+    },
+    {
+      "id": "2122",
+      "wilaya_id": "21",
+      "name_ar": "زيتونة",
+      "name_fr": "Zitouna",
+      "lat": 36.9167,
+      "lng": 6.4167
+    },
+    {
+      "id": "2123",
+      "wilaya_id": "21",
+      "name_ar": "أولاد عطية",
+      "name_fr": "Ouled Attia",
+      "lat": 36.9333,
+      "lng": 6.3167
+    },
+    {
+      "id": "2124",
+      "wilaya_id": "21",
+      "name_ar": "وادي الزهور",
+      "name_fr": "Oued Zehour",
+      "lat": 36.95,
+      "lng": 6.2833
+    },
+    {
+      "id": "2125",
+      "wilaya_id": "21",
+      "name_ar": "خناق مايون",
+      "name_fr": "Kheneg Mayoum",
+      "lat": 36.9167,
+      "lng": 6.25
+    },
+    {
+      "id": "2126",
+      "wilaya_id": "21",
+      "name_ar": "عين قشرة",
+      "name_fr": "Aïn Kechra",
+      "lat": 36.75,
+      "lng": 6.4333
+    },
+    {
+      "id": "2127",
+      "wilaya_id": "21",
+      "name_ar": "الولجة بوالبلوط",
+      "name_fr": "Ouldja Boulballout",
+      "lat": 36.7167,
+      "lng": 6.45
+    },
+    {
+      "id": "2128",
+      "wilaya_id": "21",
+      "name_ar": "بوشطاطة",
+      "name_fr": "Bouchtata",
+      "lat": 36.8,
+      "lng": 6.7833
+    },
+    {
+      "id": "2129",
+      "wilaya_id": "21",
+      "name_ar": "زردازة",
+      "name_fr": "Zerdaza",
+      "lat": 36.6,
+      "lng": 6.95
+    },
+    {
+      "id": "2130",
+      "wilaya_id": "21",
+      "name_ar": "أولاد أحبابة",
+      "name_fr": "Ouled Habbeba",
+      "lat": 36.5667,
+      "lng": 7.0833
+    },
+    {
+      "id": "2131",
+      "wilaya_id": "21",
+      "name_ar": "لغدير",
+      "name_fr": "El Ghedir",
+      "lat": 36.7167,
+      "lng": 7.0167
+    },
+    {
+      "id": "2132",
+      "wilaya_id": "21",
+      "name_ar": "جندل",
+      "name_fr": "Djendel Saadi Mohamed",
+      "lat": 36.7833,
+      "lng": 7.15
+    },
+    {
+      "id": "2133",
+      "wilaya_id": "21",
+      "name_ar": "عين شرشار",
+      "name_fr": "Aïn Charchar",
+      "lat": 36.7167,
+      "lng": 7.2167
+    },
+    {
+      "id": "2134",
+      "wilaya_id": "21",
+      "name_ar": "بكوش لخضر",
+      "name_fr": "Bekkouche Lakhdar",
+      "lat": 36.75,
+      "lng": 7.3
+    },
+    {
+      "id": "2135",
+      "wilaya_id": "21",
+      "name_ar": "بن عزوز",
+      "name_fr": "Ben Azzouz",
+      "lat": 36.85,
+      "lng": 7.25
+    },
+    {
+      "id": "2136",
+      "wilaya_id": "21",
+      "name_ar": "المرسى",
+      "name_fr": "El Marsa",
+      "lat": 36.9167,
+      "lng": 7.2167
+    },
+    {
+      "id": "2137",
+      "wilaya_id": "21",
+      "name_ar": "السبت",
+      "name_fr": "Es Sebt",
+      "lat": 36.8167,
+      "lng": 7.2
+    },
+    {
+      "id": "2138",
+      "wilaya_id": "21",
+      "name_ar": "عين زويت",
+      "name_fr": "Aïn Zouit",
+      "lat": 36.9167,
+      "lng": 6.8333
+    },
+    {
+      "id": "2139",
+      "wilaya_id": "21",
+      "name_ar": "بودوخة",
+      "name_fr": "Boudoukha",
+      "lat": 36.85,
+      "lng": 6.4833
+    }
+  ],
+  "criticalZones": [
+    {
+      "id": "cz1",
+      "commune_id": "1820",
+      "wilaya_id": "18",
+      "name": "الجمعة بني حبيبي",
+      "places": "المناطق السكنية، مشاتي الشارع الرئيسي والمحيط الغابي",
+      "priority": "أولوية إنسانية عالية",
+      "priority_level": "critical",
+      "lat": 36.8089,
+      "lng": 6.1222,
+      "advice": "أولوية إنسانية قصوى؛ اسأل وتأكد من احتياج الأسر المسجلة محلياً قبل إرسال الشحنات.",
+      "needs": [
+        "مياه معقمة",
+        "حليب وحفاضات أطفال",
+        "أفرشة وبطانيات",
+        "طرود غذائية"
+      ]
+    },
+    {
+      "id": "cz2",
+      "commune_id": "1819",
+      "wilaya_id": "18",
+      "name": "تاكسنة",
+      "places": "بوخلف، بوزنطار، الرازيانج، الغريانة، أم ثلاثين، الكلم 14",
+      "priority": "تضاريس جبلية وعرة",
+      "priority_level": "high",
+      "lat": 36.661,
+      "lng": 5.791,
+      "advice": "مسالك جبلية وعرة؛ تتطلب مركبات دفع رباعي وشاحنات صغيرة محلية (توزيع آخر ميل).",
+      "needs": [
+        "مركبات 4x4 للتوزيع",
+        "خيام وقياطين",
+        "أدوات تنظيف ومجارف",
+        "أعلاف للمواشي"
+      ]
+    },
+    {
+      "id": "cz3",
+      "commune_id": "1804",
+      "wilaya_id": "18",
+      "name": "زيامة منصورية",
+      "places": "أولاد علي، الشريعية، محيط تازة والكهوف العجيبة",
+      "priority": "مسالك ساحلية وجبلية",
+      "priority_level": "high",
+      "lat": 36.666,
+      "lng": 5.483,
+      "advice": "تضاريس ومنعطفات وعرة؛ لا تعتمد على الشاحنات الكبيرة وحدها لدخول القرى.",
+      "needs": [
+        "مياه صالحة للشرب",
+        "أواني وأدوات طبخ",
+        "أفرشة",
+        "مواد تعقيم"
+      ]
+    },
+    {
+      "id": "cz4",
+      "commune_id": "1807",
+      "wilaya_id": "18",
+      "name": "الشقفة / برج الطهر",
+      "places": "منطقة السبت، محيط البلديتين، المداشر الغابية",
+      "priority": "أفرشة ومستلزمات منزل",
+      "priority_level": "high",
+      "lat": 36.7713,
+      "lng": 5.9595,
+      "advice": "الأفرشة والبطانيات، أدوات التنظيف ومياه الشرب أهم حالياً من تكرار المواد الغذائية.",
+      "needs": [
+        "أفرشة وبطانيات",
+        "أدوات تنظيف ومكانس",
+        "خراطيم ودلاء",
+        "مياه نقية"
+      ]
+    },
+    {
+      "id": "cz5",
+      "commune_id": "1811",
+      "wilaya_id": "18",
+      "name": "الميلية / أولاد يحيى خدروش",
+      "places": "مشاط، بوعقبة والمناطق الغابية المحيطة",
+      "priority": "احتياج مختلط وإصلاح",
+      "priority_level": "high",
+      "lat": 36.75,
+      "lng": 6.2667,
+      "advice": "مركز استقبال رئيسي للقوافل الشرقية؛ تفريغ المساعدات وتوجيهها للمداشر الغابية (مشاط وبوعقبة) عبر شاحنات صغيرة.",
+      "needs": [
+        "أدوات سباكة وكهرباء",
+        "مضخات مياه",
+        "طرود غذائية",
+        "دعم صحي"
+      ]
+    },
+    {
+      "id": "cz6",
+      "commune_id": "1809",
+      "wilaya_id": "18",
+      "name": "العنصر / وجانة / الشحنة",
+      "places": "مناطق متفرقة ظهرت في عمليات الإجلاء الميداني",
+      "priority": "تنسيق مسبق مطلوب",
+      "priority_level": "medium",
+      "lat": 36.7915,
+      "lng": 6.1584,
+      "advice": "انتبه هذه مجرد بيانات مجمعة يجب التأكد بالتواصل مع الجهة المُنسّقة",
+      "needs": [
+        "أفرشة",
+        "طرود غذائية",
+        "أدوات تنظيف"
+      ]
+    },
+    {
+      "id": "cz_bg1",
+      "commune_id": "0644",
+      "wilaya_id": "06",
+      "name": "خراطة / تاسكريوت / ذراع القايد",
+      "places": "مضيق شعبة الآخرة والمداشر الجبلية المحيطة بسلسلة البابور",
+      "priority": "مسالك جبلية وعرة",
+      "priority_level": "critical",
+      "lat": 36.4931,
+      "lng": 5.2778,
+      "advice": "شريان تواصل جبلي هام؛ التنسيق مع لجان القرى المحلية ضروري قبل التوغل.",
+      "needs": [
+        "مياه صالحة للشرب",
+        "أدوية حروق وإسعافات",
+        "أفرشة وبطانيات",
+        "أعلاف مواشي"
+      ]
+    },
+    {
+      "id": "cz_bg2",
+      "commune_id": "0614",
+      "wilaya_id": "06",
+      "name": "أدكار / أكفادو / تاوريرت إغيل",
+      "places": "المرتفعات الغابية لغابة الأكفادو والقرى المجاورة",
+      "priority": "غابات كثيفة وتضاريس عالية",
+      "priority_level": "high",
+      "lat": 36.715,
+      "lng": 4.65,
+      "advice": "تتطلب مركبات دفع رباعي وشاحنات متوسطة لصعوبة المنحدرات الجبلية.",
+      "needs": [
+        "مضخات وخراطيم مياه",
+        "خيام إيواء",
+        "حليب وحفاضات أطفال",
+        "طرود غذائية"
+      ]
+    },
+    {
+      "id": "cz_bg3",
+      "commune_id": "0607",
+      "wilaya_id": "06",
+      "name": "تيشي / أوقاس / مالبو",
+      "places": "الشريط الساحلي والمداشر الجبلية المشرفة على خليج بجاية",
+      "priority": "إيواء عاجل وإمداد",
+      "priority_level": "high",
+      "lat": 36.65,
+      "lng": 5.2,
+      "advice": "نقاط استقبال متقدمة للمتضررين؛ ينصح بالتنسيق مع مراكز الإيواء بدار الشباب.",
+      "needs": [
+        "أفرشة ومفارش",
+        "مياه معقمة",
+        "مواد تنظيف وتعقيم",
+        "ملابس"
+      ]
+    },
+    {
+      "id": "cz_sk1",
+      "commune_id": "2102",
+      "wilaya_id": "21",
+      "name": "القل / بني زيد / الشرايع / قنواع",
+      "places": "المناطق الغابية الوعرة في شبه جزيرة القل والكتلة الجبلية",
+      "priority": "تضاريس غابية كثيفة وعزلة",
+      "priority_level": "critical",
+      "lat": 37.0069,
+      "lng": 6.5603,
+      "advice": "تتطلب سيارات دفع رباعي للدخول إلى المناطق المعزولة في المرتفعات الغابية.",
+      "needs": [
+        "طرود غذائية",
+        "مياه نقية",
+        "خراطيم ومضخات",
+        "أفرشة"
+      ]
+    },
+    {
+      "id": "cz_sk2",
+      "commune_id": "2103",
+      "wilaya_id": "21",
+      "name": "تمالوس / عين قشرة / أم الطوب",
+      "places": "الأحراش والمزارع والمناطق المحاذية للغابات الغربية",
+      "priority": "دعم فلاحي وسكني",
+      "priority_level": "high",
+      "lat": 36.8389,
+      "lng": 6.6431,
+      "advice": "التنسيق مع خلايا الأزمة البلدية لتوجيه التبرعات نحو المداشر الأكثر بعداً.",
+      "needs": [
+        "أعلاف مواشي",
+        "أدوات تنظيف ومجارف",
+        "أفرشة",
+        "مواد إسعافات"
+      ]
+    },
+    {
+      "id": "cz_sk3",
+      "commune_id": "2104",
+      "wilaya_id": "21",
+      "name": "الحروش / عزابة / فلفلة",
+      "places": "محاور التوزيع والإيواء وقرى السفوح الجبلية",
+      "priority": "توزيع وفرز رئيسي",
+      "priority_level": "medium",
+      "lat": 36.7328,
+      "lng": 6.8372,
+      "advice": "مراكز فرز واستقبال رئيسية للشاحنات القادمة عبر الطريق السيار شرق-غرب.",
+      "needs": [
+        "طرود غذائية متكاملة",
+        "مياه معدنية",
+        "أفرشة",
+        "أدوية أساسية"
+      ]
+    },
+    {
+      "id": "cz_ml1",
+      "commune_id": "4308",
+      "wilaya_id": "43",
+      "name": "تراعي باينان / تبرقنت / تسالة لمطاعي",
+      "places": "الشريط الجبلي الشمالي الحدودي المتاخم لغابات جيجل",
+      "priority": "مسالك جبلية حدودية",
+      "priority_level": "critical",
+      "lat": 36.5833,
+      "lng": 6.15,
+      "advice": "تنسيق مشترك مع خلايا جيجل وميلة لضمان تغطية المناطق الحدودية المشتركة.",
+      "needs": [
+        "مياه شرب",
+        "أفرشة وبطانيات",
+        "خيم مؤقتة",
+        "طرود غذائية"
+      ]
+    },
+    {
+      "id": "cz_ml2",
+      "commune_id": "4302",
+      "wilaya_id": "43",
+      "name": "فرجيوة / مينار زارزة / الرواشد",
+      "places": "المرتفعات الجبلية والمداشر الفلاحية الغربية",
+      "priority": "إسناد سكني وإنساني",
+      "priority_level": "high",
+      "lat": 36.4,
+      "lng": 6.05,
+      "advice": "دار الشباب بفرجيوة هي نقطة الاستقبال المركزية لتوجيه القوافل نحو المداشر.",
+      "needs": [
+        "أفرشة ومستلزمات منزلية",
+        "مياه نقية",
+        "مواد تعقيم",
+        "أعلاف"
+      ]
+    }
+  ],
+  "verifiedShelters": [
+    {
+      "id": "s1",
+      "wilaya_id": "18",
+      "name": "مركز التكوين المهني بوهراوة أحمد (CFPA)",
+      "commune": "الشقفة",
+      "address": "الشقفة مركز، محاذاة الطريق الرئيسي",
+      "phone": "034 56 21 52",
+      "capacity": "مجهز لاستقبال العائلات • دورات مياه وأفرشة",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.77237,
+      "lng": 5.95213
+    },
+    {
+      "id": "s2",
+      "wilaya_id": "18",
+      "name": "دار الشباب الشهيد بوناب الرشيد",
+      "commune": "جيجل",
+      "address": "حي الفرسان، بن شعبان",
+      "phone": "034 47 43 75",
+      "capacity": "استقبال وفرز القوافل الوطنية وتوجيهها",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.812,
+      "lng": 5.772
+    },
+    {
+      "id": "s3",
+      "wilaya_id": "18",
+      "name": "مركب الشباب الشهيد شاطر عبد القادر",
+      "commune": "جيجل",
+      "address": "حي 1000 مسكن، جيجل",
+      "phone": "030 49 08 22",
+      "capacity": "مجمع شباني مجهز للإيواء المؤقت والرعاية",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.818,
+      "lng": 5.765
+    },
+    {
+      "id": "s4",
+      "wilaya_id": "18",
+      "name": "ديوان مؤسسات الشباب (ODEJ)",
+      "commune": "جيجل",
+      "address": "وسط مدينة جيجل",
+      "phone": "034 47 43 75",
+      "capacity": "خلية التنسيق الولائية للمؤسسات الشبانية",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.812,
+      "lng": 5.766
+    },
+    {
+      "id": "s5",
+      "wilaya_id": "18",
+      "name": "مركز استقبال ومأوى تاكسنة",
+      "commune": "تاكسنة",
+      "address": "بلدية تاكسنة مركز",
+      "phone": "034 49 10 20",
+      "capacity": "استقبال 65+ حالة وإسعاف الأسر المتضررة",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.6667,
+      "lng": 5.7833
+    },
+    {
+      "id": "s6",
+      "wilaya_id": "18",
+      "name": "مركز إيواء العرايب",
+      "commune": "الميلية",
+      "address": "منطقة العرايب، طريق برج العنصر",
+      "phone": "034 52 11 22",
+      "capacity": "مخيم استقبال وإيواء للأسر المُجلية من تنفدور",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.75,
+      "lng": 6.2667
+    },
+    {
+      "id": "s7",
+      "wilaya_id": "18",
+      "name": "مقر بلدية بوراوي بلهادف (APC)",
+      "commune": "بوراوي بلهادف",
+      "address": "مقر المجلس الشعبي البلدي",
+      "phone": "034 46 51 68",
+      "capacity": "نقطة استقبال وتوجيه المساعدات للمداشر الجبلية",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.6167,
+      "lng": 5.95
+    },
+    {
+      "id": "s8",
+      "wilaya_id": "18",
+      "name": "مدرسة خشة أحسن (فيلاج موسى)",
+      "commune": "جيجل",
+      "address": "حي فيلاج موسى، جيجل",
+      "phone": "034 47 43 75",
+      "capacity": "نقطة استقبال وتجميع الشحنات والتبرعات وإيواء",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.808,
+      "lng": 5.76
+    },
+    {
+      "id": "s9",
+      "wilaya_id": "18",
+      "name": "مركز التكوين المهني والتمهين (CFPA)",
+      "commune": "العنصر",
+      "address": "العنصر مركز، محاذاة مقر البلدية",
+      "phone": "034 52 80 10",
+      "capacity": "مركز استقبال وفرز وتجميع المساعدات والتبرعات",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.7915,
+      "lng": 6.1584
+    },
+    {
+      "id": "s10",
+      "wilaya_id": "18",
+      "name": "دار الشباب والمسجد الكبير",
+      "commune": "الجمعة بني حبيبي",
+      "address": "وسط بلدية الجمعة بني حبيبي",
+      "phone": "034 55 10 20",
+      "capacity": "مركز استقبال ومأوى وتنسيق القوافل التضامنية",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.8089,
+      "lng": 6.1222
+    },
+    {
+      "id": "s11",
+      "wilaya_id": "18",
+      "name": "ثانوية بورزاق أحمد",
+      "commune": "تاكسنة",
+      "address": "بلدية تاكسنة مركز",
+      "phone": "034 49 10 20",
+      "capacity": "مركز إيواء واستقبال رسمي للأسر المتضررة",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.661,
+      "lng": 5.791
+    },
+    {
+      "id": "s12",
+      "wilaya_id": "18",
+      "name": "ثانوية غراز الشريف",
+      "commune": "أولاد يحيى خدروش",
+      "address": "بلدية أولاد يحيى خدروش",
+      "phone": "عبر البلدية / 14",
+      "capacity": "مركز إيواء واستقبال رسمي للأسر المتضررة",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.7114,
+      "lng": 6.2008
+    },
+    {
+      "id": "s13",
+      "wilaya_id": "18",
+      "name": "متوسطة بولحبال محمد",
+      "commune": "برج الطهر",
+      "address": "بلدية برج الطهر مركز",
+      "phone": "عبر البلدية / 14",
+      "capacity": "مركز إيواء واستقبال وإيواء مؤقت",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.7469,
+      "lng": 6.0342
+    },
+    {
+      "id": "s14",
+      "wilaya_id": "18",
+      "name": "متوسطة مجدوب السعيد",
+      "commune": "الشحنة",
+      "address": "بلدية الشحنة مركز",
+      "phone": "عبر البلدية / 14",
+      "capacity": "مركز إيواء واستقبال وإسعاف الأسر",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.6794,
+      "lng": 5.9572
+    },
+    {
+      "id": "s15",
+      "wilaya_id": "18",
+      "name": "متوسطة بوضياف عبد الله",
+      "commune": "العنصر",
+      "address": "بلدية العنصر مركز",
+      "phone": "034 52 80 10",
+      "capacity": "مركز إيواء واستقبال مؤقت ورعاية",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.7915,
+      "lng": 6.1584
+    },
+    {
+      "id": "s16",
+      "wilaya_id": "18",
+      "name": "إبتدائية طالب عبد الكريم",
+      "commune": "الجمعة بني حبيبي",
+      "address": "بلدية الجمعة بني حبيبي",
+      "phone": "034 55 10 20",
+      "capacity": "مركز إيواء واستقبال رسمي",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.8089,
+      "lng": 6.1222
+    },
+    {
+      "id": "s17",
+      "wilaya_id": "18",
+      "name": "قاعة الأفراح بوخمرة",
+      "commune": "الميلية",
+      "address": "بلدية الميلية",
+      "phone": "034 52 11 22",
+      "capacity": "فضاء إيواء واسع مجهز لاستقبال العائلات",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.75,
+      "lng": 6.2667
+    },
+    {
+      "id": "s18",
+      "wilaya_id": "18",
+      "name": "مركز التكوين المهني شلابي مسعود (تاسوست)",
+      "commune": "الأمير عبد القادر",
+      "address": "منطقة تاسوست، بلدية الأمير عبد القادر",
+      "phone": "عبر البلدية / 14",
+      "capacity": "مركز إيواء وتجميع وقوافل الإغاثة",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.7519,
+      "lng": 5.8486
+    },
+    {
+      "id": "s19",
+      "wilaya_id": "18",
+      "name": "إبتدائية إبراهيمي مصطفى",
+      "commune": "الأمير عبد القادر",
+      "address": "بلدية الأمير عبد القادر مركز",
+      "phone": "عبر البلدية / 14",
+      "capacity": "مركز إيواء واستقبال مؤقت",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.7519,
+      "lng": 5.8486
+    },
+    {
+      "id": "s20",
+      "wilaya_id": "18",
+      "name": "متوسطة زماني رابح",
+      "commune": "قاوس",
+      "address": "بلدية قاوس مركز",
+      "phone": "عبر البلدية / 14",
+      "capacity": "مركز إيواء واستقبال رسمي",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.7703,
+      "lng": 5.8136
+    },
+    {
+      "id": "s21",
+      "wilaya_id": "18",
+      "name": "المدرسة القرآنية بوسماحة أحمد",
+      "commune": "الطاهير",
+      "address": "بلدية الطاهير",
+      "phone": "034 54 84 00",
+      "capacity": "مركز إيواء ورعاية واستقبال العائلات",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.7719,
+      "lng": 5.8983
+    },
+    {
+      "id": "s_bg1",
+      "wilaya_id": "06",
+      "name": "قاعة الرياضات المتعددة إحدادن",
+      "commune": "بجاية",
+      "address": "حي إحدادن، وسط بجاية",
+      "phone": "034 10 10 14",
+      "capacity": "مجمع إيواء استعجالي رئيسي للأسر المنكوبة",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.7559,
+      "lng": 5.0843
+    },
+    {
+      "id": "s_bg2",
+      "wilaya_id": "06",
+      "name": "دار الشباب سيدي أحمد",
+      "commune": "بجاية",
+      "address": "حي سيدي أحمد، بجاية",
+      "phone": "034 12 34 56",
+      "capacity": "مركز استقبال ومأوى مؤقت وفرز قوافل",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.76,
+      "lng": 5.07
+    },
+    {
+      "id": "s_bg3",
+      "wilaya_id": "06",
+      "name": "مركب الشباب أقبو",
+      "commune": "أقبو",
+      "address": "وسط مدينة أقبو",
+      "phone": "034 35 11 22",
+      "capacity": "مقر استقبال وإيواء للعائلات وقوافل الغرب",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.4575,
+      "lng": 4.535
+    },
+    {
+      "id": "s_bg4",
+      "wilaya_id": "06",
+      "name": "مركز التكوين المهني خراطة",
+      "commune": "خراطة",
+      "address": "خراطة مركز، محاذاة الطريق الوطني RN09",
+      "phone": "034 23 10 20",
+      "capacity": "مركز إيواء واستقبال القوافل القادمة من سطيف",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.4931,
+      "lng": 5.2778
+    },
+    {
+      "id": "s_bg5",
+      "wilaya_id": "06",
+      "name": "دار الشباب تيشي",
+      "commune": "تيشي",
+      "address": "بلدية تيشي الساحلية",
+      "phone": "034 21 14 00",
+      "capacity": "مأوى مؤقت للأسر المجاورة للمناطق الغابية",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.6694,
+      "lng": 5.1639
+    },
+    {
+      "id": "s_ml1",
+      "wilaya_id": "43",
+      "name": "قاعة الرياضات المتعددة ميلة مركز",
+      "commune": "ميلة",
+      "address": "وسط مدينة ميلة، قرب مقر الولاية",
+      "phone": "031 57 14 14",
+      "capacity": "مركز استقبال وإيواء رئيسي وتنسيق القوافل",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.4503,
+      "lng": 6.2644
+    },
+    {
+      "id": "s_ml2",
+      "wilaya_id": "43",
+      "name": "دار الشباب فرجيوة",
+      "commune": "فرجيوة",
+      "address": "بلدية فرجيوة مركز",
+      "phone": "031 58 20 30",
+      "capacity": "مقر استقبال وإمداد للمناطق الشمالية لميلة",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.4056,
+      "lng": 5.9903
+    },
+    {
+      "id": "s_ml3",
+      "wilaya_id": "43",
+      "name": "المركب الرياضي شلغوم العيد",
+      "commune": "شلغوم العيد",
+      "address": "شلغوم العيد، محاذاة الطريق الوطني RN05",
+      "phone": "031 52 10 00",
+      "capacity": "فضاء تجميع قوافل وإيواء عاجل",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.1625,
+      "lng": 6.1667
+    },
+    {
+      "id": "s_sk1",
+      "wilaya_id": "21",
+      "name": "قاعة الإخوة بوشاش سكيكدة",
+      "commune": "سكيكدة",
+      "address": "حي الممرات، وسط سكيكدة",
+      "phone": "038 75 14 14",
+      "capacity": "مركز استقبال وإيواء رئيسي للمتضررين",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.8764,
+      "lng": 6.9092
+    },
+    {
+      "id": "s_sk2",
+      "wilaya_id": "21",
+      "name": "مركب الشباب القل",
+      "commune": "القل",
+      "address": "شبه جزيرة القل، محاذاة الميناء",
+      "phone": "038 71 20 10",
+      "capacity": "مأوى مؤقت للأسر المجاورة للمرتفعات الغابية",
+      "verified": true,
+      "status": "approved",
+      "lat": 37.0069,
+      "lng": 6.5603
+    },
+    {
+      "id": "s_sk3",
+      "wilaya_id": "21",
+      "name": "دار الشباب الحروش",
+      "commune": "الحروش",
+      "address": "بلدية الحروش مركز",
+      "phone": "038 73 11 22",
+      "capacity": "مركز استقبال وتوجيه القوافل القادمة من قسنطينة",
+      "verified": true,
+      "status": "approved",
+      "lat": 36.7328,
+      "lng": 6.8372
+    }
+  ],
+  "verifiedAssociations": [
+    {
+      "id": "a1",
+      "wilaya_id": "18",
+      "name": "جمعية خاوة فالخير – جيجل",
+      "commune": "جيجل",
+      "address": "حي الكريط، قرب صيدلية نخول / وسط جيجل",
+      "phone": "0744160656",
+      "altPhone": "0777532258",
+      "altPhone2": "0799929393",
+      "altPhone3": "0656416074",
+      "role": "خلية أزمة ونشاط تضامني وإمداد غذائي",
+      "desc": "جمع التبرعات العينية والغذائية وتنظيمها وتوجيهها للمتضررين في القرى والمناطق الجبلية.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a2",
+      "wilaya_id": "18",
+      "name": "الجمعية الولائية أصدقاء بلا حدود الخيرية جيجل",
+      "commune": "الطاهير",
+      "address": "حي أولاد سويسي بجانب متوسطة لبيض محمد، الطاهير",
+      "phone": "0669114372",
+      "altPhone": "034548400",
+      "role": "جمعية خيرية ومساعدات وإغاثة",
+      "desc": "استقبال وتوزيع المساعدات الإنسانية وتوجيه قوافل الإغاثة للأسر المتضررة.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a3",
+      "wilaya_id": "18",
+      "name": "جمعية قوافل الخير لرعاية الأرملة واليتيم – جيجل",
+      "commune": "الجمعة بني حبيبي",
+      "address": "شارع عوار حسين، الجمعة بني حبيبي (المقر مفتوح يومياً)",
+      "phone": "0551444192",
+      "altPhone": "0792342874",
+      "altPhone2": "0778205865",
+      "role": "تنسيق ريفي وتوزيع مباشر",
+      "desc": "حضور ميداني وشبكة تواصل مباشر وتوزيع المساعدات على عائلات المناطق والقرى المتضررة.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a4",
+      "wilaya_id": "18",
+      "name": "جمعية نور للناس – جيجل",
+      "commune": "جيجل",
+      "address": "فوبور، وسط مدينة جيجل",
+      "phone": "0770999153",
+      "role": "مستلزمات طبية ومساعدة المرضى",
+      "desc": "استقبال المساعدات ومبادرات توفير المستلزمات الطبية والغذائية والأدوية العاجلة.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a5",
+      "wilaya_id": "18",
+      "name": "جمعية نجدة الإنسانية للصحة والإغاثة",
+      "commune": "جيجل",
+      "address": "حي الفرسان (الكونشوفالي)، فوق محلات بوخديش للملابس، الطابق 2",
+      "phone": "0541600236",
+      "altPhone": "0559069358",
+      "role": "إغاثة صحية وإسعافات ورعاية طبية",
+      "desc": "قوافل طبية متخصصة ومستلزمات إسعاف كوارث ورعاية صحية ميدانية ونقاط فرز.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a6",
+      "wilaya_id": "18",
+      "name": "جمعية الإرشاد والإصلاح – الميلية",
+      "commune": "الميلية",
+      "address": "وسط مدينة الميلية",
+      "phone": "0661423658",
+      "altPhone": "0770998782",
+      "altPhone2": "0795607352",
+      "role": "إغاثة ومساعدات إنسانية بالقطاع الشرقي",
+      "desc": "استقبال وتنسيق المساعدات وتوجيه قوافل الإغاثة لبلديات الميلية، سطارة، وأولاد رابح.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a7",
+      "wilaya_id": "18",
+      "name": "جمعية بصمة خير – الميلية",
+      "commune": "الميلية",
+      "address": "وسط مدينة الميلية",
+      "phone": "0661234567",
+      "altPhone": "0671838048",
+      "role": "استقبال وتوجيه القوافل الشرقية",
+      "desc": "تنسيق قوافل الإغاثة القادمة من قسنطينة وسكيكدة وتوزيعها على مشاتي الميلية وأولاد رابح.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a8",
+      "wilaya_id": "18",
+      "name": "جمعية سواعد الإحسان – الطاهير",
+      "commune": "الطاهير",
+      "address": "حي الرجاص، الطاهير",
+      "phone": "0771892345",
+      "role": "فرز وتخزين مركزي",
+      "desc": "مستودعات لتخزين المساعدات الغذائية ومواد النظافة وتوجيهها نحو بلديات الشقفة والأمير عبد القادر.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a9",
+      "wilaya_id": "18",
+      "name": "جمعية الغيث القوافلية – زيامة منصورية",
+      "commune": "زيامة منصورية",
+      "address": "المدخل الشرقي لزيامة منصورية",
+      "phone": "0558765432",
+      "role": "نقطة استقبال المحور الغربي",
+      "desc": "استقبال وتوجيه القوافل القادمة عبر الطريق الوطني RN43 الساحلي.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a10",
+      "wilaya_id": "18",
+      "name": "جمعية الفجر التضامنية – العوانة",
+      "commune": "العوانة",
+      "address": "حي تيميزرت، العوانة",
+      "phone": "0799887766",
+      "role": "إغاثة القرى الغربية",
+      "desc": "خلية أزمة وتوزيع المساعدات على مشاتي سلمى بن زيادة وإيراقن سويسي.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a11",
+      "wilaya_id": "18",
+      "name": "جمعية نبض الخير – جيجل",
+      "commune": "جيجل",
+      "address": "حي 400 مسكن، جيجل",
+      "phone": "0550123456",
+      "role": "نقل وإمداد للمناطق المعزولة",
+      "desc": "مركز جمع وتخزين مساعدات وتوفير مركبات دفع رباعي وشاحنات صغيرة للقرى المعزولة.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a12",
+      "wilaya_id": "18",
+      "name": "جمعية الياقوت الأزرق الثقافية",
+      "commune": "جيجل",
+      "address": "حي الفرسان – بن شعبان، جيجل",
+      "phone": "034474375",
+      "role": "نقطة استقبال وفرز القوافل",
+      "desc": "استقبال مساهمات وتبرعات المواطنين وتنسيق توزيعها للمراكز.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a13",
+      "wilaya_id": "18",
+      "name": "مبادرة بصمة شبابية التضامنية",
+      "commune": "جيجل",
+      "address": "ولاية جيجل (مبادرة شبابية ميدانية)",
+      "phone": "0655817629",
+      "role": "متطوعون وتوزيع ميداني",
+      "desc": "فريق شبابي تطوعي لتنظيم وفرز التبرعات ونقلها ميدانياً للأسر المتضررة.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a14",
+      "wilaya_id": "18",
+      "name": "جمعية الحياة الخيرية 312 – الميلية",
+      "commune": "الميلية",
+      "address": "بلدية الميلية (المقر مفتوح لاستقبال الشحنات)",
+      "phone": "0556905154",
+      "altPhone": "0671308591",
+      "role": "جمعية خيرية وتجميع المساعدات",
+      "desc": "مركز تجميع موثوق للشحنات والقوافل التضامنية وتوزيع المساعدات على العائلات المتضررة.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a15",
+      "wilaya_id": "18",
+      "name": "نقطة تجميع الشحنات بالميناء ألاف (الشادية)",
+      "commune": "قاوس",
+      "address": "منطقة الشادية، قاوس",
+      "phone": "0665170474",
+      "role": "نقطة تجميع شحنات وتبرعات موثوقة",
+      "desc": "موقع معتمد لوضع وتجميع شحنات التبرعات والقوافل الإغاثية بالتنسيق مع السيد شرفي مصطفى.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a16",
+      "wilaya_id": "18",
+      "name": "المركب الرياضي الجواري الشقفة / دار المكتبة البلدية",
+      "commune": "الشقفة",
+      "address": "وسط بلدية الشقفة",
+      "phone": "0553135656",
+      "role": "نقطة تجميع واستقبال رئيسية",
+      "desc": "مقر تجميع الشحنات والتبرعات وتنسيق التوزيع مع مسؤول المركز السيد فرخة عبد القادر.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a17",
+      "wilaya_id": "18",
+      "name": "المركب الرياضي الجواري الزيامة منصورية",
+      "commune": "زيامة منصورية",
+      "address": "بلدية زيامة منصورية مركز",
+      "phone": "0550886006",
+      "role": "نقطة تجميع وإمداد الساحل الغربي",
+      "desc": "استقبال وتجميع الشحنات والقوافل التضامنية والتنسيق مع السيد كعيكعة ناصر.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a18",
+      "wilaya_id": "18",
+      "name": "المركب الرياضي الجواري بلغينوز – العنصر",
+      "commune": "العنصر",
+      "address": "منطقة بلغينوز، بلدية العنصر",
+      "phone": "0770397770",
+      "role": "نقطة تجميع وتوزيع المساعدات",
+      "desc": "نقطة معتمدة لاستقبال وتفريغ قوافل المساعدات والتنسيق المباشر مع السيد بومخيطة طارق.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a19",
+      "wilaya_id": "18",
+      "name": "خلية توزيع المساعدات – مشتة أولاد فاتح",
+      "commune": "الشقفة",
+      "address": "مشتة أولاد فاتح، الشقفة / برج الطهر",
+      "phone": "0557381519",
+      "role": "خلية توزيع ميدانية للأسر المتضررة",
+      "desc": "خلية تواصل وتوزيع المساعدات وتلبية الاحتياجات العاجلة للمتضررين بإشراف مسؤول الخلية: حامول مسعود.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a20",
+      "wilaya_id": "18",
+      "name": "خلية توزيع المساعدات – مشتة زريفة",
+      "commune": "الشقفة",
+      "address": "مشتة زريفة، الشقفة",
+      "phone": "0549706016",
+      "role": "خلية توزيع ميدانية للأسر المتضررة",
+      "desc": "خلية تواصل وتوزيع المساعدات وتلبية الاحتياجات العاجلة للمتضررين بإشراف مسؤول الخلية: بودريعات محمد.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a21",
+      "wilaya_id": "18",
+      "name": "خلية توزيع المساعدات – مشتة الزويلمة",
+      "commune": "الشقفة",
+      "address": "مشتة الزويلمة، الشقفة",
+      "phone": "0667199604",
+      "role": "خلية توزيع ميدانية للأسر المتضررة",
+      "desc": "خلية تواصل وتوزيع المساعدات وتلبية الاحتياجات العاجلة للمتضررين بإشراف مسؤول الخلية: معوج عماد.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a22",
+      "wilaya_id": "18",
+      "name": "خلية توزيع المساعدات – المناطق التابعة للمصلى وعبدوي",
+      "commune": "الشقفة",
+      "address": "المنطقة التابعة للمصلى وعبدوي، الشقفة",
+      "phone": "0775968813",
+      "role": "خلية توزيع ميدانية للأسر المتضررة",
+      "desc": "خلية تواصل وتوزيع المساعدات وتلبية الاحتياجات العاجلة للمتضررين بإشراف مسؤول الخلية: بوالعام حكيم.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a23",
+      "wilaya_id": "18",
+      "name": "خلية توزيع المساعدات – تامزرار، بوعامر، تاجوست",
+      "commune": "الشقفة",
+      "address": "المناطق التابعة لتامزرار، بوعامر، تاجوست، الشقفة",
+      "phone": "0770482161",
+      "role": "خلية توزيع ميدانية للأسر المتضررة",
+      "desc": "خلية تواصل وتوزيع المساعدات وتلبية الاحتياجات العاجلة للمتضررين بإشراف مسؤول الخلية: قرين ناصر.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a24",
+      "wilaya_id": "18",
+      "name": "خلية توزيع المساعدات – المناطق التابعة لأولاد يونس وخطافة",
+      "commune": "الشقفة",
+      "address": "المناطق التابعة لأولاد يونس وخطافة، الشقفة",
+      "phone": "0658303157",
+      "role": "خلية توزيع ميدانية للأسر المتضررة",
+      "desc": "خلية تواصل وتوزيع المساعدات وتلبية الاحتياجات العاجلة للمتضررين بإشراف مسؤول الخلية: زمار فريد.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a25",
+      "wilaya_id": "18",
+      "name": "خلية توزيع المساعدات – المنطقة التابعة للسند",
+      "commune": "الشقفة",
+      "address": "المنطقة التابعة للسند، الشقفة",
+      "phone": "0542176702",
+      "role": "خلية توزيع ميدانية للأسر المتضررة",
+      "desc": "خلية تواصل وتوزيع المساعدات وتلبية الاحتياجات العاجلة للمتضررين بإشراف مسؤول الخلية: مرازقة فوضيل.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a26",
+      "wilaya_id": "18",
+      "name": "ثانوية بوهرين الشريف – الشقفة",
+      "commune": "الشقفة",
+      "address": "بلدية الشقفة",
+      "phone": "0553135656",
+      "role": "مركز تجميع مساعدات وتبرعات",
+      "desc": "مركز رسمي مخصص لتجميع واستقبال شحنات المساعدات والقوافل التضامنية لتوزيعها على المتضررين.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a27",
+      "wilaya_id": "18",
+      "name": "المركب الرياضي (بوخرقة) – الطاهير",
+      "commune": "الطاهير",
+      "address": "منطقة بوخرقة، بلدية الطاهير",
+      "phone": "0669114372",
+      "role": "مركز تجميع شحنات وقوافل",
+      "desc": "فضاء واسع معتمد لتفريغ وتخزين وتنسيق قوافل المساعدات الإنسانية والغذائية.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a28",
+      "wilaya_id": "18",
+      "name": "ثانوية ناصري رمضان (أولاد سويسي) – الطاهير",
+      "commune": "الطاهير",
+      "address": "حي أولاد سويسي، بلدية الطاهير",
+      "phone": "0669114372",
+      "role": "مركز تجميع وفرز التبرعات",
+      "desc": "مركز استقبال وفرز التبرعات العينية والمستلزمات وتوزيعها على العائلات المتضررة.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a_bg1",
+      "wilaya_id": "06",
+      "name": "الهلال الأحمر الجزائري – لجنة ولاية بجاية",
+      "commune": "بجاية",
+      "address": "شارع الحرية، وسط مدينة بجاية",
+      "phone": "034 10 10 14",
+      "altPhone": "0560 01 02 03",
+      "role": "خلية أزمة وإغاثة طبية وغذائية",
+      "desc": "تنسيق قوافل الإغاثة وتوزيع المساعدات والمستلزمات الطبية على بلديات وقرى بجاية.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a_bg2",
+      "wilaya_id": "06",
+      "name": "جمعية إشراق الخيرية – أقبو",
+      "commune": "أقبو",
+      "address": "وسط مدينة أقبو",
+      "phone": "034 35 22 33",
+      "role": "استقبال وفرز التبرعات لقرى حوض الصومام",
+      "desc": "جمع المساعدات الغذائية ومواد الإيواء وتوجيهها للمناطق الجبلية في صدوق، شلاطة وإغيل علي.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a_bg3",
+      "wilaya_id": "06",
+      "name": "جمعية تضامن وتكافل – خراطة",
+      "commune": "خراطة",
+      "address": "خراطة مركز، محاذاة مضيق خراطة",
+      "phone": "034 23 15 15",
+      "role": "تنسيق القوافل الجنوبية الشرقية",
+      "desc": "تنسيق واستقبال شحنات الإغاثة وتوزيعها على مشاتي ذراع القايد وتاسكريوت وآيت سماعيل.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a_ml1",
+      "wilaya_id": "43",
+      "name": "الهلال الأحمر الجزائري – لجنة ولاية ميلة",
+      "commune": "ميلة",
+      "address": "حي سنوة، ميلة",
+      "phone": "031 57 14 14",
+      "role": "خلية أزمة وإمداد تضامني",
+      "desc": "تنسيق قوافل المساعدات المحلية وتوجيهها للأسر المتضررة في مشاتي فرجيوة وترعي باينان.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a_ml2",
+      "wilaya_id": "43",
+      "name": "جمعية سبل السلام – فرجيوة",
+      "commune": "فرجيوة",
+      "address": "شارع أول نوفمبر، فرجيوة",
+      "phone": "031 58 11 22",
+      "role": "إغاثة ريفية وتوزيع مباشر",
+      "desc": "شبكة متطوعين لتوزيع المساعدات على القرى المعزولة والمناطق الغابية الحدودية مع جيجل.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a_sk1",
+      "wilaya_id": "21",
+      "name": "الهلال الأحمر الجزائري – لجنة ولاية سكيكدة",
+      "commune": "سكيكدة",
+      "address": "ساحة أول نوفمبر، سكيكدة",
+      "phone": "038 75 14 14",
+      "role": "استقبال وفرز القوافل الشرقية",
+      "desc": "تنسيق شحنات الإغاثة وقوافل التضامن وتوجيهها لمناطق القل، تمالوس والحروش.",
+      "verified": true,
+      "status": "approved"
+    },
+    {
+      "id": "a_sk2",
+      "wilaya_id": "21",
+      "name": "جمعية نسائم الخير – القل",
+      "commune": "القل",
+      "address": "حي زيغود يوسف، القل",
+      "phone": "038 71 15 15",
+      "role": "إغاثة القرى الساحلية والجبلية",
+      "desc": "استقبال وتوزيع المساعدات على المشاتي الغابية في بني زيد، الشرايع، وكركرة.",
+      "verified": true,
+      "status": "approved"
+    }
+  ],
+  "liveSubmissions": {
+    "shelters": [],
+    "associations": [],
+    "feedbacks": [],
+    "deletedItems": []
+  }
+}

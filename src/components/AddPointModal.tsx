@@ -14,7 +14,7 @@ import {
   Link as LinkIcon,
   ShieldCheck
 } from 'lucide-react';
-import { CharityPoint, AidCategory, PointStatus } from '../types';
+import { CharityPoint, AidCategory, PointStatus, PointType } from '../types';
 import { WILAYAS, AID_CATEGORIES_META } from '../data/wilayas';
 import { isWithinAlgeriaBounds, ALGERIA_BOUNDS } from '../utils/geoParser';
 import { compressImageFile } from '../utils/imageCompressor';
@@ -58,6 +58,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
   const [showTermsModal, setShowTermsModal] = useState(false);
 
   // GPS Coordinates (Default: Algiers)
+  const [pointType, setPointType] = useState<PointType>('charity_hub');
   const [lat, setLat] = useState<number>(initialCoords?.lat || 36.7538);
   const [lng, setLng] = useState<number>(initialCoords?.lng || 3.0588);
   const [gpsLoading, setGpsLoading] = useState(false);
@@ -331,7 +332,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
       lng: finalLng,
       aidCategories: selectedCategories.length > 0 ? selectedCategories : ['food_water', 'clothes'],
       status: 'active',
-      pointType: 'charity_hub',
+      pointType: pointType,
       urgentDescription: urgentDescription.trim() || undefined,
       notes: notes.trim() || undefined,
       verified: false,
@@ -376,8 +377,8 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
               <MapPin className="w-5 h-5" />
             </div>
             <div>
-              <h2 className="text-base font-bold text-slate-900">إضافة نقطة تبرع بالجزائر</h2>
-              <p className="text-xs text-slate-500">سجل موقع مركز التبرعات ليتمكن المتبرعون من الوصول إليكم</p>
+              <h2 className="text-base font-bold text-slate-900">إضافة نقطة تبرع أو مركز إيواء</h2>
+              <p className="text-xs text-slate-500">سجل موقع مركز المساعدات أو الإيواء لإرشاد المتبرعين والعائلات</p>
             </div>
           </div>
           <button
@@ -429,6 +430,42 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
               <div className="absolute bottom-1.5 right-1.5 z-[400] bg-white/95 text-slate-700 text-[10px] px-2 py-0.5 rounded border border-slate-200 shadow-sm">
                 داخل حدود الجزائر
               </div>
+            </div>
+          </div>
+
+          {/* Point Type Selector (Donation Hub vs Shelter) */}
+          <div className="space-y-1.5">
+            <label className="block text-slate-700 font-bold text-xs">
+              نوع الموقع أو الخدمة <span className="text-red-600">*</span>
+            </label>
+            <div className="grid grid-cols-2 gap-2">
+              <button
+                type="button"
+                onClick={() => setPointType('charity_hub')}
+                className={`py-2 px-3 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                  pointType === 'charity_hub'
+                    ? 'bg-emerald-700 text-white border-emerald-700 shadow-xs'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                <span>📦 نقطة جمع وتبرع</span>
+              </button>
+              <button
+                type="button"
+                onClick={() => {
+                  setPointType('shelter');
+                  if (!selectedCategories.includes('shelter')) {
+                    setSelectedCategories([...selectedCategories, 'shelter']);
+                  }
+                }}
+                className={`py-2 px-3 rounded-xl border text-xs font-bold transition flex items-center justify-center gap-1.5 ${
+                  pointType === 'shelter'
+                    ? 'bg-emerald-700 text-white border-emerald-700 shadow-xs'
+                    : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
+                }`}
+              >
+                <span>🏠 مركز إيواء واستقبال</span>
+              </button>
             </div>
           </div>
 

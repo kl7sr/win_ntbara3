@@ -38,6 +38,7 @@ export const MiniPinCard: React.FC<MiniPinCardProps> = ({
   const googleMapsUrl = point.googleMapsUrl || getGoogleMapsDirUrl(point.lat, point.lng);
 
   const isBurntZone = point.pointType === 'burnt_zone';
+  const isShelter = point.pointType === 'shelter';
   const isExtinguished = point.status === 'extinguished';
   const isFireActive = isBurntZone && (point.status === 'urgent' || point.status === 'active');
   const isVerified = point.verified;
@@ -58,10 +59,14 @@ export const MiniPinCard: React.FC<MiniPinCardProps> = ({
               <span className={`text-[11px] font-bold ${
                 isBurntZone
                   ? isFireActive ? 'text-red-700' : 'text-slate-600'
+                  : isShelter
+                  ? (isVerified ? 'text-emerald-800' : 'text-amber-800')
                   : isVerified ? 'text-emerald-800' : 'text-amber-800'
               }`}>
                 {isBurntZone 
                   ? (isExtinguished ? t.details.extinguishedFire : t.details.activeFire)
+                  : isShelter
+                  ? (point.verified ? 'مركز إيواء مؤكد' : 'مركز إيواء غير مؤكد')
                   : (point.verified ? t.details.verified : t.details.unverified)}
               </span>
 

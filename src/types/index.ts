@@ -10,7 +10,7 @@ export type AidCategory =
   | 'shelter';
 
 export type PointStatus = 'active' | 'full' | 'urgent' | 'extinguished';
-export type PointType = 'charity_hub' | 'burnt_zone';
+export type PointType = 'charity_hub' | 'burnt_zone' | 'shelter';
 
 export interface CharityPoint {
   id: string;
@@ -27,7 +27,7 @@ export interface CharityPoint {
   lng: number;
   aidCategories: AidCategory[];
   status: PointStatus;
-  pointType?: PointType; // 'charity_hub' or 'burnt_zone'
+  pointType?: PointType; // 'charity_hub' | 'burnt_zone' | 'shelter'
   urgentDescription?: string;
   notes?: string;
   hours?: string;

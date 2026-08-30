@@ -71,12 +71,13 @@ export const MapComponent: React.FC<MapComponentProps> = ({
 
     points.forEach((point) => {
       const isBurntZone = point.pointType === 'burnt_zone';
+      const isShelter = point.pointType === 'shelter';
       const isFireActive = isBurntZone && (point.status === 'urgent' || point.status === 'active');
       const isFireExtinguished = isBurntZone && (point.status === 'extinguished' || point.status === 'full');
       const isVerified = point.verified;
 
       // Color coding
-      let bgColor = '#047857'; // Green (default verified charity)
+      let bgColor = '#047857'; // Green (default verified charity or shelter)
       let borderColor = '#ffffff';
 
       if (isBurntZone) {
@@ -99,6 +100,11 @@ export const MapComponent: React.FC<MapComponentProps> = ({
               ${isBurntZone ? `
                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"/>
+                </svg>
+              ` : isShelter ? `
+                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="m3 9 9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/>
+                  <polyline points="9 22 9 12 15 12 15 22"/>
                 </svg>
               ` : isVerified ? `
                 <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
@@ -138,6 +144,8 @@ export const MapComponent: React.FC<MapComponentProps> = ({
 
       const statusText = isBurntZone
         ? (isFireExtinguished ? 'تم الإخماد' : 'بؤرة حريق نشطة')
+        : isShelter
+        ? (isVerified ? 'مركز إيواء مؤكد' : 'مركز إيواء غير مؤكد')
         : (isVerified ? 'موقع مؤكد' : 'غير مؤكد');
 
       const statusTextColor = isBurntZone

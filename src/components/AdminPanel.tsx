@@ -941,10 +941,9 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                               onChange={(e) => setCustomPointType(e.target.value as PointType)}
                               className="w-full bg-white border border-slate-300 rounded-xl px-3 py-2.5 text-slate-800 text-xs sm:text-sm font-medium focus:outline-none focus:ring-2 focus:ring-emerald-600"
                             >
-                              <option value="charity_hub">مركز جمع وتوزيع تبرعات</option>
-                              <option value="blood_donation">مركز تبرع بالدم</option>
-                              <option value="soup_kitchen">مطعم إطعام / إفطار صائم</option>
-                              <option value="shelter_center">مركز إيواء ومساعدة عائلات</option>
+                              <option value="charity_hub">مركز جمع وتوزيع تبرعات (Donation Hub)</option>
+                              <option value="shelter">مركز إيواء واستقبال عائلات (Shelter)</option>
+                              <option value="burnt_zone">بؤرة حرائق / منطقة متضررة (Burnt Zone)</option>
                             </select>
                           </div>
                         </div>

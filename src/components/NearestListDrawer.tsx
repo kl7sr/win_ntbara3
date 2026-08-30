@@ -174,6 +174,7 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
         ) : (
           filtered.map((point, index) => {
             const isBurnt = point.pointType === 'burnt_zone';
+            const isShelter = point.pointType === 'shelter';
             const isFireActive = isBurnt && (point.status === 'urgent' || point.status === 'active');
             const isFireExtinguished = isBurnt && (point.status === 'extinguished' || point.status === 'full');
             const isVerified = point.verified;
@@ -200,6 +201,8 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
                     }`}>
                       {isBurnt
                         ? (isFireExtinguished ? 'تم الإخماد' : 'بؤرة حريق نشطة')
+                        : isShelter
+                        ? (isVerified ? 'مركز إيواء مؤكد' : 'مركز إيواء غير مؤكد')
                         : (isVerified ? 'موقع مؤكد' : 'غير مؤكد')}
                     </span>
                   </div>

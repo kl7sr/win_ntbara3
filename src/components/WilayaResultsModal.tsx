@@ -111,6 +111,7 @@ export const WilayaResultsModal: React.FC<WilayaResultsModalProps> = ({
             ) : (
               inWilaya.map((point) => {
                 const isBurnt = point.pointType === 'burnt_zone';
+                const isShelter = point.pointType === 'shelter';
                 const isFireActive = isBurnt && (point.status === 'urgent' || point.status === 'active');
                 const isFireExtinguished = isBurnt && (point.status === 'extinguished' || point.status === 'full');
                 const isVerified = point.verified;
@@ -133,10 +134,14 @@ export const WilayaResultsModal: React.FC<WilayaResultsModalProps> = ({
                         <span className={`text-[11px] font-bold ${
                           isBurnt
                             ? isFireActive ? 'text-red-700' : 'text-slate-600'
-                            : isVerified ? 'text-emerald-800' : 'text-amber-800'
+                            : isShelter
+                            ? (isVerified ? 'text-emerald-800' : 'text-amber-800')
+                            : (isVerified ? 'text-emerald-800' : 'text-amber-800')
                         }`}>
                           {isBurnt
                             ? (isFireExtinguished ? 'تم الإخماد' : 'بؤرة حريق نشطة')
+                            : isShelter
+                            ? (isVerified ? 'مركز إيواء مؤكد' : 'مركز إيواء غير مؤكد')
                             : (isVerified ? 'موقع مؤكد' : 'غير مؤكد')}
                         </span>
                       </div>

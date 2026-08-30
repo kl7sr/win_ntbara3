@@ -87,16 +87,25 @@ export const LegendModal: React.FC<LegendModalProps> = ({
               </div>
             </div>
 
-            {/* 2. Unconfirmed Point */}
+            {/* 2. Verified Shelter Hub */}
+            <div className="p-3.5 flex items-start gap-3 hover:bg-slate-50/60 transition">
+              <span className="w-3 h-3 rounded-full bg-emerald-700 shrink-0 mt-1"></span>
+              <div className="flex-1 min-w-0">
+                <h4 className="text-xs font-bold text-slate-900">مركز إيواء واستقبال عائلات (رمز المنزل)</h4>
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">مؤسسات عمومية وشبانية مجهزة لاستقبال وإيواء المتضررين.</p>
+              </div>
+            </div>
+
+            {/* 3. Unconfirmed Point */}
             <div className="p-3.5 flex items-start gap-3 hover:bg-slate-50/60 transition">
               <span className="w-3 h-3 rounded-full bg-amber-500 shrink-0 mt-1"></span>
               <div className="flex-1 min-w-0">
-                <h4 className="text-xs font-bold text-slate-900">نقطة تبرع غير مؤكدة</h4>
+                <h4 className="text-xs font-bold text-slate-900">نقطة تبرع / إيواء غير مؤكدة</h4>
                 <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">مبادرات تطوعية ومستودعات شعبية (يُرجى الاتصال للتأكد قبل التنقل).</p>
               </div>
             </div>
 
-            {/* 3. Active Fire */}
+            {/* 4. Active Fire */}
             <div className="p-3.5 flex items-start gap-3 hover:bg-slate-50/60 transition">
               <span className="w-3 h-3 rounded-full bg-red-600 shrink-0 mt-1"></span>
               <div className="flex-1 min-w-0">
@@ -105,12 +114,12 @@ export const LegendModal: React.FC<LegendModalProps> = ({
               </div>
             </div>
 
-            {/* 4. Contained Fire */}
+            {/* 5. Contained Fire */}
             <div className="p-3.5 flex items-start gap-3 hover:bg-slate-50/60 transition">
               <span className="w-3 h-3 rounded-full bg-slate-500 shrink-0 mt-1"></span>
               <div className="flex-1 min-w-0">
-                <h4 className="text-xs font-bold text-slate-900">حرائق تم إخمادها</h4>
-                <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">مناطق تم إخماد النيران والسيطرة عليها وهي في طور الإغاثة.</p>
+                <h4 className="text-xs font-bold text-slate-900">حرائق تم إخمادها والسيطرة</h4>
+                <p className="text-[11px] text-slate-500 mt-0.5 leading-relaxed">مناطق تم إخماد النيران والسيطرة عليها وهي في طور الإغاثة والإمداد.</p>
               </div>
             </div>
           </div>

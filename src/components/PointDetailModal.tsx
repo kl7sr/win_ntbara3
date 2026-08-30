@@ -207,11 +207,15 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
                   <span className={`text-xs font-bold ${
                     point.pointType === 'burnt_zone'
                       ? (point.status === 'urgent' || point.status === 'active' ? 'text-red-700' : 'text-slate-600')
+                      : point.pointType === 'shelter'
+                      ? (point.verified ? 'text-emerald-800' : 'text-amber-800')
                       : (point.verified ? 'text-emerald-800' : 'text-amber-800')
                   }`}>
                     {point.pointType === 'burnt_zone'
                       ? (point.status === 'urgent' || point.status === 'active' ? 'بؤرة حرائق نشطة' : 'حريق تم إخماده')
-                      : (point.verified ? 'موقع مؤكد وموثوق' : 'غير مؤكد رسمياً (يُرجى الاتصال للتأكد)')}
+                      : point.pointType === 'shelter'
+                      ? (point.verified ? 'مركز إيواء مؤكد ومجهز' : 'مركز إيواء غير مؤكد رسمياً')
+                      : (point.verified ? 'موقع تبرع مؤكد وموثوق' : 'غير مؤكد رسمياً (يُرجى الاتصال للتأكد)')}
                   </span>
                 </div>
 
