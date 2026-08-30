@@ -130,7 +130,7 @@ export const InstallAppBanner: React.FC<{
           <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-sm p-5 shadow-2xl space-y-4 text-right">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2.5">
-                <span className="p-2 bg-slate-100 text-slate-800 rounded-xl border border-slate-200">
+                <span className="p-2 bg-emerald-700 text-white rounded-xl shadow-2xs">
                   <Smartphone className="w-5 h-5" />
                 </span>
                 <h3 className="text-sm font-black text-slate-900">

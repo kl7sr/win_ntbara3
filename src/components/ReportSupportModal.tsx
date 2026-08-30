@@ -32,7 +32,7 @@ export const ReportSupportModal: React.FC<ReportSupportModalProps> = ({
         {/* Header */}
         <div className="p-4 bg-white border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-slate-100 text-slate-700 rounded-xl border border-slate-200">
+            <div className="p-2 bg-emerald-700 text-white rounded-xl shadow-2xs">
               <Wrench className="w-5 h-5" />
             </div>
             <div>

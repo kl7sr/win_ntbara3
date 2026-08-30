@@ -162,8 +162,8 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
                   className="group p-4 sm:p-5 rounded-2xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 transition shadow-xs text-right flex items-center justify-between gap-3 active:scale-[0.99]"
                 >
                   <div className="space-y-1 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="p-2 bg-slate-900 text-white rounded-xl shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="p-2.5 bg-emerald-700 text-white rounded-xl shadow-2xs">
                         <Search className="w-5 h-5" />
                       </span>
                       <h4 className="text-sm sm:text-base font-bold text-slate-900">
@@ -174,7 +174,7 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
                           : 'Find a Donation or Relief Spot'}
                       </h4>
                     </div>
-                    <p className="text-xs text-slate-500 pr-11 leading-relaxed">
+                    <p className="text-xs text-slate-500 pr-12 leading-relaxed">
                       {currentLanguage === 'ar'
                         ? 'استكشف نقاط التبرع المعتمدة والمناطق المتضررة في ولايتك وجوارها'
                         : currentLanguage === 'fr'
@@ -192,8 +192,8 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
                   className="group p-4 sm:p-5 rounded-2xl border border-slate-200 hover:border-slate-300 bg-white hover:bg-slate-50 transition shadow-xs text-right flex items-center justify-between gap-3 active:scale-[0.99]"
                 >
                   <div className="space-y-1 flex-1">
-                    <div className="flex items-center gap-2">
-                      <span className="p-2 bg-slate-800 text-white rounded-xl shadow-xs">
+                    <div className="flex items-center gap-2.5">
+                      <span className="p-2.5 bg-emerald-700 text-white rounded-xl shadow-2xs">
                         <PlusCircle className="w-5 h-5" />
                       </span>
                       <h4 className="text-sm sm:text-base font-bold text-slate-900">
@@ -204,7 +204,7 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
                           : 'Add or Pin a New Donation Spot'}
                       </h4>
                     </div>
-                    <p className="text-xs text-slate-500 pr-11 leading-relaxed">
+                    <p className="text-xs text-slate-500 pr-12 leading-relaxed">
                       {currentLanguage === 'ar'
                         ? 'ساهم في إضافة جمعية، مسجد، أو نقطة تطوع لإرشاد المتبرعين'
                         : currentLanguage === 'fr'

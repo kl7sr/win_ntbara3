@@ -372,7 +372,7 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
         {/* Header */}
         <div className="px-4 py-3 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
-            <div className="p-2 bg-slate-100 text-slate-800 rounded-xl border border-slate-200">
+            <div className="p-2 bg-emerald-700 text-white rounded-xl shadow-2xs">
               <MapPin className="w-5 h-5" />
             </div>
             <div>
