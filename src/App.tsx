@@ -113,16 +113,23 @@ export function App() {
 
       const livePoints = await fetchLivePointsFromD1();
       if (livePoints && livePoints.length > 0) {
-        // Merge live points with local photos so uploaded images are never lost on refresh
-        const merged = livePoints.map((lp) => {
-          const localMatch = initial.find((ip) => ip.id === lp.id);
+        const mergedMap = new Map<string, CharityPoint>();
+        // 1. Start with all initial / seed points
+        initial.forEach((ip) => mergedMap.set(ip.id, ip));
+
+        // 2. Overlay live points from D1
+        livePoints.forEach((lp) => {
+          const localMatch = mergedMap.get(lp.id);
           if (localMatch && localMatch.images && localMatch.images.length > 0 && (!lp.images || lp.images.length === 0)) {
-            return { ...lp, images: localMatch.images, imageUrl: localMatch.imageUrl };
+            mergedMap.set(lp.id, { ...lp, images: localMatch.images, imageUrl: localMatch.imageUrl });
+          } else {
+            mergedMap.set(lp.id, lp);
           }
-          return lp;
         });
-        setPoints(merged);
-        savePoints(merged);
+
+        const finalList = Array.from(mergedMap.values());
+        setPoints(finalList);
+        savePoints(finalList);
       }
     } catch (e) {
       console.error('Error loading points:', e);
