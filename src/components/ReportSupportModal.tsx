@@ -111,13 +111,23 @@ export const ReportSupportModal: React.FC<ReportSupportModalProps> = ({
               <ExternalLink className="w-3 h-3" />
             </span>
           </a>
+          {/* Credits / Thanks */}
+          <div className="pt-2 text-center border-t border-slate-100">
+            <p className="text-[11px] text-slate-500 font-medium leading-relaxed">
+              {currentLanguage === 'fr'
+                ? <>Remerciements au <span className="font-bold text-slate-700">Quanta Club</span> pour la contribution aux coordonnées de la carte.</>
+                : currentLanguage === 'en'
+                ? <>Special thanks to <span className="font-bold text-slate-700">Quanta Club</span> for providing and verifying some of the map locations.</>
+                : <>شكر وتقدير لنادي <span className="font-bold text-slate-700">Quanta Club</span> للمساهمة في توفير وتدقيق بعض مواقع وإحداثيات الخريطة.</>}
+            </p>
+          </div>
         </div>
 
         {/* Footer */}
         <div className="p-3 bg-slate-50 border-t border-slate-200">
           <button
             onClick={onClose}
-            className="w-full py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold rounded-xl transition"
+            className="w-full py-2.5 bg-slate-200 hover:bg-slate-300 text-slate-800 text-xs font-bold rounded-xl transition active:scale-98"
           >
             إغلاق
           </button>
