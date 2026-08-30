@@ -103,6 +103,7 @@ export function App() {
 
   // Notification Toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [isRefreshing, setIsRefreshing] = useState<boolean>(false);
 
   // Load points directly from Cloudflare D1 Database (with instant local fallback and photo preservation)
   const loadPoints = useCallback(async () => {
@@ -127,6 +128,18 @@ export function App() {
       console.error('Error loading points:', e);
     }
   }, []);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    try {
+      await loadPoints();
+      showToast('تم تحديث البيانات مباشرة بنجاح 🔄');
+    } catch {
+      showToast('تعذر تحديث البيانات');
+    } finally {
+      setTimeout(() => setIsRefreshing(false), 600);
+    }
+  };
 
   useEffect(() => {
     loadPoints();
@@ -304,10 +317,12 @@ export function App() {
         totalPoints={activeVisiblePoints.length}
         currentLanguage={language}
         onSelectLanguage={handleLanguageChange}
+        onRefresh={handleRefresh}
+        isRefreshing={isRefreshing}
       />
 
       {/* 3. Main Full-Screen Map */}
-      <main className="flex-1 relative w-full h-full pb-16 overflow-hidden">
+      <main className="flex-1 relative w-full h-full pb-14 overflow-hidden">
         <MapComponent
           points={activeVisiblePoints}
           selectedPoint={selectedPoint}
@@ -321,14 +336,14 @@ export function App() {
 
         {/* Clean Floating Fire Toggle on Map (Top Right) - Only when no modal/drawer is active */}
         {!isWelcomeModalOpen && !isWilayaResultsModalOpen && !isNearestDrawerOpen && !selectedPoint && !isAddModalOpen && !isAdminOpen && (
-          <div className="absolute top-3 right-3 z-20 flex items-center pointer-events-auto animate-in fade-in duration-200">
+          <div className="absolute top-2.5 right-2.5 z-20 flex items-center pointer-events-auto animate-in fade-in duration-200">
             <button
               type="button"
               onClick={() => setShowFireZones(!showFireZones)}
-              className={`px-3 py-1.5 rounded-full shadow-lg border text-xs font-bold flex items-center gap-1.5 transition active:scale-95 whitespace-nowrap ${
+              className={`px-2.5 py-1 rounded-full shadow-md border text-[11px] font-bold flex items-center gap-1.5 transition active:scale-95 whitespace-nowrap ${
                 showFireZones
                   ? 'bg-red-600 text-white border-red-700 shadow-red-500/20'
-                  : 'bg-white/95 hover:bg-white text-slate-700 border-slate-200'
+                  : 'bg-white/95 hover:bg-white text-slate-700 border-slate-200 backdrop-blur-xs'
               }`}
               title="إظهار أو إخفاء مناطق الحرائق"
             >
@@ -336,7 +351,7 @@ export function App() {
                 type="checkbox"
                 checked={showFireZones}
                 onChange={() => {}}
-                className="w-3.5 h-3.5 accent-red-600 rounded pointer-events-none"
+                className="w-3 h-3 accent-red-600 rounded pointer-events-none"
               />
               <span>مناطق الحرائق</span>
             </button>
@@ -344,16 +359,16 @@ export function App() {
         )}
       </main>
 
-      {/* 4. Bottom Navigation Bar (5 Action Items) */}
-      <footer className="fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-3 sm:px-6 py-2 shadow-2xl safe-bottom-padding flex items-center justify-between max-w-lg mx-auto sm:rounded-t-2xl">
+      {/* 4. Bottom Navigation Bar (5 Action Items - Compact & Dynamic) */}
+      <footer className="fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-2 sm:px-4 py-1 shadow-2xl flex items-center justify-between max-w-lg mx-auto sm:rounded-t-2xl pb-[max(0.35rem,env(safe-area-inset-bottom))]">
         {/* 1. Map Key / Legend Tab */}
         <button
           onClick={() => setIsLegendModalOpen(true)}
-          className="flex flex-col items-center justify-center gap-1 py-1 px-1.5 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
+          className="flex flex-col items-center justify-center gap-0.5 py-1 px-1 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
           title="مفتاح الخريطة"
         >
           <Layers className="w-4 h-4 text-slate-600" />
-          <span className="text-[10px] font-bold">المفتاح</span>
+          <span className="text-[9.5px] font-bold">المفتاح</span>
         </button>
 
         {/* 2. Map Tab */}
@@ -362,43 +377,43 @@ export function App() {
             setIsNearestDrawerOpen(false);
             setSelectedPoint(null);
           }}
-          className="flex flex-col items-center justify-center gap-1 py-1 px-1.5 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
+          className="flex flex-col items-center justify-center gap-0.5 py-1 px-1 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
           title={t.exploreMap}
         >
           <MapIcon className="w-4 h-4 text-emerald-700" />
-          <span className="text-[10px] font-bold">{t.exploreMap}</span>
+          <span className="text-[9.5px] font-bold">{t.exploreMap}</span>
         </button>
 
         {/* 3. Add Point CTA */}
-        <div className="flex-1 flex flex-col items-center justify-center -mt-6">
+        <div className="flex-1 flex flex-col items-center justify-center -mt-5">
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="w-13 h-13 sm:w-14 sm:h-14 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-xl flex items-center justify-center border-4 border-white active:scale-95 transition shrink-0"
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-lg flex items-center justify-center border-[3px] border-white active:scale-95 transition shrink-0"
             title={t.addPoint}
           >
-            <Plus className="w-6 h-6 stroke-[2.5]" />
+            <Plus className="w-5 h-5 stroke-[2.5]" />
           </button>
-          <span className="text-[9.5px] sm:text-[10px] font-extrabold text-emerald-800 mt-0.5 whitespace-nowrap">{t.addPoint}</span>
+          <span className="text-[9px] sm:text-[9.5px] font-black text-emerald-800 mt-0.5 whitespace-nowrap">{t.addPoint}</span>
         </div>
 
         {/* 4. Nearest Drawer Tab */}
         <button
           onClick={() => setIsNearestDrawerOpen(true)}
-          className="flex flex-col items-center justify-center gap-1 py-1 px-1.5 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
+          className="flex flex-col items-center justify-center gap-0.5 py-1 px-1 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
           title={t.nearestToMe}
         >
           <Compass className="w-4 h-4 text-slate-600" />
-          <span className="text-[10px] font-bold">{t.nearestToMe}</span>
+          <span className="text-[9.5px] font-bold">{t.nearestToMe}</span>
         </button>
 
         {/* 5. Support / Report Technical Problems Tab */}
         <button
           onClick={() => setIsSupportModalOpen(true)}
-          className="flex flex-col items-center justify-center gap-1 py-1 px-1.5 text-slate-700 hover:text-amber-700 active:scale-95 transition flex-1"
+          className="flex flex-col items-center justify-center gap-0.5 py-1 px-1 text-slate-700 hover:text-amber-700 active:scale-95 transition flex-1"
           title="الدعم الفني والإبلاغ"
         >
           <Wrench className="w-4 h-4 text-amber-600" />
-          <span className="text-[10px] font-bold">الدعم الفني</span>
+          <span className="text-[9.5px] font-bold">الدعم</span>
         </button>
       </footer>
 
