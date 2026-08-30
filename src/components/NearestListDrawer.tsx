@@ -90,7 +90,7 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
   const selectedWilayaObj = WILAYAS.find((w) => w.code === selectedWilaya);
 
   return (
-    <div className="fixed top-0 bottom-14 sm:bottom-16 right-0 z-30 w-full sm:max-w-md bg-white shadow-2xl flex flex-col border-l border-slate-200 animate-in slide-in-from-right duration-200">
+    <div className="fixed inset-y-0 right-0 z-30 w-full sm:max-w-md bg-white shadow-2xl flex flex-col border-l border-slate-200 animate-in slide-in-from-right duration-200">
       {/* Header */}
       <div className="p-4 bg-slate-50 border-b border-slate-200 flex items-center justify-between">
         <div className="flex items-center gap-2">
@@ -139,7 +139,7 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
               onChange={(e) => onSelectWilaya(e.target.value ? Number(e.target.value) : null)}
               className="w-full bg-slate-50 border border-slate-200 text-slate-800 text-xs rounded-lg px-2 py-1.5 focus:outline-none"
             >
-              <option value="">{currentLanguage === 'ar' ? 'اختر الولاية' : 'Choisir la wilaya'}</option>
+              <option value="">جميع الولايات (58 ولاية)</option>
               {WILAYAS.map((w) => (
                 <option key={w.code} value={w.code}>
                   {w.code} - {w.nameAr}
@@ -151,7 +151,7 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
           <button
             type="button"
             onClick={onRequestLocation}
-            className="px-3 py-1.5 bg-emerald-50 hover:bg-emerald-100 text-emerald-800 font-bold rounded-lg flex items-center gap-1 shrink-0 border border-emerald-200"
+            className="px-3 py-1.5 bg-emerald-50 text-emerald-800 border border-emerald-200 hover:bg-emerald-100 rounded-lg text-xs font-semibold flex items-center gap-1 transition shrink-0"
           >
             <LocateFixed className="w-3.5 h-3.5" />
             <span>GPS</span>
@@ -160,7 +160,7 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
       </div>
 
       {/* Main List */}
-      <div className="flex-1 overflow-y-auto p-3 space-y-3">
+      <div className="flex-1 overflow-y-auto p-3 pb-24 space-y-3">
         {/* In-Wilaya Points Section */}
         {filtered.length === 0 ? (
           <div className="text-center py-10 space-y-2 text-slate-500">

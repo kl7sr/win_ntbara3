@@ -347,11 +347,11 @@ export function App() {
       </main>
 
       {/* 4. Bottom Navigation Bar (5 Action Items - Compact & Dynamic) */}
-      <footer className="fixed bottom-0 inset-x-0 z-40 bg-white/98 backdrop-blur-md border-t border-slate-200 px-2 sm:px-4 py-1 shadow-2xl flex items-center justify-between max-w-lg mx-auto sm:rounded-t-2xl pb-[max(0.35rem,env(safe-area-inset-bottom))]">
+      <footer className="fixed bottom-0 inset-x-0 z-40 bg-white border-t border-slate-200 px-2 sm:px-4 py-1.5 shadow-2xl flex items-center justify-between max-w-lg mx-auto sm:rounded-t-2xl pb-[max(0.35rem,env(safe-area-inset-bottom))]">
         {/* 1. Map Key / Legend Tab */}
         <button
           onClick={() => setIsLegendModalOpen(true)}
-          className="flex flex-col items-center justify-center gap-0.5 py-1 px-1 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
+          className="flex flex-col items-center justify-center gap-0.5 py-1 px-1 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1 focus:outline-none focus:ring-0 outline-none select-none"
           title="مفتاح الخريطة"
         >
           <Layers className="w-4 h-4 text-slate-600" />
@@ -364,7 +364,7 @@ export function App() {
             setIsNearestDrawerOpen(false);
             setSelectedPoint(null);
           }}
-          className={`flex flex-col items-center justify-center gap-0.5 py-1 px-1 active:scale-95 transition flex-1 ${
+          className={`flex flex-col items-center justify-center gap-0.5 py-1 px-1 active:scale-95 transition flex-1 focus:outline-none focus:ring-0 outline-none select-none ${
             !isNearestDrawerOpen
               ? 'text-emerald-800 font-black'
               : 'text-slate-600 hover:text-slate-900'
@@ -379,18 +379,18 @@ export function App() {
         <div className="flex-1 flex flex-col items-center justify-center -mt-5">
           <button
             onClick={() => setIsAddModalOpen(true)}
-            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-lg flex items-center justify-center border-[3px] border-white active:scale-95 transition shrink-0"
+            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-lg flex items-center justify-center border-[3px] border-white active:scale-95 transition shrink-0 focus:outline-none focus:ring-0 outline-none select-none"
             title={t.addPoint}
           >
             <Plus className="w-5 h-5 stroke-[2.5]" />
           </button>
-          <span className="text-[9px] sm:text-[9.5px] font-black text-emerald-800 mt-0.5 whitespace-nowrap">{t.addPoint}</span>
+          <span className="text-[9px] sm:text-[9.5px] font-black text-emerald-800 mt-0.5 whitespace-nowrap select-none">{t.addPoint}</span>
         </div>
 
         {/* 4. Nearest Drawer Tab */}
         <button
           onClick={() => setIsNearestDrawerOpen((prev) => !prev)}
-          className={`flex flex-col items-center justify-center gap-0.5 py-1 px-1 active:scale-95 transition flex-1 ${
+          className={`flex flex-col items-center justify-center gap-0.5 py-1 px-1 active:scale-95 transition flex-1 focus:outline-none focus:ring-0 outline-none select-none ${
             isNearestDrawerOpen
               ? 'text-emerald-800 font-black'
               : 'text-slate-600 hover:text-slate-900'
@@ -404,7 +404,7 @@ export function App() {
         {/* 5. Support / Report Technical Problems Tab */}
         <button
           onClick={() => setIsSupportModalOpen(true)}
-          className="flex flex-col items-center justify-center gap-0.5 py-1 px-1 text-slate-700 hover:text-amber-700 active:scale-95 transition flex-1"
+          className="flex flex-col items-center justify-center gap-0.5 py-1 px-1 text-slate-700 hover:text-amber-700 active:scale-95 transition flex-1 focus:outline-none focus:ring-0 outline-none select-none"
           title="الدعم الفني والإبلاغ"
         >
           <Wrench className="w-4 h-4 text-amber-600" />
