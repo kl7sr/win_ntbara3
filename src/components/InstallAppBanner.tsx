@@ -1,38 +1,48 @@
 import React, { useState, useEffect } from 'react';
-import { Download, X, Smartphone, Share, PlusSquare, Check, MoreVertical } from 'lucide-react';
+import { Download, X, Smartphone } from 'lucide-react';
 import { Language, TRANSLATIONS } from '../i18n/translations';
 
-interface InstallAppBannerProps {
-  currentLanguage?: Language;
-}
+const INSTALLED_KEY = 'win_ntbara3_pwa_installed';
 
-export const InstallAppBanner: React.FC<InstallAppBannerProps> = ({ currentLanguage = 'ar' }) => {
+export const InstallAppBanner: React.FC<{ currentLanguage?: Language }> = ({ currentLanguage = 'ar' }) => {
   const [deferredPrompt, setDeferredPrompt] = useState<any>(null);
   const [showBanner, setShowBanner] = useState<boolean>(false);
   const [showGuideModal, setShowGuideModal] = useState<boolean>(false);
   const [isIos, setIsIos] = useState<boolean>(false);
-  const [isInstalled, setIsInstalled] = useState<boolean>(false);
 
   const t = TRANSLATIONS[currentLanguage];
 
   useEffect(() => {
-    // 1. Check if already installed
-    const isStandalone = window.matchMedia('(display-mode: standalone)').matches || (window.navigator as any).standalone;
-    if (isStandalone) {
-      setIsInstalled(true);
+    // 1. Comprehensive Installed / Standalone App Checks
+    const isStandaloneDisplay = window.matchMedia('(display-mode: standalone)').matches 
+      || window.matchMedia('(display-mode: fullscreen)').matches
+      || window.matchMedia('(display-mode: minimal-ui)').matches;
+    const isIosStandalone = (window.navigator as any).standalone === true;
+    const isPwaUrl = window.location.search.includes('mode=standalone');
+    const isStoredInstalled = localStorage.getItem(INSTALLED_KEY) === 'true';
+
+    // If running as the installed app, NEVER show the banner
+    if (isStandaloneDisplay || isIosStandalone || isPwaUrl || isStoredInstalled) {
       return;
     }
 
-    // 2. Capture Chrome/Android PWA event
+    // 2. Listen to native app install completion event
+    const handleAppInstalled = () => {
+      localStorage.setItem(INSTALLED_KEY, 'true');
+      setShowBanner(false);
+      setShowGuideModal(false);
+    };
+    window.addEventListener('appinstalled', handleAppInstalled);
+
+    // 3. Android/Chrome native install prompt capture
     const handleBeforeInstall = (e: Event) => {
       e.preventDefault();
       setDeferredPrompt(e);
       setShowBanner(true);
     };
-
     window.addEventListener('beforeinstallprompt', handleBeforeInstall);
 
-    // 3. Detect iOS Safari or Mobile Browsers
+    // 4. Mobile browser check (Safari iOS, Samsung, Firefox Mobile)
     const isIosDevice = /iPhone|iPad|iPod/.test(navigator.userAgent) && !(window as any).MSStream;
     const isMobile = /Android|iPhone|iPad|iPod|Mobile/i.test(navigator.userAgent);
 
@@ -40,8 +50,7 @@ export const InstallAppBanner: React.FC<InstallAppBannerProps> = ({ currentLangu
       setIsIos(true);
     }
 
-    if (isMobile && !isStandalone) {
-      // Show install banner on mobile after 1.5 seconds
+    if (isMobile) {
       const timer = setTimeout(() => {
         setShowBanner(true);
       }, 1500);
@@ -50,6 +59,7 @@ export const InstallAppBanner: React.FC<InstallAppBannerProps> = ({ currentLangu
 
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstall);
+      window.removeEventListener('appinstalled', handleAppInstalled);
     };
   }, []);
 
@@ -58,8 +68,8 @@ export const InstallAppBanner: React.FC<InstallAppBannerProps> = ({ currentLangu
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       if (outcome === 'accepted') {
+        localStorage.setItem(INSTALLED_KEY, 'true');
         setShowBanner(false);
-        setIsInstalled(true);
       }
       setDeferredPrompt(null);
     } else {
@@ -72,7 +82,7 @@ export const InstallAppBanner: React.FC<InstallAppBannerProps> = ({ currentLangu
     setShowGuideModal(false);
   };
 
-  if (isInstalled || !showBanner) return null;
+  if (!showBanner) return null;
 
   return (
     <>
@@ -123,7 +133,7 @@ export const InstallAppBanner: React.FC<InstallAppBannerProps> = ({ currentLangu
         </div>
       </aside>
 
-      {/* Manual Step-by-Step Installation Modal for iOS / Browser Menus */}
+      {/* Step-by-Step Installation Modal */}
       {showGuideModal && (
         <div 
           className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-4 bg-slate-950/60 backdrop-blur-xs animate-in fade-in duration-150"
@@ -190,10 +200,13 @@ export const InstallAppBanner: React.FC<InstallAppBannerProps> = ({ currentLangu
 
             <button
               type="button"
-              onClick={() => setShowGuideModal(false)}
+              onClick={() => {
+                setShowGuideModal(false);
+                setShowBanner(false);
+              }}
               className="w-full py-2.5 bg-emerald-700 hover:bg-emerald-800 text-white font-bold rounded-xl text-xs shadow-sm transition"
             >
-              تم
+              فهمت، شكراً
             </button>
           </div>
         </div>

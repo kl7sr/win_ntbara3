@@ -2,14 +2,7 @@ import React, { useState } from 'react';
 import { 
   ShieldCheck, 
   MapPin, 
-  HeartHandshake, 
-  Utensils, 
-  Shirt, 
-  HeartPulse, 
-  BedDouble, 
-  Baby,
   Globe,
-  Flame,
   Check
 } from 'lucide-react';
 import { WILAYAS } from '../data/wilayas';
@@ -21,8 +14,6 @@ interface NavbarProps {
   onOpenAdmin: () => void;
   selectedWilaya: number | null;
   onSelectWilaya: (code: number | null) => void;
-  activeFilter: string | null;
-  onSelectFilter: (category: string | null) => void;
   totalPoints: number;
   currentLanguage: Language;
   onSelectLanguage: (lang: Language) => void;
@@ -34,8 +25,6 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAdmin,
   selectedWilaya,
   onSelectWilaya,
-  activeFilter,
-  onSelectFilter,
   totalPoints,
   currentLanguage,
   onSelectLanguage,
@@ -51,7 +40,7 @@ export const Navbar: React.FC<NavbarProps> = ({
 
   return (
     <header className="sticky top-0 z-30 bg-white border-b border-slate-200 shadow-xs">
-      {/* Top Mobile Bar */}
+      {/* Main Bar */}
       <div className="px-3 sm:px-6 py-2.5 flex items-center justify-between gap-2">
         {/* Brand */}
         <div 
@@ -73,7 +62,7 @@ export const Navbar: React.FC<NavbarProps> = ({
           </div>
         </div>
 
-        {/* Wilaya Filter Dropdown - Compact on Mobile */}
+        {/* Wilaya Filter Dropdown */}
         <div className="flex-1 max-w-[170px] sm:max-w-[220px]">
           <div className="relative">
             <select
@@ -139,92 +128,6 @@ export const Navbar: React.FC<NavbarProps> = ({
             <ShieldCheck className="w-4 h-4 text-slate-700" />
           </button>
         </div>
-      </div>
-
-      {/* Touch-scrollable Category Filter Bar */}
-      <div className="px-3 py-1.5 border-t border-slate-100 flex items-center gap-1.5 overflow-x-auto text-xs bg-slate-50/70 no-scrollbar">
-        <button
-          onClick={() => onSelectFilter(null)}
-          className={`px-3 py-1 rounded-md font-semibold transition whitespace-nowrap text-xs ${
-            activeFilter === null
-              ? 'bg-emerald-700 text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-          }`}
-        >
-          {t.categories.all}
-        </button>
-
-        <button
-          onClick={() => onSelectFilter('food_water')}
-          className={`px-2.5 py-1 rounded-md font-medium transition whitespace-nowrap flex items-center gap-1 text-xs ${
-            activeFilter === 'food_water'
-              ? 'bg-emerald-700 text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-          }`}
-        >
-          <Utensils className="w-3 h-3 text-amber-600" />
-          <span>{t.categories.food_water}</span>
-        </button>
-
-        <button
-          onClick={() => onSelectFilter('medical')}
-          className={`px-2.5 py-1 rounded-md font-medium transition whitespace-nowrap flex items-center gap-1 text-xs ${
-            activeFilter === 'medical'
-              ? 'bg-emerald-700 text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-          }`}
-        >
-          <HeartPulse className="w-3 h-3 text-red-600" />
-          <span>{t.categories.medical}</span>
-        </button>
-
-        <button
-          onClick={() => onSelectFilter('clothes')}
-          className={`px-2.5 py-1 rounded-md font-medium transition whitespace-nowrap flex items-center gap-1 text-xs ${
-            activeFilter === 'clothes'
-              ? 'bg-emerald-700 text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-          }`}
-        >
-          <Shirt className="w-3 h-3 text-indigo-600" />
-          <span>{t.categories.clothes}</span>
-        </button>
-
-        <button
-          onClick={() => onSelectFilter('shelter')}
-          className={`px-2.5 py-1 rounded-md font-medium transition whitespace-nowrap flex items-center gap-1 text-xs ${
-            activeFilter === 'shelter'
-              ? 'bg-emerald-700 text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-          }`}
-        >
-          <BedDouble className="w-3 h-3 text-teal-600" />
-          <span>{t.categories.shelter}</span>
-        </button>
-
-        <button
-          onClick={() => onSelectFilter('baby_supplies')}
-          className={`px-2.5 py-1 rounded-md font-medium transition whitespace-nowrap flex items-center gap-1 text-xs ${
-            activeFilter === 'baby_supplies'
-              ? 'bg-emerald-700 text-white shadow-xs'
-              : 'bg-white text-slate-700 border border-slate-200 hover:bg-slate-50'
-          }`}
-        >
-          <Baby className="w-3 h-3 text-pink-600" />
-          <span>{t.categories.baby_supplies}</span>
-        </button>
-
-        <button
-          onClick={() => onSelectFilter('burnt_zone')}
-          className={`px-2.5 py-1 rounded-md font-bold transition whitespace-nowrap flex items-center gap-1 text-xs ${
-            activeFilter === 'burnt_zone'
-              ? 'bg-red-600 text-white shadow-xs'
-              : 'bg-red-50 text-red-700 border border-red-200 hover:bg-red-100'
-          }`}
-        >
-          <Flame className="w-3 h-3 text-red-600" />
-          <span>{t.categories.burnt_zone}</span>
-        </button>
       </div>
     </header>
   );

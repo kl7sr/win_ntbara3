@@ -2,7 +2,7 @@
   "name": "وين نتبرع - منصة التبرعات والإغاثة الجزائرية",
   "short_name": "وين نتبرع",
   "description": "دليل وخريطة مواقع ونقاط جمع التبرعات والمساعدات ومناطق الإغاثة في الجزائر",
-  "start_url": "/",
+  "start_url": "/?mode=standalone",
   "display": "standalone",
   "background_color": "#0F7A47",
   "theme_color": "#0F7A47",

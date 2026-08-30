@@ -227,8 +227,6 @@ export function App() {
         onOpenAdmin={() => setIsAdminOpen(true)}
         selectedWilaya={selectedWilaya}
         onSelectWilaya={setSelectedWilaya}
-        activeFilter={activeCategoryFilter}
-        onSelectFilter={setActiveCategoryFilter}
         totalPoints={displayedPoints.length}
         currentLanguage={language}
         onSelectLanguage={handleLanguageChange}
