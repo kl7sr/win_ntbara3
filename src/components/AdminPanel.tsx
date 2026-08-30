@@ -199,7 +199,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
     const wilaya = WILAYAS.find((w) => w.code === burntWilaya) || WILAYAS[14];
 
     onAddPoint({
-      title: burntTitle.startsWith('🔥') || burntTitle.startsWith('💨') ? burntTitle.trim() : `${burntStatus === 'extinguished' ? '💨' : '🔥'} ${burntTitle.trim()}`,
+      title: burntTitle.trim(),
       organizer: burntCoordinator.trim() || 'خلية إغاثة المتضررين والحماية المدنية',
       phone: burntPhone.trim() || '14',
       wilayaCode: wilaya.code,
@@ -698,7 +698,7 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                                 ? 'bg-slate-100 text-slate-700 border-slate-300'
                                 : 'bg-red-50 text-red-700 border-red-200'
                             }`}>
-                              {point.status === 'extinguished' ? '💨 تم الإخماد (رمادي)' : '🔥 حريق نشط'}
+                              {point.status === 'extinguished' ? 'تم الإخماد' : 'حريق نشط'}
                             </span>
                           </div>
                           <p className="text-xs text-slate-600">{point.wilayaNameAr} - {point.commune} ({point.address})</p>
@@ -804,8 +804,8 @@ export const AdminPanel: React.FC<AdminPanelProps> = ({
                         onChange={(e) => setBurntStatus(e.target.value as PointStatus)}
                         className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-2 text-slate-900 font-bold"
                       >
-                        <option value="urgent">🔥 حريق نشط / بحاجة لإغاثة عاجلة (أحمر)</option>
-                        <option value="extinguished">💨 تم إخماد الحريق والسيطرة عليه (رمادي)</option>
+                        <option value="urgent">حريق نشط / بحاجة لإغاثة عاجلة</option>
+                        <option value="extinguished">تم إخماد الحريق والسيطرة عليه</option>
                       </select>
                     </div>
 

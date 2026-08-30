@@ -18,6 +18,7 @@ export interface Translations {
   copyLink: string;
   copied: string;
   openGoogleMaps: string;
+  installApp: string;
   categories: {
     all: string;
     food_water: string;
@@ -83,8 +84,9 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     callNumber: 'اتصال مباشر',
     whatsappShare: 'مشاركة بالواتساب',
     copyLink: 'نسخ الرابط',
-    copied: 'تم النسخ ✓',
+    copied: 'تم النسخ',
     openGoogleMaps: 'التوجه عبر Google Maps',
+    installApp: 'تثبيت التطبيق',
     categories: {
       all: 'الكل',
       food_water: 'غذاء ومياه',
@@ -92,8 +94,8 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       medical: 'مستلزمات طبية',
       shelter: 'إيواء ومفروشات',
       baby_supplies: 'مستلزمات رضع',
-      burnt_zone: '🔥 مناطق الحرائق',
-      extinguished: '💨 تم الإخماد',
+      burnt_zone: 'مناطق الحرائق',
+      extinguished: 'تم الإخماد',
     },
     details: {
       organizer: 'المشرف / الجمعية',
@@ -101,10 +103,10 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       address: 'العنوان',
       commune: 'البلدية',
       wilaya: 'الولاية',
-      verified: 'موقع مؤكد وموثق ✓',
+      verified: 'موقع مؤكد وموثق',
       unverified: 'موقع غير مؤكد رسمياً',
-      extinguishedFire: '💨 تم إخماد الحريق والسيطرة عليه',
-      activeFire: '🔥 حريق نشط / بحاجة لإغاثة عاجلة',
+      extinguishedFire: 'تم إخماد الحريق والسيطرة عليه',
+      activeFire: 'حريق نشط / بحاجة لإغاثة عاجلة',
       distanceAway: 'يبعد عنك',
       photosAttached: 'صور المركز المرفقة',
       adminEdit: 'تعديل بيانات هذه النقطة (Admin Edit)',
@@ -148,8 +150,9 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     callNumber: 'Appeler',
     whatsappShare: 'Partager WhatsApp',
     copyLink: 'Copier le lien',
-    copied: 'Copié ✓',
+    copied: 'Copié',
     openGoogleMaps: 'Itinéraire Google Maps',
+    installApp: 'Installer l\'application',
     categories: {
       all: 'Tous',
       food_water: 'Nourriture & Eau',
@@ -157,8 +160,8 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       medical: 'Médical & Soins',
       shelter: 'Hébergement',
       baby_supplies: 'Bébés & Enfants',
-      burnt_zone: '🔥 Zones Incendies',
-      extinguished: '💨 Feux éteints',
+      burnt_zone: 'Zones Incendies',
+      extinguished: 'Feux éteints',
     },
     details: {
       organizer: 'Organisateur / Association',
@@ -166,10 +169,10 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       address: 'Adresse',
       commune: 'Commune',
       wilaya: 'Wilaya',
-      verified: 'Lieu vérifié et confirmé ✓',
+      verified: 'Lieu vérifié et confirmé',
       unverified: 'Lieu non confirmé officiellement',
-      extinguishedFire: '💨 Incendie maîtrisé et éteint',
-      activeFire: '🔥 Incendie actif / Secours urgent',
+      extinguishedFire: 'Incendie maîtrisé et éteint',
+      activeFire: 'Incendie actif / Secours urgent',
       distanceAway: 'À une distance de',
       photosAttached: 'Photos du centre',
       adminEdit: 'Modifier ce point (Admin Edit)',
@@ -213,8 +216,9 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     callNumber: 'Call Now',
     whatsappShare: 'Share WhatsApp',
     copyLink: 'Copy Link',
-    copied: 'Copied ✓',
+    copied: 'Copied',
     openGoogleMaps: 'Google Maps Directions',
+    installApp: 'Install App',
     categories: {
       all: 'All',
       food_water: 'Food & Water',
@@ -222,8 +226,8 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       medical: 'Medical Supplies',
       shelter: 'Shelter & Mats',
       baby_supplies: 'Baby Supplies',
-      burnt_zone: '🔥 Fire Zones',
-      extinguished: '💨 Extinguished',
+      burnt_zone: 'Fire Zones',
+      extinguished: 'Extinguished',
     },
     details: {
       organizer: 'Organizer / Charity',
@@ -231,10 +235,10 @@ export const TRANSLATIONS: Record<Language, Translations> = {
       address: 'Address',
       commune: 'Municipality',
       wilaya: 'Wilaya',
-      verified: 'Verified & Confirmed ✓',
+      verified: 'Verified & Confirmed',
       unverified: 'Unconfirmed Location',
-      extinguishedFire: '💨 Fire Extinguished & Contained',
-      activeFire: '🔥 Active Fire / Urgent Relief Needed',
+      extinguishedFire: 'Fire Extinguished & Contained',
+      activeFire: 'Active Fire / Urgent Relief Needed',
       distanceAway: 'Distance away',
       photosAttached: 'Attached Photos',
       adminEdit: 'Edit Point (Admin Edit)',

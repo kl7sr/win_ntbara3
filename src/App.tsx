@@ -340,7 +340,7 @@ export function App() {
       />
 
       {/* 10. Phone App Install Prompt (PWA) */}
-      <InstallAppBanner />
+      <InstallAppBanner currentLanguage={language} />
 
       {/* Toast Notification */}
       {toastMessage && (

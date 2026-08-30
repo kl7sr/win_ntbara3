@@ -6,7 +6,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
   // ==========================================
   {
     id: 'fire-jijel-texenna',
-    title: '💨 منطقة تاكسنة (مشتة المعيسة) - تم إخماد الحريق',
+    title: 'منطقة تاكسنة (مشتة المعيسة) - تم إخماد الحريق',
     organizer: 'خلية أزمة وإغاثة المتضررين - تاكسنة',
     phone: '14',
     altPhone: '034471010',
@@ -27,7 +27,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
   },
   {
     id: 'fire-jijel-ziama',
-    title: '💨 منطقة زيامة منصورية - تم إخماد الحريق',
+    title: 'منطقة زيامة منصورية - تم إخماد الحريق',
     organizer: 'لجنة الإغاثة والتضامن لبلدية زيامة منصورية',
     phone: '14',
     altPhone: '034471010',
@@ -48,7 +48,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
   },
   {
     id: 'fire-bejaia-toudja',
-    title: '💨 غابات توجة وأدكار - تم إخماد الحريق',
+    title: 'غابات توجة وأدكار - تم إخماد الحريق',
     organizer: 'خلية متابعة وإغاثة المتضررين بولاية بجاية',
     phone: '14',
     altPhone: '034211122',
@@ -69,7 +69,7 @@ export const SEED_CHARITY_POINTS: CharityPoint[] = [
   },
   {
     id: 'fire-tizi-yakouren',
-    title: '💨 غابة اليعقوران وعزازقة - تم إخماد الحريق',
+    title: 'غابة اليعقوران وعزازقة - تم إخماد الحريق',
     organizer: 'خلية التضامن وإغاثة قرى يعقوران',
     phone: '14',
     altPhone: '026201020',
