@@ -117,11 +117,11 @@ export function formatDistance(distanceKm: number, lang: 'ar' | 'fr' | 'en' = 'a
 }
 
 /**
- * Build Google Maps Navigation URL
+ * Build Google Maps Navigation URL with named place label
  */
 export function getGoogleMapsDirUrl(lat: number, lng: number, label?: string): string {
   if (label) {
-    return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}&destination_place_id=${encodeURIComponent(label)}`;
+    return `https://maps.google.com/?q=${lat},${lng}+(${encodeURIComponent(label)})`;
   }
-  return `https://www.google.com/maps/dir/?api=1&destination=${lat},${lng}`;
+  return `https://maps.google.com/?q=${lat},${lng}`;
 }

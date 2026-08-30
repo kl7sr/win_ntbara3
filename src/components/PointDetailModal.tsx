@@ -321,51 +321,55 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
               </div>
             )}
 
-            {/* Aid Categories Tags */}
-            <div>
-              <h4 className="text-xs font-semibold text-slate-600 mb-1.5">التبرعات المقبولة:</h4>
-              <div className="flex flex-wrap gap-1.5">
-                {point.aidCategories.map((catKey) => {
-                  const meta = AID_CATEGORIES_META[catKey] || AID_CATEGORIES_META.general;
-                  return (
-                    <span
-                      key={catKey}
-                      className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200"
-                    >
-                      {meta.labelAr}
-                    </span>
-                  );
-                })}
+            {/* Aid Categories Tags - Only for Donation Centers */}
+            {point.pointType !== 'burnt_zone' && (
+              <div>
+                <h4 className="text-xs font-semibold text-slate-600 mb-1.5">التبرعات المقبولة:</h4>
+                <div className="flex flex-wrap gap-1.5">
+                  {point.aidCategories.map((catKey) => {
+                    const meta = AID_CATEGORIES_META[catKey] || AID_CATEGORIES_META.general;
+                    return (
+                      <span
+                        key={catKey}
+                        className="inline-flex items-center px-2.5 py-1 rounded-lg text-xs font-medium bg-emerald-50 text-emerald-800 border border-emerald-200"
+                      >
+                        {meta.labelAr}
+                      </span>
+                    );
+                  })}
+                </div>
               </div>
-            </div>
+            )}
 
             {/* Primary Action Buttons */}
             <div className="pt-2 space-y-2 pb-2">
-              {/* Direct Call Button */}
-              <div className="flex items-center gap-2">
-                <a
-                  href={`tel:${point.phone}`}
-                  className={`flex-1 flex items-center justify-center gap-2 text-white font-bold py-3 px-4 rounded-xl shadow-md transition text-sm text-center active:scale-[0.98] ${
-                    point.verified 
-                      ? 'bg-emerald-700 hover:bg-emerald-800' 
-                      : 'bg-amber-700 hover:bg-amber-800'
-                  }`}
-                >
-                  <Phone className="w-4 h-4 text-white" />
-                  <span>{point.verified ? 'اتصل بالمنسق:' : 'اتصل للتأكد قبل التنقل:'}</span>
-                  <span dir="ltr" className="font-mono tracking-wider font-extrabold bg-black/20 px-2 py-0.5 rounded">
-                    {point.phone}
-                  </span>
-                </a>
+              {/* Direct Call Button - Only for Donation Centers with valid phone */}
+              {point.pointType !== 'burnt_zone' && point.phone && (
+                <div className="flex items-center gap-2">
+                  <a
+                    href={`tel:${point.phone}`}
+                    className={`flex-1 flex items-center justify-center gap-2 text-white font-bold py-3 px-4 rounded-xl shadow-md transition text-sm text-center active:scale-[0.98] ${
+                      point.verified 
+                        ? 'bg-emerald-700 hover:bg-emerald-800' 
+                        : 'bg-amber-700 hover:bg-amber-800'
+                    }`}
+                  >
+                    <Phone className="w-4 h-4 text-white" />
+                    <span>{point.verified ? 'اتصل بالمنسق:' : 'اتصل للتأكد قبل التنقل:'}</span>
+                    <span dir="ltr" className="font-mono tracking-wider font-extrabold bg-black/20 px-2 py-0.5 rounded">
+                      {point.phone}
+                    </span>
+                  </a>
 
-                <button
-                  onClick={handleCopyPhone}
-                  className="p-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-300 transition active:scale-95"
-                  title="نسخ رقم الهاتف"
-                >
-                  {copiedPhone ? <Check className="w-4 h-4 text-emerald-700" /> : <Copy className="w-4 h-4" />}
-                </button>
-              </div>
+                  <button
+                    onClick={handleCopyPhone}
+                    className="p-3 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl border border-slate-300 transition active:scale-95"
+                    title="نسخ رقم الهاتف"
+                  >
+                    {copiedPhone ? <Check className="w-4 h-4 text-emerald-700" /> : <Copy className="w-4 h-4" />}
+                  </button>
+                </div>
+              )}
 
               {/* Direct Google Maps Navigation Button */}
               <a

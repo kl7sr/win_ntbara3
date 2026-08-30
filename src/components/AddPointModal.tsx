@@ -25,6 +25,7 @@ interface AddPointModalProps {
   onClose: () => void;
   onAddPoint: (point: Omit<CharityPoint, 'id' | 'createdAt'>) => void;
   initialCoords?: { lat: number; lng: number } | null;
+  initialWilayaCode?: number;
 }
 
 export const AddPointModal: React.FC<AddPointModalProps> = ({
@@ -32,12 +33,13 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
   onClose,
   onAddPoint,
   initialCoords,
+  initialWilayaCode,
 }) => {
   const [title, setTitle] = useState('');
   const [organizer, setOrganizer] = useState('');
   const [phone, setPhone] = useState('');
   const [altPhone, setAltPhone] = useState('');
-  const [selectedWilayaCode, setSelectedWilayaCode] = useState<number>(16); // Default Alger
+  const [selectedWilayaCode, setSelectedWilayaCode] = useState<number>(initialWilayaCode || 16);
   const [commune, setCommune] = useState('');
   const [address, setAddress] = useState('');
   const [selectedCategories, setSelectedCategories] = useState<AidCategory[]>(['food_water', 'clothes', 'medical']);
@@ -81,9 +83,11 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
         if (closest) {
           setSelectedWilayaCode(closest.code);
         }
+      } else if (initialWilayaCode) {
+        setSelectedWilayaCode(initialWilayaCode);
       }
     }
-  }, [isOpen, initialCoords]);
+  }, [isOpen, initialCoords, initialWilayaCode]);
 
   // When selected wilaya changes and user didn't move pin, auto center mini-map to wilaya center
   useEffect(() => {

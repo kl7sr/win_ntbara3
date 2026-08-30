@@ -126,27 +126,71 @@ export const MapComponent: React.FC<MapComponentProps> = ({
 
       const marker = L.marker([point.lat, point.lng], { icon: customIcon });
 
-      marker.on('click', () => {
-        onSelectPoint(point);
+      const googleMapsUrl = point.googleMapsUrl || `https://maps.google.com/?q=${point.lat},${point.lng}`;
+
+      const popupHtml = `
+        <div style="padding: 12px; font-family: 'Cairo', system-ui, sans-serif; direction: rtl; text-align: right; background: #ffffff;">
+          <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;">
+            <span style="font-size: 10px; font-weight: 700; padding: 2px 8px; border-radius: 9999px; border: 1px solid ${
+              isBurntZone ? '#fecaca' : isVerified ? '#a7f3d0' : '#e2e8f0'
+            }; background: ${
+              isBurntZone ? '#fef2f2' : isVerified ? '#ecfdf5' : '#f8fafc'
+            }; color: ${
+              isBurntZone ? '#b91c1c' : isVerified ? '#047857' : '#475569'
+            };">
+              ${isBurntZone ? (isFireExtinguished ? 'تم الإخماد' : 'حريق نشط') : (isVerified ? 'موقع مؤكد' : 'غير مؤكد')}
+            </span>
+          </div>
+
+          <div style="font-weight: 800; font-size: 13px; color: #0f172a; line-height: 1.3; margin-bottom: 3px;">
+            ${point.title}
+          </div>
+
+          <div style="font-size: 11px; color: #64748b; margin-bottom: 10px;">
+            ${point.wilayaNameAr} - ${point.commune}
+          </div>
+
+          <div style="display: grid; grid-template-columns: ${isBurntZone ? '1fr 1fr' : '1fr 1fr 1fr'}; gap: 5px;">
+            ${!isBurntZone && point.phone ? `
+              <a href="tel:${point.phone}" style="display: flex; align-items: center; justify-content: center; background: #006633; color: #ffffff; padding: 7px 4px; border-radius: 10px; font-size: 11px; font-weight: 700; text-decoration: none; box-shadow: 0 1px 2px rgba(0,0,0,0.05);">
+                اتصال
+              </a>
+            ` : ''}
+            <a href="${googleMapsUrl}" target="_blank" rel="noopener noreferrer" style="display: flex; align-items: center; justify-content: center; background: #f8fafc; color: #1e293b; padding: 7px 4px; border-radius: 10px; font-size: 11px; font-weight: 700; text-decoration: none; border: 1px solid #cbd5e1;">
+              الاتجاهات
+            </a>
+            <button onclick="window.__openPointDetails('${point.id}')" style="display: flex; align-items: center; justify-content: center; background: #0f172a; color: #ffffff; padding: 7px 4px; border-radius: 10px; font-size: 11px; font-weight: 700; border: none; cursor: pointer;">
+              التفاصيل
+            </button>
+          </div>
+        </div>
+      `;
+
+      marker.bindPopup(popupHtml, {
+        className: 'custom-map-pin-popup',
+        offset: [0, -28],
+        closeButton: true,
+        autoPan: true,
       });
 
-      const statusBadge = isBurntZone
-        ? isFireActive
-          ? `<span style="color:#dc2626; font-weight:700;">🔥 حريق نشط - بحاجة لإغاثة</span>`
-          : `<span style="color:#64748b; font-weight:700;">💨 حريق تم إخماده / غير نشط</span>`
-        : isVerified 
-        ? `<span style="color:#047857; font-weight:600;">✓ موقع تبرع مؤكد</span>`
-        : `<span style="color:#d97706; font-weight:600;">⚠️ غير مؤكد (اتصل قبل التنقل)</span>`;
-
-      marker.bindTooltip(
-        `<div style="font-weight:700; color:#0f172a;">${point.title}</div>
-         <div style="font-size:11px; color:#64748b;">${point.organizer} (${point.wilayaNameAr})</div>
-         <div style="font-size:10px; margin-top:2px;">${statusBadge}</div>`,
-        { direction: 'top', offset: [0, -28], opacity: 1 }
-      );
+      marker.on('click', () => {
+        mapInstanceRef.current?.flyTo([point.lat, point.lng], 16.5, {
+          duration: 1.0,
+        });
+      });
 
       markersLayerRef.current?.addLayer(marker);
     });
+
+    (window as any).__openPointDetails = (pointId: string) => {
+      const p = points.find((item) => item.id === pointId);
+      if (p) {
+        mapInstanceRef.current?.flyTo([p.lat, p.lng], 16.5, {
+          duration: 1.0,
+        });
+        onSelectPoint(p);
+      }
+    };
   }, [points, onSelectPoint]);
 
   // Update User GPS Marker & Zoom to User Location
@@ -174,8 +218,8 @@ export const MapComponent: React.FC<MapComponentProps> = ({
         userMarkerRef.current.setLatLng([userLocation.lat, userLocation.lng]);
       }
 
-      mapInstanceRef.current.flyTo([userLocation.lat, userLocation.lng], 14, {
-        duration: 1.5,
+      mapInstanceRef.current.flyTo([userLocation.lat, userLocation.lng], 15, {
+        duration: 1.2,
       });
     }
   }, [userLocation]);
@@ -191,10 +235,10 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     }
   }, [selectedWilaya]);
 
-  // Focus on Selected Point
+  // Focus and Zoom in Closely on Selected Point
   useEffect(() => {
     if (!mapInstanceRef.current || !selectedPoint) return;
-    mapInstanceRef.current.flyTo([selectedPoint.lat, selectedPoint.lng], 14, {
+    mapInstanceRef.current.flyTo([selectedPoint.lat, selectedPoint.lng], 16.5, {
       duration: 1.0,
     });
   }, [selectedPoint]);

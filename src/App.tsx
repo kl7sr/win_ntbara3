@@ -8,8 +8,11 @@ import { NearestListDrawer } from './components/NearestListDrawer';
 import { AdminPanel } from './components/AdminPanel';
 import { EditPointModal } from './components/EditPointModal';
 import { InstallAppBanner } from './components/InstallAppBanner';
+import { WelcomeEntryModal } from './components/WelcomeEntryModal';
+import { WilayaResultsModal } from './components/WilayaResultsModal';
 import { CharityPoint, UserLocation } from './types';
 import { Language, TRANSLATIONS } from './i18n/translations';
+import { WILAYAS } from './data/wilayas';
 import { 
   getStoredPoints, 
   addPoint as saveNewPointLocal, 
@@ -23,7 +26,7 @@ import {
   updateLivePointInD1, 
   deleteLivePointFromD1 
 } from './services/apiService';
-import { CheckCircle2, Plus, Compass, Map as MapIcon, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, Plus, Compass, Map as MapIcon, RotateCcw, MapPin } from 'lucide-react';
 
 export function App() {
   const [points, setPoints] = useState<CharityPoint[]>([]);
@@ -31,6 +34,23 @@ export function App() {
   const [editingPoint, setEditingPoint] = useState<CharityPoint | null>(null);
   const [isAdminSession, setIsAdminSession] = useState<boolean>(() => isAdminAuthenticated());
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+
+  // Modals & Panels
+  const [isWelcomeModalOpen, setIsWelcomeModalOpen] = useState<boolean>(() => {
+    // If opening via direct share deep-link ?point=..., don't show welcome modal
+    if (typeof window !== 'undefined' && window.location.search.includes('point=')) {
+      return false;
+    }
+    return true;
+  });
+
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isNearestDrawerOpen, setIsNearestDrawerOpen] = useState(false);
+  const [isWilayaResultsModalOpen, setIsWilayaResultsModalOpen] = useState(false);
+  const [isAdminOpen, setIsAdminOpen] = useState(false);
+
+  // Filters
+  const [selectedWilaya, setSelectedWilaya] = useState<number | null>(null);
 
   // Multi-language state (Arabic first by default)
   const [language, setLanguage] = useState<Language>(() => {
@@ -58,26 +78,15 @@ export function App() {
 
   const t = TRANSLATIONS[language];
 
-  // Modals & Panels
-  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
-  const [isNearestDrawerOpen, setIsNearestDrawerOpen] = useState(false);
-  const [isAdminOpen, setIsAdminOpen] = useState(false);
-
-  // Filters
-  const [selectedWilaya, setSelectedWilaya] = useState<number | null>(null);
-  const [activeCategoryFilter, setActiveCategoryFilter] = useState<string | null>(null);
-
   // Notification Toast
   const [toastMessage, setToastMessage] = useState<string | null>(null);
 
   // Load points directly from Cloudflare D1 Database (with instant local fallback)
   const loadPoints = useCallback(async () => {
     try {
-      // 1. Instant local render so there is 0 delay
       const initial = getStoredPoints();
       setPoints([...initial]);
 
-      // 2. Fetch fresh live points from Cloudflare D1 Database
       const livePoints = await fetchLivePointsFromD1();
       if (livePoints && livePoints.length > 0) {
         setPoints([...livePoints]);
@@ -101,6 +110,7 @@ export function App() {
         const target = points.find((p) => p.id === pointIdFromUrl);
         if (target) {
           setSelectedPoint(target);
+          setIsWelcomeModalOpen(false);
         }
       }
     } catch {}
@@ -135,74 +145,99 @@ export function App() {
 
       navigator.geolocation.getCurrentPosition(
         (pos) => {
-          const coords: UserLocation = {
-            lat: pos.coords.latitude,
-            lng: pos.coords.longitude,
-            accuracy: pos.coords.accuracy,
-            timestamp: pos.timestamp,
+          const loc: UserLocation = {
+            lat: Number(pos.coords.latitude.toFixed(6)),
+            lng: Number(pos.coords.longitude.toFixed(6)),
+            accuracy: Math.round(pos.coords.accuracy),
+            timestamp: Date.now(),
           };
-          setUserLocation(coords);
-          showToast('تم تحديد موقعك الحالي بنجاح');
+          setUserLocation(loc);
+
+          // Find closest Wilaya and automatically update the dropdown and selectedWilaya
+          const closest = WILAYAS.reduce((prev, curr) => {
+            const distPrev = Math.hypot(prev.lat - loc.lat, prev.lng - loc.lng);
+            const distCurr = Math.hypot(curr.lat - loc.lat, curr.lng - loc.lng);
+            return distCurr < distPrev ? curr : prev;
+          });
+
+          if (closest) {
+            setSelectedWilaya(closest.code);
+            showToast(`تم تحديد موقعك: ولاية ${closest.nameAr}`);
+          } else {
+            showToast('تم تحديد موقعك بدقة');
+          }
         },
         (err) => {
-          console.warn('Geolocation error:', err);
-          showToast('يرجى تفعيل الـ GPS في الهاتف لتحديد المراكز القريبة');
+          console.warn('Geolocation error:', err.message);
+          showToast('تعذر الوصول إلى نظام GPS، يرجى تفعيل الموقع');
         },
         { enableHighAccuracy: true, timeout: 8000 }
       );
     } catch (e) {
-      console.warn('Geolocation invocation failed:', e);
+      console.warn('Location request exception:', e);
     }
   };
 
-  // Handlers for points CRUD with Cloudflare D1 real-time sync
+  // Handle Intent & Wilaya Selection from WelcomeEntryModal
+  const handleSelectIntentAndWilaya = (intent: 'find' | 'add', wilayaCode: number) => {
+    setSelectedWilaya(wilayaCode);
+    setIsWelcomeModalOpen(false);
+
+    if (intent === 'add') {
+      setIsAddModalOpen(true);
+    } else {
+      // Find mode: show clean Wilaya Results Modal with collapsible neighboring centers dropdown!
+      setIsWilayaResultsModalOpen(true);
+      showToast(`تم تحديد ولاية ${WILAYAS.find((w) => w.code === wilayaCode)?.nameAr || ''}`);
+    }
+  };
+
+  // Add Point
   const handleAddPoint = async (newPointData: Omit<CharityPoint, 'id' | 'createdAt'>) => {
     try {
-      // 1. Instant UI update & local save
       const created = saveNewPointLocal(newPointData);
-      setPoints((prev) => [created, ...prev.filter(p => p.id !== created.id)]);
-      
-      // Clear filters so new point is unconditionally visible on map
-      setSelectedWilaya(null);
-      setActiveCategoryFilter(null);
-      
-      // Focus and select the new point immediately
+      setPoints((prev) => [created, ...prev]);
+      setIsAddModalOpen(false);
+      showToast('تمت إضافة النقطة ونشرها بنجاح!');
       setSelectedPoint(created);
-      showToast('تم حفظ النقطة في قاعدة البيانات ونشرها بنجاح');
 
-      // 2. Persist to Cloudflare D1 Database in real-time
-      await createLivePointInD1(newPointData);
+      await createLivePointInD1(created);
     } catch (e) {
-      console.error('Error adding point:', e);
+      console.error(e);
+      showToast('حدث خطأ أثناء إضافة النقطة');
     }
   };
 
+  // Update Point
   const handleUpdatePoint = async (id: string, updates: Partial<CharityPoint>) => {
     try {
-      saveUpdatedPointLocal(id, updates);
-      setPoints((prev) => prev.map(p => p.id === id ? { ...p, ...updates } : p));
-      if (selectedPoint?.id === id) {
-        setSelectedPoint((prev) => (prev ? { ...prev, ...updates } : null));
+      const updated = saveUpdatedPointLocal(id, updates);
+      if (updated) {
+        setPoints((prev) => prev.map((p) => (p.id === id ? updated : p)));
+        if (selectedPoint?.id === id) {
+          setSelectedPoint(updated);
+        }
+        showToast('تم تحديث البيانات بنجاح!');
       }
-      showToast('تم تحديث بيانات النقطة');
+      setEditingPoint(null);
 
-      // Sync update to Cloudflare D1
       await updateLivePointInD1(id, updates);
     } catch (e) {
       console.error(e);
+      showToast('تعذر حفظ التعديلات على الخادم');
     }
   };
 
+  // Delete Point
   const handleDeletePoint = async (id: string) => {
     try {
       removePointLocal(id);
-      setPoints((prev) => prev.filter(p => p.id !== id));
+      setPoints((prev) => prev.filter((p) => p.id !== id));
       if (selectedPoint?.id === id) {
         setSelectedPoint(null);
       }
       showToast('تم حذف النقطة');
 
-      // Delete from Cloudflare D1
       await deleteLivePointFromD1(id);
     } catch (e) {
       console.error(e);
@@ -211,9 +246,10 @@ export function App() {
 
   const displayedPoints = points.filter((p) => {
     if (selectedWilaya && p.wilayaCode !== selectedWilaya) return false;
-    if (activeCategoryFilter && !p.aidCategories.includes(activeCategoryFilter as any)) return false;
     return true;
   });
+
+  const selectedWilayaObj = WILAYAS.find((w) => w.code === selectedWilaya);
 
   return (
     <div className="min-h-[100dvh] h-[100dvh] w-full flex flex-col bg-slate-50 text-slate-900 overflow-hidden select-none relative">
@@ -227,7 +263,7 @@ export function App() {
         onOpenAdmin={() => setIsAdminOpen(true)}
         selectedWilaya={selectedWilaya}
         onSelectWilaya={setSelectedWilaya}
-        totalPoints={displayedPoints.length}
+        totalPoints={points.length}
         currentLanguage={language}
         onSelectLanguage={handleLanguageChange}
       />
@@ -235,18 +271,37 @@ export function App() {
       {/* 3. Main Full-Screen Map */}
       <main className="flex-1 relative w-full h-full pb-16 overflow-hidden">
         <MapComponent
-          points={displayedPoints}
+          points={points}
           selectedPoint={selectedPoint}
-          onSelectPoint={(p) => setSelectedPoint(p)}
+          onSelectPoint={(p) => {
+            setSelectedPoint(p);
+          }}
           userLocation={userLocation}
           onRequestUserLocation={requestUserLocation}
           selectedWilaya={selectedWilaya}
         />
+
+        {/* Floating "البدء من جديد / تغيير الولاية" Chip on Map - Only when a wilaya is selected */}
+        {selectedWilaya && !isWelcomeModalOpen && !isWilayaResultsModalOpen && (
+          <div className="absolute top-3 left-1/2 -translate-x-1/2 z-[400] flex items-center pointer-events-auto animate-in fade-in slide-in-from-top-2 duration-200">
+            <button
+              type="button"
+              onClick={() => setIsWilayaResultsModalOpen(true)}
+              className="px-4 py-2 bg-white/95 backdrop-blur-md hover:bg-white text-slate-800 hover:text-emerald-800 text-xs font-black rounded-full shadow-xl border border-slate-200 flex items-center gap-1.5 transition active:scale-95 whitespace-nowrap"
+              title="عرض مراكز الولاية أو التغيير"
+            >
+              <RotateCcw className="w-3.5 h-3.5 text-emerald-700" />
+              <span>
+                ولاية {selectedWilayaObj?.nameAr} (عرض المراكز / تغيير)
+              </span>
+            </button>
+          </div>
+        )}
       </main>
 
-      {/* 4. Bottom Navigation Bar (Centered Add CTA) */}
+      {/* 4. Bottom Navigation Bar */}
       <footer className="fixed bottom-0 inset-x-0 z-30 bg-white/95 backdrop-blur-md border-t border-slate-200 px-6 py-2 shadow-2xl safe-bottom-padding flex items-center justify-between max-w-lg mx-auto sm:rounded-t-2xl">
-        {/* 1. Map Tab */}
+        {/* Map Tab */}
         <button
           onClick={() => {
             setIsNearestDrawerOpen(false);
@@ -258,7 +313,7 @@ export function App() {
           <span className="text-[11px] font-bold">{t.exploreMap}</span>
         </button>
 
-        {/* 2. Centered Prominent Add Point Button */}
+        {/* Add Point CTA */}
         <div className="flex-1 flex flex-col items-center justify-center -mt-6">
           <button
             onClick={() => setIsAddModalOpen(true)}
@@ -270,7 +325,7 @@ export function App() {
           <span className="text-[10px] font-extrabold text-emerald-800 mt-0.5 whitespace-nowrap">{t.addPoint}</span>
         </div>
 
-        {/* 3. Nearest Tab */}
+        {/* Nearest Drawer Tab */}
         <button
           onClick={() => setIsNearestDrawerOpen(true)}
           className="flex flex-col items-center justify-center gap-1 py-1 px-4 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
@@ -280,33 +335,67 @@ export function App() {
         </button>
       </footer>
 
-      {/* 5. Google Maps Style Mobile Bottom Sheet Widget */}
+      {/* 5. Onboarding Welcome Entry Modal (Step 1 & 2) */}
+      <WelcomeEntryModal
+        isOpen={isWelcomeModalOpen}
+        onClose={() => setIsWelcomeModalOpen(false)}
+        onSelectIntentAndWilaya={handleSelectIntentAndWilaya}
+        onDirectMapExplore={() => {
+          setSelectedWilaya(null);
+          setIsWelcomeModalOpen(false);
+        }}
+        currentLanguage={language}
+      />
+
+      {/* 6. Full Point Details Modal (Expandable) */}
       <PointDetailModal
         point={selectedPoint}
         userLocation={userLocation}
         onClose={() => setSelectedPoint(null)}
-        onEditPoint={isAdminSession ? ((point) => setEditingPoint(point)) : undefined}
+        onEditPoint={isAdminSession ? (point) => setEditingPoint(point) : undefined}
       />
 
-      {/* 6. Edit Point Modal (Map & Admin Direct Edit) */}
-      {isAdminSession && (
+      {/* 8. Admin In-Place Edit Modal */}
+      {editingPoint && (
         <EditPointModal
           point={editingPoint}
-          isOpen={Boolean(editingPoint)}
+          isOpen={true}
           onClose={() => setEditingPoint(null)}
           onUpdatePoint={handleUpdatePoint}
         />
       )}
 
-      {/* 7. Add Charity Point Modal */}
+      {/* 9. Wilaya Results Modal with Neighboring Centers Accordion */}
+      <WilayaResultsModal
+        isOpen={isWilayaResultsModalOpen}
+        onClose={() => setIsWilayaResultsModalOpen(false)}
+        wilayaCode={selectedWilaya}
+        points={points}
+        userLocation={userLocation}
+        onSelectPointOnMap={(point) => {
+          setIsWilayaResultsModalOpen(false);
+          setSelectedPoint(point);
+        }}
+        onOpenFullDetails={(point) => {
+          setIsWilayaResultsModalOpen(false);
+          setSelectedPoint(point);
+        }}
+        onChangeWilaya={() => {
+          setIsWilayaResultsModalOpen(false);
+          setIsWelcomeModalOpen(true);
+        }}
+        currentLanguage={language}
+      />
+
+      {/* 7. Add Point Modal */}
       <AddPointModal
         isOpen={isAddModalOpen}
         onClose={() => setIsAddModalOpen(false)}
         onAddPoint={handleAddPoint}
-        initialCoords={userLocation ? { lat: userLocation.lat, lng: userLocation.lng } : null}
+        initialWilayaCode={selectedWilaya || undefined}
       />
 
-      {/* 8. Nearest Points Drawer */}
+      {/* 8. Nearest Points Drawer (with Smart Border Centers) */}
       <NearestListDrawer
         isOpen={isNearestDrawerOpen}
         onClose={() => setIsNearestDrawerOpen(false)}
@@ -319,9 +408,10 @@ export function App() {
         onRequestLocation={requestUserLocation}
         selectedWilaya={selectedWilaya}
         onSelectWilaya={setSelectedWilaya}
+        currentLanguage={language}
       />
 
-      {/* 9. Admin Dashboard (Fullscreen Light Mode) */}
+      {/* 9. Admin Dashboard */}
       <AdminPanel
         isOpen={isAdminOpen}
         onClose={() => setIsAdminOpen(false)}
@@ -338,7 +428,10 @@ export function App() {
       />
 
       {/* 10. Phone App Install Prompt (PWA) */}
-      <InstallAppBanner currentLanguage={language} />
+      <InstallAppBanner 
+        currentLanguage={language} 
+        isVisible={!selectedPoint && !isAddModalOpen && !isAdminOpen && !isWilayaResultsModalOpen && !isNearestDrawerOpen && !isWelcomeModalOpen && !editingPoint}
+      />
 
       {/* Toast Notification */}
       {toastMessage && (
