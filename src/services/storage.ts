@@ -1,12 +1,20 @@
 import { CharityPoint } from '../types';
 import { SEED_CHARITY_POINTS } from '../data/seedPoints';
 
-const STORAGE_KEY = 'win_ntbara3_points_master_store';
-const PERMANENT_PHOTOS_KEY = 'win_ntbara3_point_photos_permanent';
+const STORAGE_KEY = 'win_ntbara3_points_master_v3';
+const PERMANENT_PHOTOS_KEY = 'win_ntbara3_point_photos_v3';
 const ADMIN_PASS_KEY = 'win_ntbara3_admin_pass';
 
 // Cloudflare Pages Secret / Environment Variable
 export const ENV_ADMIN_PASS: string | undefined = (import.meta as any).env?.VITE_ADMIN_PASSWORD;
+
+function cleanPhotoUrls(imgs: any): string[] {
+  if (!imgs) return [];
+  const arr = Array.isArray(imgs) ? imgs : [imgs];
+  return arr.filter(
+    (url: any) => typeof url === 'string' && !url.includes('unsplash.com') && url.trim().length > 0
+  );
+}
 
 /**
  * Permanently stores point photos so they can never be lost
@@ -18,7 +26,13 @@ function getPermanentPhotosMap(): Record<string, string[]> {
   try {
     const raw = localStorage.getItem(PERMANENT_PHOTOS_KEY);
     if (raw) {
-      Object.assign(map, JSON.parse(raw));
+      const parsed = JSON.parse(raw);
+      for (const [id, imgs] of Object.entries(parsed)) {
+        const cleaned = cleanPhotoUrls(imgs);
+        if (cleaned.length > 0) {
+          map[id] = cleaned;
+        }
+      }
     }
   } catch (e) {}
 
@@ -32,10 +46,11 @@ function getPermanentPhotosMap(): Record<string, string[]> {
           const parsed = JSON.parse(raw);
           if (Array.isArray(parsed)) {
             parsed.forEach((p: CharityPoint) => {
-              if (p && p.id && Array.isArray(p.images) && p.images.length > 0) {
-                map[p.id] = p.images;
-              } else if (p && p.id && p.imageUrl) {
-                if (!map[p.id]) map[p.id] = [p.imageUrl];
+              if (p && p.id) {
+                const cleaned = cleanPhotoUrls(p.images || (p.imageUrl ? [p.imageUrl] : []));
+                if (cleaned.length > 0) {
+                  map[p.id] = cleaned;
+                }
               }
             });
           }
@@ -50,7 +65,12 @@ function getPermanentPhotosMap(): Record<string, string[]> {
 function savePermanentPhotos(pointId: string, images: string[]): void {
   try {
     const current = getPermanentPhotosMap();
-    current[pointId] = images;
+    const cleaned = cleanPhotoUrls(images);
+    if (cleaned.length > 0) {
+      current[pointId] = cleaned;
+    } else {
+      delete current[pointId];
+    }
     localStorage.setItem(PERMANENT_PHOTOS_KEY, JSON.stringify(current));
   } catch (e) {
     console.warn('Failed to save to permanent photo store:', e);
@@ -82,18 +102,30 @@ export function getStoredPoints(): CharityPoint[] {
 
     // 2. Ensure all seed points are included without duplicate IDs
     const mergedMap = new Map<string, CharityPoint>();
-    SEED_CHARITY_POINTS.forEach((p) => mergedMap.set(p.id, p));
+    SEED_CHARITY_POINTS.forEach((p) => {
+      mergedMap.set(p.id, {
+        ...p,
+        images: cleanPhotoUrls(p.images),
+        imageUrl: cleanPhotoUrls(p.imageUrl)[0] || undefined,
+      });
+    });
+
     currentList.forEach((p) => {
       const existingSeed = mergedMap.get(p.id);
+      const cleanedImages = cleanPhotoUrls(p.images || (p.imageUrl ? [p.imageUrl] : []));
       if (existingSeed) {
         mergedMap.set(p.id, {
           ...existingSeed,
           ...p,
-          images: (p.images && p.images.length > 0) ? p.images : (existingSeed.images || (existingSeed.imageUrl ? [existingSeed.imageUrl] : undefined)),
-          imageUrl: p.imageUrl || (p.images && p.images.length > 0 ? p.images[0] : existingSeed.imageUrl),
+          images: cleanedImages.length > 0 ? cleanedImages : cleanPhotoUrls(existingSeed.images),
+          imageUrl: cleanedImages.length > 0 ? cleanedImages[0] : cleanPhotoUrls(existingSeed.imageUrl)[0] || undefined,
         });
       } else {
-        mergedMap.set(p.id, p);
+        mergedMap.set(p.id, {
+          ...p,
+          images: cleanedImages.length > 0 ? cleanedImages : undefined,
+          imageUrl: cleanedImages.length > 0 ? cleanedImages[0] : undefined,
+        });
       }
     });
 
@@ -103,6 +135,9 @@ export function getStoredPoints(): CharityPoint[] {
       if (savedPhotos && savedPhotos.length > 0) {
         point.images = savedPhotos;
         point.imageUrl = savedPhotos[0];
+      } else {
+        point.images = cleanPhotoUrls(point.images);
+        point.imageUrl = point.images.length > 0 ? point.images[0] : undefined;
       }
     });
 
