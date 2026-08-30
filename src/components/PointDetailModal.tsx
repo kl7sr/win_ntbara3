@@ -105,9 +105,9 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
 
   return (
     <>
-      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs">
+      <div className="fixed inset-0 z-50 flex items-end sm:items-center justify-center p-0 sm:p-4 bg-slate-900/60 backdrop-blur-xs" onClick={onClose}>
         <div 
-          className="bg-white border-t sm:border border-slate-200 rounded-t-3xl sm:rounded-2xl w-full max-w-lg shadow-2xl max-h-[88vh] flex flex-col animate-in slide-in-from-bottom duration-200 overflow-hidden"
+          className="bg-white border-t sm:border border-slate-200 rounded-t-3xl sm:rounded-2xl w-full max-w-lg shadow-2xl max-h-[92vh] sm:max-h-[88vh] flex flex-col animate-in slide-in-from-bottom duration-200 overflow-hidden"
           onClick={(e) => e.stopPropagation()}
         >
           {/* Mobile Drag Handle */}
@@ -117,7 +117,7 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
 
           {/* Photo Carousel Header (Only if real pictures are attached) */}
           {images.length > 0 && (
-            <div className="relative w-full h-48 sm:h-56 bg-slate-950 shrink-0 overflow-hidden group">
+            <div className="relative w-full h-40 sm:h-52 bg-slate-950 shrink-0 overflow-hidden group">
               <img
                 src={images[currentImageIndex]}
                 alt={point.title}
@@ -250,7 +250,7 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
           </div>
 
           {/* Content Body */}
-          <div className="p-4 overflow-y-auto space-y-3.5 text-xs sm:text-sm">
+          <div className="p-4 sm:p-5 overflow-y-auto space-y-3.5 text-xs sm:text-sm flex-1 pb-10 sm:pb-6 overscroll-contain">
             {/* Warning Callout for Unconfirmed Locations */}
             {!point.verified && (
               <div className="p-3 bg-amber-50 border border-amber-300 rounded-xl flex items-start gap-2.5 text-amber-900">
@@ -414,23 +414,11 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
           onClick={() => setSelectedPhotoPreview(null)}
         >
           {/* Top Actions Bar */}
-          <div className="absolute top-4 inset-x-4 flex items-center justify-between z-10" onClick={(e) => e.stopPropagation()}>
-            <div className="flex items-center gap-2">
-              <a
-                href={selectedPhotoPreview}
-                download="charity-point-photo.jpg"
-                className="px-3 py-1.5 bg-white/20 hover:bg-white/30 text-white rounded-xl text-xs font-semibold flex items-center gap-1.5 shadow transition"
-                title="تحميل الصورة"
-              >
-                <Download className="w-4 h-4" />
-                <span>تحميل الصورة</span>
-              </a>
-            </div>
-
+          <div className="absolute top-4 inset-x-4 flex items-center justify-end z-10" onClick={(e) => e.stopPropagation()}>
             <button
               type="button"
               onClick={() => setSelectedPhotoPreview(null)}
-              className="p-2 bg-white/20 hover:bg-white/40 text-white rounded-full transition"
+              className="p-2 bg-white/20 hover:bg-white/40 text-white rounded-full transition active:scale-95"
             >
               <X className="w-6 h-6" />
             </button>
