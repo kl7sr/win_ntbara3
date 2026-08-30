@@ -2,9 +2,18 @@
 // Direct D1 SQL Database Handler with Server-Side Password Security
 
 interface Env {
-  DB: D1Database;
+  win_ntbara3_db?: D1Database;
+  DB?: D1Database;
   VITE_ADMIN_PASSWORD?: string;
   ADMIN_PASSWORD?: string;
+  ADMIN_PASS?: string;
+  ADMIN_KEY?: string;
+  PASSWORD?: string;
+}
+
+function getDatabase(context: EventContext<Env, any, any>): D1Database | null {
+  const env = context.env as any;
+  return env.win_ntbara3_db || env.DB || env.DATABASE || env.d1 || null;
 }
 
 const INIT_SQL = `
@@ -55,9 +64,9 @@ function checkAdminAuth(request: Request, env: any): boolean {
 }
 
 export const onRequestGet: PagesFunction<Env> = async (context) => {
-  const db = context.env.DB;
+  const db = getDatabase(context);
   if (!db) {
-    return new Response(JSON.stringify({ error: "D1 Database binding 'DB' not configured" }), {
+    return new Response(JSON.stringify({ error: "D1 Database binding 'win_ntbara3_db' not configured in Cloudflare" }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
@@ -136,9 +145,9 @@ export const onRequestGet: PagesFunction<Env> = async (context) => {
 };
 
 export const onRequestPost: PagesFunction<Env> = async (context) => {
-  const db = context.env.DB;
+  const db = getDatabase(context);
   if (!db) {
-    return new Response(JSON.stringify({ error: "D1 Database binding 'DB' not configured" }), {
+    return new Response(JSON.stringify({ error: "D1 Database binding 'win_ntbara3_db' not configured" }), {
       status: 500,
       headers: { "Content-Type": "application/json" }
     });
@@ -215,9 +224,9 @@ export const onRequestPost: PagesFunction<Env> = async (context) => {
 };
 
 export const onRequestPut: PagesFunction<Env> = async (context) => {
-  const db = context.env.DB;
+  const db = getDatabase(context);
   if (!db) {
-    return new Response(JSON.stringify({ error: "D1 Database binding missing" }), { status: 500 });
+    return new Response(JSON.stringify({ error: "D1 Database binding 'win_ntbara3_db' not configured" }), { status: 500 });
   }
 
   // Bulletproof Admin Auth Check
@@ -297,9 +306,9 @@ export const onRequestPut: PagesFunction<Env> = async (context) => {
 };
 
 export const onRequestDelete: PagesFunction<Env> = async (context) => {
-  const db = context.env.DB;
+  const db = getDatabase(context);
   if (!db) {
-    return new Response(JSON.stringify({ error: "D1 Database binding missing" }), { status: 500 });
+    return new Response(JSON.stringify({ error: "D1 Database binding 'win_ntbara3_db' not configured" }), { status: 500 });
   }
 
   // Bulletproof Admin Auth Check
