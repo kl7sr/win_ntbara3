@@ -9,6 +9,7 @@ import { AdminPanel } from './components/AdminPanel';
 import { EditPointModal } from './components/EditPointModal';
 import { InstallAppBanner } from './components/InstallAppBanner';
 import { CharityPoint, UserLocation } from './types';
+import { Language, TRANSLATIONS } from './i18n/translations';
 import { 
   getStoredPoints, 
   addPoint as saveNewPointLocal, 
@@ -30,6 +31,32 @@ export function App() {
   const [editingPoint, setEditingPoint] = useState<CharityPoint | null>(null);
   const [isAdminSession, setIsAdminSession] = useState<boolean>(() => isAdminAuthenticated());
   const [userLocation, setUserLocation] = useState<UserLocation | null>(null);
+
+  // Multi-language state (Arabic first by default)
+  const [language, setLanguage] = useState<Language>(() => {
+    try {
+      const saved = localStorage.getItem('win_ntbara3_lang') as Language;
+      return (saved === 'ar' || saved === 'fr' || saved === 'en') ? saved : 'ar';
+    } catch {
+      return 'ar';
+    }
+  });
+
+  const handleLanguageChange = (lang: Language) => {
+    setLanguage(lang);
+    try {
+      localStorage.setItem('win_ntbara3_lang', lang);
+      document.documentElement.lang = lang;
+      document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
+    } catch {}
+  };
+
+  useEffect(() => {
+    document.documentElement.lang = language;
+    document.documentElement.dir = language === 'ar' ? 'rtl' : 'ltr';
+  }, [language]);
+
+  const t = TRANSLATIONS[language];
 
   // Modals & Panels
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
@@ -203,6 +230,8 @@ export function App() {
         activeFilter={activeCategoryFilter}
         onSelectFilter={setActiveCategoryFilter}
         totalPoints={displayedPoints.length}
+        currentLanguage={language}
+        onSelectLanguage={handleLanguageChange}
       />
 
       {/* 3. Main Full-Screen Map */}
@@ -228,7 +257,7 @@ export function App() {
           className="flex flex-col items-center justify-center gap-1 py-1 px-4 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
         >
           <MapIcon className="w-5 h-5 text-emerald-700" />
-          <span className="text-[11px] font-bold">الخريطة</span>
+          <span className="text-[11px] font-bold">{t.exploreMap}</span>
         </button>
 
         {/* 2. Centered Prominent Add Point Button */}
@@ -236,11 +265,11 @@ export function App() {
           <button
             onClick={() => setIsAddModalOpen(true)}
             className="w-14 h-14 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-xl flex items-center justify-center border-4 border-white active:scale-95 transition shrink-0"
-            title="إضافة نقطة تبرع جديدة"
+            title={t.addPoint}
           >
             <Plus className="w-7 h-7 stroke-[2.5]" />
           </button>
-          <span className="text-[10px] font-extrabold text-emerald-800 mt-0.5 whitespace-nowrap">أضف نقطة</span>
+          <span className="text-[10px] font-extrabold text-emerald-800 mt-0.5 whitespace-nowrap">{t.addPoint}</span>
         </div>
 
         {/* 3. Nearest Tab */}
@@ -249,7 +278,7 @@ export function App() {
           className="flex flex-col items-center justify-center gap-1 py-1 px-4 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1"
         >
           <Compass className="w-5 h-5 text-slate-600" />
-          <span className="text-[11px] font-bold">الأقرب لي</span>
+          <span className="text-[11px] font-bold">{t.nearestToMe}</span>
         </button>
       </footer>
 
