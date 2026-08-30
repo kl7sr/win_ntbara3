@@ -348,13 +348,18 @@ export function App() {
 
       {/* 4. Bottom Navigation Bar (5 Action Items - Compact & Dynamic) */}
       <footer className="fixed bottom-0 inset-x-0 z-40 bg-white border-t border-slate-200 px-2 sm:px-4 py-1.5 shadow-2xl flex items-center justify-between max-w-lg mx-auto sm:rounded-t-2xl pb-[max(0.35rem,env(safe-area-inset-bottom))]">
-        {/* 1. Map Key / Legend Tab */}
+        {/* 1. Map Key / Legend Tab (Enabled only on map view) */}
         <button
+          disabled={isNearestDrawerOpen}
           onClick={() => setIsLegendModalOpen(true)}
-          className="flex flex-col items-center justify-center gap-0.5 py-1 px-1 text-slate-700 hover:text-emerald-700 active:scale-95 transition flex-1 focus:outline-none focus:ring-0 outline-none select-none"
-          title="مفتاح الخريطة"
+          className={`flex flex-col items-center justify-center gap-0.5 py-1 px-1 transition flex-1 focus:outline-none focus:ring-0 outline-none select-none ${
+            isNearestDrawerOpen
+              ? 'opacity-30 cursor-not-allowed text-slate-400'
+              : 'text-slate-700 hover:text-emerald-700 active:scale-95'
+          }`}
+          title={isNearestDrawerOpen ? 'متاح فقط في وضع الخريطة' : 'مفتاح الخريطة'}
         >
-          <Layers className="w-4 h-4 text-slate-600" />
+          <Layers className={`w-4 h-4 ${isNearestDrawerOpen ? 'text-slate-300' : 'text-slate-600'}`} />
           <span className="text-[9.5px] font-bold">المفتاح</span>
         </button>
 
