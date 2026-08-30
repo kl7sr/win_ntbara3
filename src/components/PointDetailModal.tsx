@@ -330,6 +330,8 @@ export const PointDetailModal: React.FC<PointDetailModalProps> = ({
               </div>
             )}
 
+            {/* Primary Action Buttons */}
+            <div className="pt-2 space-y-2 pb-2">
               {/* Direct Call Button - Always prompt calling to verify before heading over */}
               {point.pointType !== 'burnt_zone' && point.phone && (
                 <div className="space-y-1.5">
