@@ -9,6 +9,7 @@ import {
 } from 'lucide-react';
 import { WILAYAS } from '../data/wilayas';
 import { Language, TRANSLATIONS } from '../i18n/translations';
+import { usePwaInstall } from '../utils/usePwaInstall';
 
 interface NavbarProps {
   onOpenAddModal: () => void;
@@ -28,6 +29,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   onOpenAddModal,
   onOpenNearestDrawer,
   onOpenAdmin,
+  onOpenInstall,
   selectedWilaya,
   onSelectWilaya,
   totalPoints,
@@ -37,6 +39,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   isRefreshing = false,
 }) => {
   const [showLangMenu, setShowLangMenu] = useState(false);
+  const { isStandalone, triggerInstall } = usePwaInstall();
   const t = TRANSLATIONS[currentLanguage];
 
   const languages: { code: Language; label: string; flag: string }[] = [
@@ -50,24 +53,45 @@ export const Navbar: React.FC<NavbarProps> = ({
       {/* Main Bar */}
       <div className="px-2 sm:px-4 py-1.5 sm:py-2 flex items-center justify-between gap-1.5 sm:gap-3 max-w-7xl mx-auto">
         {/* Brand */}
-        <div 
-          className="flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0" 
-          onClick={() => onSelectWilaya(null)}
-          title="الرئيسية / إعادة ضبط الخريطة"
-        >
-          <img 
-            src="/win-ntbara3-icon.svg" 
-            alt="وين نتبرع" 
-            className="w-7 h-7 sm:w-8 sm:h-8 object-contain rounded-lg shadow-xs" 
-          />
-          <div>
-            <h1 className="text-xs sm:text-sm font-black text-slate-900 leading-none flex items-center gap-1">
-              <span>{t.appName}</span>
-            </h1>
-            <span className="text-[9px] sm:text-[10px] text-emerald-800 font-bold hidden md:block">
-              {t.appSubtitle}
-            </span>
+        <div className="flex flex-col items-start shrink-0">
+          <div 
+            className="flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0" 
+            onClick={() => onSelectWilaya(null)}
+            title="الرئيسية / إعادة ضبط الخريطة"
+          >
+            <img 
+              src="/win-ntbara3-icon.svg" 
+              alt="وين نتبرع" 
+              className="w-7 h-7 sm:w-8 sm:h-8 object-contain rounded-lg shadow-xs" 
+            />
+            <div>
+              <h1 className="text-xs sm:text-sm font-black text-slate-900 leading-none flex items-center gap-1">
+                <span>{t.appName}</span>
+              </h1>
+              <span className="text-[9px] sm:text-[10px] text-emerald-800 font-bold hidden md:block">
+                {t.appSubtitle}
+              </span>
+            </div>
           </div>
+
+          {/* Download App Button below Header / Icon (Disappears if running as installed app) */}
+          {!isStandalone && (
+            <button
+              type="button"
+              onClick={() => {
+                if (onOpenInstall) {
+                  onOpenInstall();
+                } else {
+                  triggerInstall();
+                }
+              }}
+              className="mt-0.5 inline-flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300/80 text-[9.5px] sm:text-[10.5px] font-black transition active:scale-95 shadow-2xs cursor-pointer"
+              title="تحميل وتثبيت التطبيق"
+            >
+              <Download className="w-2.5 h-2.5 text-emerald-700 stroke-[3]" />
+              <span>{currentLanguage === 'ar' ? 'تحميل التطبيق' : 'Télécharger l’app'}</span>
+            </button>
+          )}
         </div>
 
         {/* Wilaya Filter Dropdown */}

@@ -8,6 +8,7 @@ import {
   ChevronRight, 
   Compass, 
   ArrowLeft,
+  ArrowRight,
   X,
   Check,
   Download
@@ -16,6 +17,7 @@ import { WILAYAS } from '../data/wilayas';
 import { Wilaya } from '../types';
 import { Language, TRANSLATIONS } from '../i18n/translations';
 import { isWithinAlgeriaBounds } from '../utils/geoParser';
+import { usePwaInstall } from '../utils/usePwaInstall';
 
 export type UserIntent = 'find' | 'add' | null;
 
@@ -72,6 +74,8 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
 
   if (!isOpen) return null;
 
+  const { isStandalone, triggerInstall } = usePwaInstall();
+
   const handleChooseIntent = (intent: 'find' | 'add') => {
     setSelectedIntent(intent);
     setStep(2);
@@ -119,9 +123,12 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-slate-950/70 backdrop-blur-md animate-in fade-in duration-200">
-      <div className="bg-white border border-slate-200 rounded-3xl w-full max-w-lg shadow-2xl overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200">
-        {/* Modal Top Header */}
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 bg-black/60 backdrop-blur-xs select-none">
+      <div 
+        className="w-full max-w-lg bg-white rounded-3xl shadow-2xl border border-slate-200 overflow-hidden flex flex-col max-h-[92vh] animate-in zoom-in-95 duration-200"
+        dir={currentLanguage === 'ar' ? 'rtl' : 'ltr'}
+      >
+        {/* Modal Header */}
         <div className="p-4 sm:p-5 bg-gradient-to-b from-slate-50 to-white border-b border-slate-100 flex items-center justify-between">
           <div className="flex items-center gap-2.5">
             <img 
@@ -130,29 +137,15 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
               className="w-10 h-10 object-contain rounded-xl shadow-xs shrink-0" 
             />
             <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-base font-black text-slate-900 leading-tight">
-                  {t.appName}
-                </h2>
-                {onOpenInstall && (
-                  <button
-                    type="button"
-                    onClick={onOpenInstall}
-                    className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-[10px] font-bold transition active:scale-95 shadow-2xs"
-                    title="تثبيت وتحميل التطبيق"
-                  >
-                    <Download className="w-2.5 h-2.5 text-emerald-700 stroke-[2.5]" />
-                    <span>تحميل التطبيق</span>
-                  </button>
-                )}
-              </div>
+              <h2 className="text-base font-black text-slate-900 leading-tight">
+                {t.appName}
+              </h2>
               <p className="text-xs text-slate-500 font-medium">
                 {t.appSubtitle}
               </p>
             </div>
           </div>
 
-          {/* Header Action: Back button in Step 2, Close button in Step 1 */}
           {step === 2 ? (
             <button
               onClick={() => {
@@ -162,16 +155,25 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
                   setStep(1);
                 }
               }}
-              className="p-1.5 px-3 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition flex items-center gap-1 text-xs font-bold border border-slate-200"
-              title="رجوع"
+              className="p-1.5 px-3 text-slate-700 hover:text-slate-950 rounded-xl hover:bg-slate-100 transition flex items-center gap-1.5 text-xs font-bold border border-slate-200 cursor-pointer active:scale-95"
+              title={currentLanguage === 'ar' ? 'رجوع' : 'Retour'}
             >
-              <ArrowLeft className="w-4 h-4" />
-              <span>{currentLanguage === 'ar' ? 'رجوع' : 'Retour'}</span>
+              {currentLanguage === 'ar' ? (
+                <>
+                  <span>رجوع</span>
+                  <ArrowRight className="w-4 h-4 text-slate-700" />
+                </>
+              ) : (
+                <>
+                  <ArrowLeft className="w-4 h-4 text-slate-700" />
+                  <span>{currentLanguage === 'fr' ? 'Retour' : 'Back'}</span>
+                </>
+              )}
             </button>
           ) : (
             <button
               onClick={onClose}
-              className="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition"
+              className="p-2 text-slate-400 hover:text-slate-700 rounded-xl hover:bg-slate-100 transition cursor-pointer"
               title="إغلاق"
             >
               <X className="w-5 h-5" />
@@ -181,8 +183,39 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
 
         {/* Modal Content Body */}
         <div className="p-4 sm:p-6 overflow-y-auto space-y-4 text-right">
+          {/* Download App Button below Header / Icon (Disappears if running as installed app) */}
+          {!isStandalone && (
+            <button
+              type="button"
+              onClick={() => {
+                if (onOpenInstall) {
+                  onOpenInstall();
+                } else {
+                  triggerInstall();
+                }
+              }}
+              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 hover:from-emerald-100 hover:to-teal-100 border border-emerald-200/90 text-emerald-950 transition active:scale-98 shadow-xs cursor-pointer"
+            >
+              <div className="flex items-center gap-2.5">
+                <span className="p-1.5 rounded-xl bg-emerald-700 text-white shadow-xs">
+                  <Download className="w-4 h-4 stroke-[2.5]" />
+                </span>
+                <div className="text-right">
+                  <span className="text-xs font-black block leading-tight">
+                    {currentLanguage === 'ar' ? 'تحميل وتثبيت التطبيق على الهاتف' : 'Installer l’application sur votre téléphone'}
+                  </span>
+                  <span className="text-[10px] text-emerald-800 font-bold block">
+                    {currentLanguage === 'ar' ? 'وصول فوري وسريع للتبرع والإغاثة' : 'Accès rapide et hors-ligne'}
+                  </span>
+                </div>
+              </div>
+              <span className="text-[11px] font-black bg-emerald-700 text-white px-2.5 py-1 rounded-xl shadow-xs">
+                {currentLanguage === 'ar' ? 'تثبيت' : 'Installer'}
+              </span>
+            </button>
+          )}
+
           {step === 1 ? (
-            /* STEP 1: Two Big Decision Buttons */
             <div className="space-y-4">
               <div className="text-center space-y-1 py-1">
                 <h3 className="text-base sm:text-lg font-bold text-slate-900">
