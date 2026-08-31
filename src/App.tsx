@@ -362,21 +362,6 @@ export function App() {
 
         {/* Map Key Book Holder Widget on Bottom-Right of Map */}
         <MapKeyBookWidget currentLanguage={language} />
-
-        {/* Floating Download App Chip on Map (Outside of header, disappears if running as installed app) */}
-        {!isStandalone && (
-          <div className="fixed top-13 left-3 sm:left-4 z-20 pointer-events-auto select-none">
-            <button
-              type="button"
-              onClick={() => setIsInstallModalOpen(true)}
-              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-white hover:bg-slate-50 text-emerald-800 border border-emerald-300 shadow-md backdrop-blur-md text-[11px] font-black transition active:scale-95 cursor-pointer"
-              title="تحميل وتثبيت التطبيق"
-            >
-              <Download className="w-3.5 h-3.5 text-emerald-700 stroke-[2.5]" />
-              <span>{language === 'ar' ? 'تحميل التطبيق' : 'Télécharger l’app'}</span>
-            </button>
-          </div>
-        )}
       </main>
 
       {/* 4. Bottom Navigation Bar (Dynamic Primary CTA & Side Slot based on User Intent) */}

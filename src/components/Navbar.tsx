@@ -51,7 +51,7 @@ export const Navbar: React.FC<NavbarProps> = ({
   return (
     <header className="sticky top-0 z-30 bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs shrink-0 select-none">
       {/* Main Bar */}
-      <div className="px-2 sm:px-4 py-1.5 sm:py-2 flex items-center justify-between gap-1.5 sm:gap-3 max-w-7xl mx-auto">
+      <div className="px-2 sm:px-4 py-1.5 sm:py-2 flex items-center justify-between gap-1.5 sm:gap-3 max-w-7xl mx-auto relative">
         {/* Brand */}
         <div 
           className="flex items-center gap-1.5 sm:gap-2 cursor-pointer shrink-0" 
@@ -72,6 +72,27 @@ export const Navbar: React.FC<NavbarProps> = ({
             </span>
           </div>
         </div>
+
+        {/* Download App Pill outside of header, directly below the icon/brand */}
+        {!isStandalone && (
+          <div className="absolute top-full mt-1.5 rtl:right-2 sm:rtl:right-4 ltr:left-2 sm:ltr:left-4 pointer-events-auto z-30">
+            <button
+              type="button"
+              onClick={() => {
+                if (onOpenInstall) {
+                  onOpenInstall();
+                } else {
+                  triggerInstall();
+                }
+              }}
+              className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-white/95 hover:bg-white text-emerald-800 border border-emerald-500 shadow-md backdrop-blur-md text-[10.5px] sm:text-xs font-black transition active:scale-95 cursor-pointer"
+              title="تحميل وتثبيت التطبيق"
+            >
+              <span>{currentLanguage === 'ar' ? 'تحميل التطبيق' : 'Télécharger l’app'}</span>
+              <Download className="w-3 h-3 text-emerald-700 stroke-[2.5]" />
+            </button>
+          </div>
+        )}
 
         {/* Wilaya Filter Dropdown */}
         <div className="flex-1 max-w-[140px] xs:max-w-[170px] sm:max-w-[220px]">
