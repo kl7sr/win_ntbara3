@@ -51,6 +51,7 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [verificationFilter, setVerificationFilter] = useState<'all' | 'verified' | 'unconfirmed'>('all');
   const [showNeighboringDropdown, setShowNeighboringDropdown] = useState(false);
+  const [expandedPointId, setExpandedPointId] = useState<string | null>(null);
 
   const t = TRANSLATIONS[currentLanguage];
 
@@ -169,7 +170,13 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
         {filtered.length === 0 ? (
           <div className="text-center py-10 space-y-2 text-slate-500">
             <MapPin className="w-8 h-8 mx-auto text-slate-300" />
-            <p className="text-xs">لا توجد نقاط مطابقة في هذه الولاية</p>
+            <p className="text-xs">
+              {currentLanguage === 'ar'
+                ? 'لا توجد نقاط مطابقة في هذه الولاية'
+                : currentLanguage === 'fr'
+                ? 'Aucun point correspondant dans cette wilaya'
+                : 'No matching points found in this wilaya'}
+            </p>
           </div>
         ) : (
           filtered.map((point, index) => {
@@ -178,15 +185,31 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
             const isFireActive = isBurnt && (point.status === 'urgent' || point.status === 'active');
             const isFireExtinguished = isBurnt && (point.status === 'extinguished' || point.status === 'full');
             const isVerified = point.verified;
+            const isExpanded = expandedPointId === point.id;
 
-            const googleMapsUrl = point.googleMapsUrl || getGoogleMapsDirUrl(point.lat, point.lng, point.title);
+            const statusLabel = isBurnt
+              ? (isFireExtinguished 
+                  ? (currentLanguage === 'ar' ? 'تم الإخماد' : currentLanguage === 'fr' ? 'Feu éteint' : 'Extinguished')
+                  : (currentLanguage === 'ar' ? 'بؤرة حريق نشطة' : currentLanguage === 'fr' ? 'Incendie actif' : 'Active Fire'))
+              : isShelter
+              ? (isVerified 
+                  ? (currentLanguage === 'ar' ? 'مركز إيواء مؤكد' : currentLanguage === 'fr' ? 'Hébergement vérifié' : 'Verified Shelter')
+                  : (currentLanguage === 'ar' ? 'مركز إيواء غير مؤكد' : currentLanguage === 'fr' ? 'Hébergement non vérifié' : 'Unconfirmed Shelter'))
+              : (isVerified 
+                  ? (currentLanguage === 'ar' ? 'موقع مؤكد' : currentLanguage === 'fr' ? 'Point vérifié' : 'Verified Hub')
+                  : (currentLanguage === 'ar' ? 'غير مؤكد' : currentLanguage === 'fr' ? 'Non vérifié' : 'Unconfirmed'));
 
             return (
               <div
                 key={point.id}
-                className="p-3.5 bg-white border border-slate-200 hover:border-slate-300 rounded-2xl shadow-xs hover:shadow-md transition space-y-2.5 text-right group"
+                onClick={() => {
+                  setExpandedPointId((prev) => (prev === point.id ? null : point.id));
+                }}
+                className={`p-3.5 bg-white border rounded-2xl shadow-xs hover:shadow-md transition space-y-2 text-right group cursor-pointer active:scale-[0.995] ${
+                  isExpanded ? 'border-emerald-700/60 ring-1 ring-emerald-700/20' : 'border-slate-200 hover:border-slate-300'
+                }`}
               >
-                {/* Top Row: Status Dot + Status Label + Distance Badge */}
+                {/* Top Row: Status Dot + Status Label + Distance Badge + Chevron Indicator */}
                 <div className="flex items-center justify-between gap-2">
                   <div className="flex items-center gap-1.5 min-w-0">
                     <span className={`w-2 h-2 rounded-full shrink-0 ${
@@ -197,84 +220,68 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
                     <span className={`text-[11px] font-bold truncate ${
                       isBurnt
                         ? isFireActive ? 'text-red-700' : 'text-slate-600'
-                        : isVerified ? 'text-emerald-800' : 'text-amber-800'
-                    }`}>
-                      {isBurnt
-                        ? (isFireExtinguished ? 'تم الإخماد' : 'بؤرة حريق نشطة')
                         : isShelter
-                        ? (isVerified ? 'مركز إيواء مؤكد' : 'مركز إيواء غير مؤكد')
-                        : (isVerified ? 'موقع مؤكد' : 'غير مؤكد')}
+                        ? (isVerified ? 'text-emerald-800' : 'text-amber-800')
+                        : (isVerified ? 'text-emerald-800' : 'text-amber-800')
+                    }`}>
+                      {statusLabel}
                     </span>
                   </div>
 
-                  {point.distance !== null && (
-                    <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
-                      index === 0
-                        ? 'bg-slate-900 text-white shadow-2xs'
-                        : 'bg-slate-100 text-slate-700 border border-slate-200'
-                    }`}>
-                      {index === 0 ? `الأقرب (${point.distance} كم)` : `${point.distance} كم`}
-                    </span>
-                  )}
+                  <div className="flex items-center gap-1.5">
+                    {point.distance !== null && (
+                      <span className={`text-[10px] font-bold px-2 py-0.5 rounded-full shrink-0 ${
+                        index === 0
+                          ? 'bg-slate-900 text-white shadow-2xs'
+                          : 'bg-slate-100 text-slate-700 border border-slate-200'
+                      }`}>
+                        {index === 0 
+                          ? (currentLanguage === 'ar' ? `الأقرب (${point.distance} كم)` : `Plus proche (${point.distance} km)`)
+                          : `${point.distance} ${currentLanguage === 'ar' ? 'كم' : 'km'}`}
+                      </span>
+                    )}
+                    <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-emerald-700' : ''}`} />
+                  </div>
                 </div>
 
-                {/* Title & Location Line (Clean & Readable) */}
-                <div 
-                  className="cursor-pointer space-y-0.5"
-                  onClick={() => {
-                    onSelectPoint(point);
-                    onClose();
-                  }}
-                >
-                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-slate-800 leading-snug">
+                {/* Title & Location Line */}
+                <div className="space-y-0.5">
+                  <h4 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-emerald-950 leading-snug">
                     {point.title}
                   </h4>
                   <p className="text-[11px] text-slate-500">
-                    {point.wilayaNameAr} - {point.commune}
+                    {currentLanguage === 'ar' ? point.wilayaNameAr : point.wilayaNameFr} - {point.commune}
                   </p>
                 </div>
 
-                {/* 3 Compact Action Buttons: Call | Directions | Details */}
-                <div className="grid grid-cols-3 gap-1.5 pt-1 border-t border-slate-100">
-                  {!isBurnt && point.phone ? (
-                    <a
-                      href={`tel:${point.phone}`}
-                      onClick={(e) => e.stopPropagation()}
-                      className="py-1.5 px-2 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-2xs transition active:scale-95 text-center"
+                {/* Collapsible Dropdown Action Row (Lights up on click) */}
+                {isExpanded && (
+                  <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 animate-in fade-in slide-in-from-top-1 duration-150">
+                    {!isBurnt && point.phone && (
+                      <a
+                        href={`tel:${point.phone}`}
+                        onClick={(e) => e.stopPropagation()}
+                        className="py-1.5 px-3 bg-emerald-700 hover:bg-emerald-800 text-white rounded-xl text-xs font-bold flex items-center gap-1 shadow-2xs transition active:scale-95 text-center"
+                      >
+                        <Phone className="w-3.5 h-3.5" />
+                        <span>{currentLanguage === 'ar' ? 'اتصال' : currentLanguage === 'fr' ? 'Appeler' : 'Call'}</span>
+                      </a>
+                    )}
+
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        onSelectPoint(point);
+                        onClose();
+                      }}
+                      className="py-1.5 px-3 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-bold flex items-center gap-1 shadow-2xs transition active:scale-95 text-center"
                     >
-                      <Phone className="w-3.5 h-3.5 shrink-0" />
-                      <span className="truncate">اتصال</span>
-                    </a>
-                  ) : (
-                    <div className="py-1.5 px-2 bg-slate-50 text-slate-400 rounded-xl text-xs text-center font-medium flex items-center justify-center">
-                      بدون هاتف
-                    </div>
-                  )}
-
-                  <a
-                    href={googleMapsUrl}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    onClick={(e) => e.stopPropagation()}
-                    className="py-1.5 px-2 rounded-xl text-xs font-semibold flex items-center justify-center gap-1 transition bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 active:scale-95 text-center"
-                  >
-                    <Navigation className="w-3.5 h-3.5 shrink-0" />
-                    <span className="truncate">الاتجاهات</span>
-                  </a>
-
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onSelectPoint(point);
-                      onClose();
-                    }}
-                    className="py-1.5 px-2 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-2xs transition active:scale-95 text-center"
-                  >
-                    <Info className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-                    <span className="truncate">التفاصيل</span>
-                  </button>
-                </div>
+                      <Info className="w-3.5 h-3.5 text-slate-300" />
+                      <span>{currentLanguage === 'ar' ? 'التفاصيل' : currentLanguage === 'fr' ? 'Détails' : 'Details'}</span>
+                    </button>
+                  </div>
+                )}
               </div>
             );
           })
@@ -293,7 +300,11 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
                   {partitioned.borderNeighborPoints.length}
                 </span>
                 <span className="font-bold text-slate-800">
-                  مراكز قريبة في الولايات المجاورة
+                  {currentLanguage === 'ar' 
+                    ? 'مراكز قريبة في الولايات المجاورة' 
+                    : currentLanguage === 'fr'
+                    ? 'Centres proches dans les wilayas voisines'
+                    : 'Nearby Centers in Neighboring Wilayas'}
                 </span>
               </div>
               {showNeighboringDropdown ? (
@@ -309,80 +320,71 @@ export const NearestListDrawer: React.FC<NearestListDrawerProps> = ({
                 {partitioned.borderNeighborPoints.map(({ point, distanceToWilayaCenterKm }) => {
                   const isBurnt = point.pointType === 'burnt_zone';
                   const isFireActive = isBurnt && (point.status === 'urgent' || point.status === 'active');
-                  const isFireExtinguished = isBurnt && (point.status === 'extinguished' || point.status === 'full');
                   const isVerified = point.verified;
-
-                  const googleMapsUrl = point.googleMapsUrl || getGoogleMapsDirUrl(point.lat, point.lng, point.title);
+                  const isExpanded = expandedPointId === point.id;
 
                   return (
                     <div
                       key={point.id}
-                      className="p-3 bg-white border border-slate-200 hover:border-slate-300 rounded-2xl shadow-xs hover:shadow-md transition text-right space-y-2"
+                      onClick={() => {
+                        setExpandedPointId((prev) => (prev === point.id ? null : point.id));
+                      }}
+                      className={`p-3.5 bg-white border rounded-2xl shadow-xs space-y-2 text-right hover:shadow-md transition cursor-pointer group active:scale-[0.995] ${
+                        isExpanded ? 'border-emerald-700/60 ring-1 ring-emerald-700/20' : 'border-slate-200 hover:border-slate-300'
+                      }`}
                     >
-                      <div className="flex items-center justify-between">
-                        <div className="flex items-center gap-1.5">
-                          <span className={`w-2 h-2 rounded-full shrink-0 ${
-                            isBurnt
-                              ? isFireActive ? 'bg-red-600' : 'bg-slate-400'
-                              : isVerified ? 'bg-emerald-600' : 'bg-amber-500'
-                          }`} />
-                          <span className="text-[10.5px] font-bold text-slate-700">
-                            ولاية {point.wilayaNameAr} ({point.commune})
-                          </span>
-                        </div>
-                        <span className="text-[10px] text-slate-500 font-medium">
-                          ~ {distanceToWilayaCenterKm} كم
-                        </span>
-                      </div>
-
-                      <h5 
-                        className="text-xs font-bold text-slate-900 cursor-pointer"
-                        onClick={() => {
-                          onSelectPoint(point);
-                          onClose();
-                        }}
-                      >
-                        {point.title}
-                      </h5>
-
-                      <div className="grid grid-cols-3 gap-1.5 pt-1 border-t border-slate-100">
-                        {!isBurnt && point.phone ? (
-                          <a
-                            href={`tel:${point.phone}`}
-                            onClick={(e) => e.stopPropagation()}
-                            className="py-1.5 px-2 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl text-center shadow-2xs transition flex items-center justify-center gap-1"
-                          >
-                            <Phone className="w-3.5 h-3.5 shrink-0" />
-                            <span className="truncate">اتصال</span>
-                          </a>
-                        ) : (
-                          <div className="py-1.5 px-2 bg-slate-50 text-slate-400 rounded-xl text-xs text-center font-medium flex items-center justify-center">
-                            بدون هاتف
+                      <div className="space-y-0.5">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <span className={`w-2 h-2 rounded-full shrink-0 ${
+                              isBurnt
+                                ? isFireActive ? 'bg-red-600' : 'bg-slate-400'
+                                : isVerified ? 'bg-emerald-600' : 'bg-amber-500'
+                            }`} />
+                            <span className="text-[10px] font-bold text-slate-700">
+                              {currentLanguage === 'ar' ? `ولاية ${point.wilayaNameAr}` : `Wilaya de ${point.wilayaNameFr}`} ({point.commune})
+                            </span>
                           </div>
-                        )}
-                        <a
-                          href={googleMapsUrl}
-                          target="_blank"
-                          rel="noopener noreferrer"
-                          onClick={(e) => e.stopPropagation()}
-                          className="py-1.5 px-2 rounded-xl text-xs font-semibold text-center transition bg-slate-100 hover:bg-slate-200 text-slate-700 border border-slate-200 flex items-center justify-center gap-1"
-                        >
-                          <Navigation className="w-3.5 h-3.5 shrink-0" />
-                          <span className="truncate">الاتجاهات</span>
-                        </a>
-                        <button
-                          type="button"
-                          onClick={(e) => {
-                            e.stopPropagation();
-                            onSelectPoint(point);
-                            onClose();
-                          }}
-                          className="py-1.5 px-2 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-bold flex items-center justify-center gap-1 shadow-2xs transition active:scale-95 text-center"
-                        >
-                          <Info className="w-3.5 h-3.5 text-slate-300 shrink-0" />
-                          <span className="truncate">التفاصيل</span>
-                        </button>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-[10.5px] text-slate-500 font-medium">
+                              ~ {distanceToWilayaCenterKm} {currentLanguage === 'ar' ? 'كم' : 'km'}
+                            </span>
+                            <ChevronDown className={`w-4 h-4 text-slate-400 transition-transform duration-200 ${isExpanded ? 'rotate-180 text-emerald-700' : ''}`} />
+                          </div>
+                        </div>
+                        <h5 className="text-xs sm:text-sm font-bold text-slate-900 group-hover:text-emerald-950">
+                          {point.title}
+                        </h5>
                       </div>
+
+                      {/* Collapsible Dropdown Action Row */}
+                      {isExpanded && (
+                        <div className="flex items-center justify-end gap-2 pt-2 border-t border-slate-100 animate-in fade-in slide-in-from-top-1 duration-150">
+                          {point.pointType !== 'burnt_zone' && point.phone && (
+                            <a
+                              href={`tel:${point.phone}`}
+                              onClick={(e) => e.stopPropagation()}
+                              className="py-1.5 px-3 bg-emerald-700 hover:bg-emerald-800 text-white font-bold text-xs rounded-xl text-center shadow-2xs transition flex items-center gap-1 active:scale-95"
+                            >
+                              <Phone className="w-3.5 h-3.5" />
+                              <span>{currentLanguage === 'ar' ? 'اتصال' : currentLanguage === 'fr' ? 'Appeler' : 'Call'}</span>
+                            </a>
+                          )}
+
+                          <button
+                            type="button"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              onSelectPoint(point);
+                              onClose();
+                            }}
+                            className="py-1.5 px-3 bg-slate-900 hover:bg-black text-white rounded-xl text-xs font-bold flex items-center gap-1 shadow-2xs transition active:scale-95 text-center"
+                          >
+                            <Info className="w-3.5 h-3.5 text-slate-300" />
+                            <span>{currentLanguage === 'ar' ? 'التفاصيل' : currentLanguage === 'fr' ? 'Détails' : 'Details'}</span>
+                          </button>
+                        </div>
+                      )}
                     </div>
                   );
                 })}

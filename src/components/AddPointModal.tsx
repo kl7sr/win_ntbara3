@@ -12,7 +12,9 @@ import {
   Image as ImageIcon,
   Trash2,
   Link as LinkIcon,
-  ShieldCheck
+  ShieldCheck,
+  Package,
+  Home
 } from 'lucide-react';
 import { CharityPoint, AidCategory, PointStatus, PointType } from '../types';
 import { WILAYAS, AID_CATEGORIES_META } from '../data/wilayas';
@@ -448,7 +450,8 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
                     : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                 }`}
               >
-                <span>📦 نقطة جمع وتبرع</span>
+                <Package className="w-3.5 h-3.5" />
+                <span>نقطة جمع وتبرع</span>
               </button>
               <button
                 type="button"
@@ -464,7 +467,8 @@ export const AddPointModal: React.FC<AddPointModalProps> = ({
                     : 'bg-white text-slate-700 border-slate-200 hover:bg-slate-50'
                 }`}
               >
-                <span>🏠 مركز إيواء واستقبال</span>
+                <Home className="w-3.5 h-3.5" />
+                <span>مركز إيواء واستقبال</span>
               </button>
             </div>
           </div>

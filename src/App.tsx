@@ -12,6 +12,7 @@ import { WelcomeEntryModal } from './components/WelcomeEntryModal';
 import { WilayaResultsModal } from './components/WilayaResultsModal';
 import { LegendModal } from './components/LegendModal';
 import { ReportSupportModal } from './components/ReportSupportModal';
+import { MapKeyBookWidget } from './components/MapKeyBookWidget';
 import { CharityPoint, UserLocation } from './types';
 import { Language, TRANSLATIONS } from './i18n/translations';
 import { WILAYAS } from './data/wilayas';
@@ -30,7 +31,7 @@ import {
   updateLivePointInD1, 
   deleteLivePointFromD1 
 } from './services/apiService';
-import { CheckCircle2, Plus, Compass, Map as MapIcon, RotateCcw, MapPin, Layers, Wrench } from 'lucide-react';
+import { CheckCircle2, Plus, Compass, Map as MapIcon, RotateCcw, MapPin, Layers, Wrench, Search } from 'lucide-react';
 
 export function App() {
   const [points, setPoints] = useState<CharityPoint[]>([]);
@@ -70,6 +71,10 @@ export function App() {
   const [isLegendModalOpen, setIsLegendModalOpen] = useState(false);
   const [isSupportModalOpen, setIsSupportModalOpen] = useState(false);
   const [isAdminOpen, setIsAdminOpen] = useState(false);
+  const [isInstallModalOpen, setIsInstallModalOpen] = useState(false);
+  const [activeIntent, setActiveIntent] = useState<'find' | 'add'>('find');
+  const [welcomeInitialStep, setWelcomeInitialStep] = useState<1 | 2>(1);
+  const [welcomeInitialIntent, setWelcomeInitialIntent] = useState<'find' | 'add'>('find');
 
   // Filters
   const [selectedWilaya, setSelectedWilaya] = useState<number | null>(null);
@@ -248,6 +253,7 @@ export function App() {
 
   // Handle Intent & Wilaya Selection from WelcomeEntryModal
   const handleSelectIntentAndWilaya = (intent: 'find' | 'add', wilayaCode: number) => {
+    setActiveIntent(intent);
     setSelectedWilaya(wilayaCode);
     setIsWelcomeModalOpen(false);
 
@@ -258,6 +264,12 @@ export function App() {
       setIsWilayaResultsModalOpen(true);
       showToast(`تم تحديد ولاية ${WILAYAS.find((w) => w.code === wilayaCode)?.nameAr || ''}`);
     }
+  };
+
+  const handleOpenSearchModal = (intent: 'find' | 'add' = 'find') => {
+    setWelcomeInitialStep(2);
+    setWelcomeInitialIntent(intent);
+    setIsWelcomeModalOpen(true);
   };
 
   // Add Point
@@ -323,13 +335,14 @@ export function App() {
   return (
     <div className="min-h-[100dvh] h-[100dvh] w-full flex flex-col bg-slate-50 text-slate-900 overflow-hidden select-none relative">
       {/* 1. Helpline Header Banner */}
-      <EmergencyBanner />
+      <EmergencyBanner currentLanguage={language} />
 
       {/* 2. Main Navigation Bar */}
       <Navbar
         onOpenAddModal={() => setIsAddModalOpen(true)}
         onOpenNearestDrawer={() => setIsNearestDrawerOpen(true)}
         onOpenAdmin={() => setIsAdminOpen(true)}
+        onOpenInstall={() => setIsInstallModalOpen(true)}
         selectedWilaya={selectedWilaya}
         onSelectWilaya={setSelectedWilaya}
         totalPoints={activeVisiblePoints.length}
@@ -351,26 +364,14 @@ export function App() {
           onRequestUserLocation={requestUserLocation}
           selectedWilaya={selectedWilaya}
         />
+
+        {/* Map Key Book Holder Widget on Bottom-Right of Map */}
+        <MapKeyBookWidget currentLanguage={language} />
       </main>
 
-      {/* 4. Bottom Navigation Bar (5 Action Items - Compact & Dynamic) */}
+      {/* 4. Bottom Navigation Bar (Dynamic Primary CTA & Side Slot based on User Intent) */}
       <footer className="fixed bottom-0 inset-x-0 z-40 bg-white border-t border-slate-200 px-2 sm:px-4 py-1.5 shadow-2xl flex items-center justify-between max-w-lg mx-auto sm:rounded-t-2xl pb-[max(0.35rem,env(safe-area-inset-bottom))]">
-        {/* 1. Map Key / Legend Tab (Enabled only on map view) */}
-        <button
-          disabled={isNearestDrawerOpen}
-          onClick={() => setIsLegendModalOpen(true)}
-          className={`flex flex-col items-center justify-center gap-0.5 py-1 px-1 transition flex-1 focus:outline-none focus:ring-0 outline-none select-none ${
-            isNearestDrawerOpen
-              ? 'opacity-30 cursor-not-allowed text-slate-400'
-              : 'text-slate-700 hover:text-emerald-700 active:scale-95'
-          }`}
-          title={isNearestDrawerOpen ? 'متاح فقط في وضع الخريطة' : 'مفتاح الخريطة'}
-        >
-          <Layers className={`w-4 h-4 ${isNearestDrawerOpen ? 'text-slate-300' : 'text-slate-600'}`} />
-          <span className="text-[9.5px] font-bold">المفتاح</span>
-        </button>
-
-        {/* 2. Map Tab */}
+        {/* 1. Map Tab (Right in RTL) */}
         <button
           onClick={() => {
             setIsNearestDrawerOpen(false);
@@ -387,17 +388,59 @@ export function App() {
           <span className="text-[9.5px] font-bold">{t.exploreMap}</span>
         </button>
 
-        {/* 3. Add Point CTA */}
-        <div className="flex-1 flex flex-col items-center justify-center -mt-5">
+        {/* 2. Side Dynamic Slot (Shows Add if Active Intent is Find, or Search if Active Intent is Add) */}
+        {activeIntent === 'find' ? (
           <button
-            onClick={() => setIsAddModalOpen(true)}
-            className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-lg flex items-center justify-center border-[3px] border-white active:scale-95 transition shrink-0 focus:outline-none focus:ring-0 outline-none select-none"
+            type="button"
+            onClick={() => {
+              setActiveIntent('add');
+              setIsAddModalOpen(true);
+            }}
+            className="flex flex-col items-center justify-center gap-0.5 py-1 px-1 text-slate-600 hover:text-emerald-700 active:scale-95 transition flex-1 focus:outline-none focus:ring-0 outline-none select-none cursor-pointer"
             title={t.addPoint}
           >
-            <Plus className="w-5 h-5 stroke-[2.5]" />
+            <Plus className="w-4 h-4 text-slate-600" />
+            <span className="text-[9.5px] font-bold">{t.addPoint}</span>
           </button>
-          <span className="text-[9px] sm:text-[9.5px] font-black text-emerald-800 mt-0.5 whitespace-nowrap select-none">{t.addPoint}</span>
-        </div>
+        ) : (
+          <button
+            type="button"
+            onClick={() => {
+              setActiveIntent('find');
+              handleOpenSearchModal('find');
+            }}
+            className="flex flex-col items-center justify-center gap-0.5 py-1 px-1 text-slate-600 hover:text-emerald-700 active:scale-95 transition flex-1 focus:outline-none focus:ring-0 outline-none select-none cursor-pointer"
+            title={t.search}
+          >
+            <Search className="w-4 h-4 text-slate-600" />
+            <span className="text-[9.5px] font-bold">{t.search}</span>
+          </button>
+        )}
+
+        {/* 3. Center Elevated CTA (Shows Search if Active Intent is Find, or Add if Active Intent is Add) */}
+        {activeIntent === 'find' ? (
+          <div className="flex-1 flex flex-col items-center justify-center -mt-5">
+            <button
+              onClick={() => handleOpenSearchModal('find')}
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-lg flex items-center justify-center border-[3px] border-white active:scale-95 transition shrink-0 focus:outline-none focus:ring-0 outline-none select-none"
+              title={t.search}
+            >
+              <Search className="w-5 h-5 stroke-[2.5]" />
+            </button>
+            <span className="text-[9px] sm:text-[9.5px] font-black text-emerald-800 mt-0.5 whitespace-nowrap select-none">{t.search}</span>
+          </div>
+        ) : (
+          <div className="flex-1 flex flex-col items-center justify-center -mt-5">
+            <button
+              onClick={() => setIsAddModalOpen(true)}
+              className="w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-emerald-700 hover:bg-emerald-800 text-white shadow-lg flex items-center justify-center border-[3px] border-white active:scale-95 transition shrink-0 focus:outline-none focus:ring-0 outline-none select-none"
+              title={t.addPoint}
+            >
+              <Plus className="w-5 h-5 stroke-[2.5]" />
+            </button>
+            <span className="text-[9px] sm:text-[9.5px] font-black text-emerald-800 mt-0.5 whitespace-nowrap select-none">{t.addPoint}</span>
+          </div>
+        )}
 
         {/* 4. Nearest Drawer Tab */}
         <button
@@ -413,14 +456,14 @@ export function App() {
           <span className="text-[9.5px] font-bold">{t.nearestToMe}</span>
         </button>
 
-        {/* 5. Support / Report Technical Problems Tab */}
+        {/* 5. Support / Report Technical Problems Tab (Left in RTL) */}
         <button
           onClick={() => setIsSupportModalOpen(true)}
           className="flex flex-col items-center justify-center gap-0.5 py-1 px-1 text-slate-700 hover:text-amber-700 active:scale-95 transition flex-1 focus:outline-none focus:ring-0 outline-none select-none"
-          title="الدعم الفني والإبلاغ"
+          title={t.support}
         >
           <Wrench className="w-4 h-4 text-amber-600" />
-          <span className="text-[9.5px] font-bold">الدعم</span>
+          <span className="text-[9.5px] font-bold">{t.support}</span>
         </button>
       </footer>
 
@@ -433,6 +476,9 @@ export function App() {
           setSelectedWilaya(null);
           setIsWelcomeModalOpen(false);
         }}
+        onOpenInstall={() => setIsInstallModalOpen(true)}
+        initialStep={welcomeInitialStep}
+        initialIntent={welcomeInitialIntent}
         currentLanguage={language}
       />
 
@@ -538,6 +584,8 @@ export function App() {
       <InstallAppBanner 
         currentLanguage={language} 
         isVisible={!selectedPoint && !isAddModalOpen && !isAdminOpen && !isWilayaResultsModalOpen && !isNearestDrawerOpen && !isWelcomeModalOpen && !editingPoint && !isLegendModalOpen && !isSupportModalOpen}
+        isOpenModal={isInstallModalOpen}
+        onCloseModal={() => setIsInstallModalOpen(false)}
       />
 
       {/* Toast Notification */}

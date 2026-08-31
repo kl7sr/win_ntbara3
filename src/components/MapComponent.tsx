@@ -10,8 +10,9 @@ import { ALGERIA_BOUNDS } from '../utils/geoParser';
 function getUpperMiddleCenter(map: L.Map, lat: number, lng: number, zoom = 16.5): [number, number] {
   try {
     const mapHeight = map.getSize().y || window.innerHeight || 600;
-    // Pushing the map center down by 22-26% of map height shifts the pin to ~25-30% from the top (middle-upper screen)
-    const offsetY = Math.round(Math.max(120, Math.min(mapHeight * 0.24, 210)));
+    // When a bottom sheet covers the lower 50-60% of the screen,
+    // offsetting the center downwards by ~30% positions the pin right at ~20-25% from the top (centered in the visible opening)
+    const offsetY = Math.round(Math.max(140, Math.min(mapHeight * 0.30, 260)));
     const targetPoint = map.project([lat, lng], zoom);
     const centerPoint = targetPoint.add([0, offsetY]);
     const centerLatLng = map.unproject(centerPoint, zoom);
@@ -238,39 +239,48 @@ export const MapComponent: React.FC<MapComponentProps> = ({
   useEffect(() => {
     if (!mapInstanceRef.current) return;
 
-    if (userLocation) {
-      const userHtml = `
-        <div class="user-gps-marker"></div>
-      `;
-
-      const userIcon = L.divIcon({
-        className: 'user-location-marker',
-        html: userHtml,
-        iconSize: [18, 18],
-        iconAnchor: [9, 9],
-      });
-
-      if (!userMarkerRef.current) {
-        const marker = L.marker([userLocation.lat, userLocation.lng], { icon: userIcon, zIndexOffset: 1000 })
-          .addTo(mapInstanceRef.current)
-          .bindTooltip('موقعك الحالي', { permanent: false, direction: 'top' });
-        userMarkerRef.current = marker;
-      } else {
-        userMarkerRef.current.setLatLng([userLocation.lat, userLocation.lng]);
+    if (!userLocation) {
+      if (userMarkerRef.current) {
+        userMarkerRef.current.remove();
+        userMarkerRef.current = null;
       }
+      return;
+    }
 
-      mapInstanceRef.current.flyTo([userLocation.lat, userLocation.lng], 15, {
-        duration: 1.2,
-      });
+    const userIcon = L.divIcon({
+      className: 'user-gps-marker',
+      html: `
+        <div style="position: relative; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">
+          <div style="position: absolute; width: 24px; height: 24px; border-radius: 50%; background: rgba(59, 130, 246, 0.35); animation: ping 1.5s cubic-bezier(0, 0, 0.2, 1) infinite;"></div>
+          <div style="width: 14px; height: 14px; border-radius: 50%; background: #2563eb; border: 2.5px solid #ffffff; box-shadow: 0 0 10px rgba(37,99,235,0.6);"></div>
+        </div>
+      `,
+      iconSize: [24, 24],
+      iconAnchor: [12, 12],
+    });
+
+    if (userMarkerRef.current) {
+      userMarkerRef.current.setLatLng([userLocation.lat, userLocation.lng]);
+    } else {
+      const marker = L.marker([userLocation.lat, userLocation.lng], { icon: userIcon });
+      marker.addTo(mapInstanceRef.current);
+      userMarkerRef.current = marker;
     }
   }, [userLocation]);
 
-  // Handle selected Wilaya change
+  // Handle selected Wilaya change (Centering in the upper-middle visible portion of the map)
   useEffect(() => {
     if (!mapInstanceRef.current || selectedWilaya === null) return;
     const wilaya = WILAYAS.find((w) => w.code === selectedWilaya);
     if (wilaya) {
-      mapInstanceRef.current.flyTo([wilaya.lat, wilaya.lng], wilaya.zoom || 11, {
+      const zoom = wilaya.zoom || 11.5;
+      const [targetLat, targetLng] = getUpperMiddleCenter(
+        mapInstanceRef.current,
+        wilaya.lat,
+        wilaya.lng,
+        zoom
+      );
+      mapInstanceRef.current.flyTo([targetLat, targetLng], zoom, {
         duration: 1.2,
       });
     }

@@ -6,8 +6,11 @@ export interface Translations {
   allWilayas: string;
   pointsCount: string;
   addPoint: string;
+  search: string;
+  support: string;
   nearestToMe: string;
   exploreMap: string;
+  legend: string;
   adminPanel: string;
   adminTitle: string;
   adminSubtitle: string;
@@ -19,6 +22,26 @@ export interface Translations {
   copied: string;
   openGoogleMaps: string;
   installApp: string;
+  emergency: {
+    bannerTitle: string;
+    firefighters: string;
+    police: string;
+    gendarmerie: string;
+    redCrescent: string;
+  };
+  mapKeys: {
+    title: string;
+    verified: string;
+    verifiedDesc: string;
+    shelter: string;
+    shelterDesc: string;
+    unconfirmed: string;
+    unconfirmedDesc: string;
+    activeFire: string;
+    activeFireDesc: string;
+    extinguishedFire: string;
+    extinguishedFireDesc: string;
+  };
   categories: {
     all: string;
     food_water: string;
@@ -74,8 +97,11 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     allWilayas: 'كل الولايات',
     pointsCount: 'نقطة',
     addPoint: 'أضف نقطة',
+    search: 'بحث',
+    support: 'الدعم',
     nearestToMe: 'الأقرب لي',
     exploreMap: 'الخريطة',
+    legend: 'مفتاح الخريطة',
     adminPanel: 'الإدارة',
     adminTitle: 'لوحة تحكم المشرفين',
     adminSubtitle: 'إدارة وتعديل مراكز التبرع ومناطق الحرائق',
@@ -87,6 +113,26 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     copied: 'تم النسخ',
     openGoogleMaps: 'التوجه عبر Google Maps',
     installApp: 'تثبيت التطبيق',
+    emergency: {
+      bannerTitle: 'طوارئ الجزائر',
+      firefighters: 'الحماية:',
+      police: 'الشرطة:',
+      gendarmerie: 'الدرك:',
+      redCrescent: 'الهلال الأحمر:',
+    },
+    mapKeys: {
+      title: 'مفتاح ودليل الخريطة',
+      verified: 'نقطة تبرع مؤكدة',
+      verifiedDesc: 'هلال أحمر، كشافة، جمعيات موثوقة',
+      shelter: 'مركز إيواء واستقبال',
+      shelterDesc: 'مؤسسات مجهزة للعائلات',
+      unconfirmed: 'نقطة غير مؤكدة',
+      unconfirmedDesc: 'يُرجى الاتصال قبل التنقل',
+      activeFire: 'بؤرة حريق نشطة',
+      activeFireDesc: 'منطقة عمليات الحماية',
+      extinguishedFire: 'حريق تم إخماده',
+      extinguishedFireDesc: 'منطقة مسيطر عليها للإغاثة',
+    },
     categories: {
       all: 'الكل',
       food_water: 'غذاء ومياه',
@@ -140,8 +186,11 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     allWilayas: 'Toutes les wilayas',
     pointsCount: 'points',
     addPoint: 'Ajouter un point',
+    search: 'Recherche',
+    support: 'Support',
     nearestToMe: 'Plus proches',
     exploreMap: 'Carte',
+    legend: 'Légende',
     adminPanel: 'Administration',
     adminTitle: 'Panneau d\'Administration',
     adminSubtitle: 'Gestion des centres de dons et zones de crise',
@@ -153,6 +202,26 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     copied: 'Copié',
     openGoogleMaps: 'Itinéraire Google Maps',
     installApp: 'Installer l\'application',
+    emergency: {
+      bannerTitle: 'Urgences Algérie',
+      firefighters: 'Protection :',
+      police: 'Police :',
+      gendarmerie: 'Gendarmerie :',
+      redCrescent: 'Croissant-Rouge :',
+    },
+    mapKeys: {
+      title: 'Légende de la carte',
+      verified: 'Point de don confirmé',
+      verifiedDesc: 'Croissant-Rouge, Scouts, Associations vérifiées',
+      shelter: 'Centre d\'accueil & hébergement',
+      shelterDesc: 'Établissements équipés pour familles',
+      unconfirmed: 'Point non confirmé',
+      unconfirmedDesc: 'Veuillez appeler avant de vous déplacer',
+      activeFire: 'Foyer d\'incendie actif',
+      activeFireDesc: 'Zone d\'opérations de secours',
+      extinguishedFire: 'Incendie maîtrisé',
+      extinguishedFireDesc: 'Zone sécurisée pour collecte et aide',
+    },
     categories: {
       all: 'Tous',
       food_water: 'Nourriture & Eau',
@@ -206,8 +275,11 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     allWilayas: 'All Wilayas',
     pointsCount: 'points',
     addPoint: 'Add Point',
+    search: 'Search',
+    support: 'Support',
     nearestToMe: 'Nearest',
     exploreMap: 'Map',
+    legend: 'Map Key',
     adminPanel: 'Admin',
     adminTitle: 'Admin Dashboard',
     adminSubtitle: 'Manage relief centers and emergency crisis zones',
@@ -219,6 +291,26 @@ export const TRANSLATIONS: Record<Language, Translations> = {
     copied: 'Copied',
     openGoogleMaps: 'Google Maps Directions',
     installApp: 'Install App',
+    emergency: {
+      bannerTitle: 'Algeria Emergencies',
+      firefighters: 'Fire/Rescue:',
+      police: 'Police:',
+      gendarmerie: 'Gendarmerie:',
+      redCrescent: 'Red Crescent:',
+    },
+    mapKeys: {
+      title: 'Map Legend & Guide',
+      verified: 'Confirmed Donation Hub',
+      verifiedDesc: 'Red Crescent, Scouts, Verified Charities',
+      shelter: 'Emergency Shelter & Reception',
+      shelterDesc: 'Facilities equipped for families',
+      unconfirmed: 'Unconfirmed Spot',
+      unconfirmedDesc: 'Please call before traveling',
+      activeFire: 'Active Fire Zone',
+      activeFireDesc: 'Emergency operations zone',
+      extinguishedFire: 'Extinguished Fire',
+      extinguishedFireDesc: 'Contained area for relief delivery',
+    },
     categories: {
       all: 'All',
       food_water: 'Food & Water',

@@ -4,7 +4,8 @@ import {
   MapPin, 
   Globe, 
   Check,
-  RefreshCw
+  RefreshCw,
+  Download
 } from 'lucide-react';
 import { WILAYAS } from '../data/wilayas';
 import { Language, TRANSLATIONS } from '../i18n/translations';
@@ -13,6 +14,7 @@ interface NavbarProps {
   onOpenAddModal: () => void;
   onOpenNearestDrawer: () => void;
   onOpenAdmin: () => void;
+  onOpenInstall?: () => void;
   selectedWilaya: number | null;
   onSelectWilaya: (code: number | null) => void;
   totalPoints: number;

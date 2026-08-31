@@ -250,9 +250,9 @@ export const EditPointModal: React.FC<EditPointModalProps> = ({
                 onChange={(e) => setPointType(e.target.value as PointType)}
                 className="w-full bg-white border border-slate-300 rounded-lg px-2.5 py-1.5 text-xs font-bold text-slate-800"
               >
-                <option value="charity_hub">💚 مركز تبرع وإغاثة</option>
-                <option value="shelter">🏠 مركز إيواء واستقبال عائلات</option>
-                <option value="burnt_zone">🔥 منطقة حرائق / متضررة</option>
+                <option value="charity_hub">مركز تبرع وإغاثة</option>
+                <option value="shelter">مركز إيواء واستقبال عائلات</option>
+                <option value="burnt_zone">منطقة حرائق / متضررة</option>
               </select>
             </div>
 
