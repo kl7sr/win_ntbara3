@@ -165,7 +165,7 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
               className="p-1.5 px-3 text-slate-600 hover:text-slate-900 rounded-xl hover:bg-slate-100 transition flex items-center gap-1 text-xs font-bold border border-slate-200"
               title="رجوع"
             >
-              <ArrowLeft className="w-4 h-4 rtl:rotate-180" />
+              <ArrowLeft className="w-4 h-4" />
               <span>{currentLanguage === 'ar' ? 'رجوع' : 'Retour'}</span>
             </button>
           ) : (
