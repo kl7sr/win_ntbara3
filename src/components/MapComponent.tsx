@@ -5,6 +5,22 @@ import { Locate, ZoomIn, ZoomOut, Maximize2 } from 'lucide-react';
 import { WILAYAS } from '../data/wilayas';
 import { ALGERIA_BOUNDS } from '../utils/geoParser';
 
+// Calculates a map center target that places the pin in the middle-upper part of the screen,
+// ensuring it remains prominently visible and unobstructed by bottom cards/modals.
+function getUpperMiddleCenter(map: L.Map, lat: number, lng: number, zoom = 16.5): [number, number] {
+  try {
+    const mapHeight = map.getSize().y || window.innerHeight || 600;
+    // Pushing the map center down by 22-26% of map height shifts the pin to ~25-30% from the top (middle-upper screen)
+    const offsetY = Math.round(Math.max(120, Math.min(mapHeight * 0.24, 210)));
+    const targetPoint = map.project([lat, lng], zoom);
+    const centerPoint = targetPoint.add([0, offsetY]);
+    const centerLatLng = map.unproject(centerPoint, zoom);
+    return [centerLatLng.lat, centerLatLng.lng];
+  } catch {
+    return [lat, lng];
+  }
+}
+
 interface MapComponentProps {
   points: CharityPoint[];
   selectedPoint: CharityPoint | null;
@@ -193,9 +209,14 @@ export const MapComponent: React.FC<MapComponentProps> = ({
       });
 
       marker.on('click', () => {
-        mapInstanceRef.current?.flyTo([point.lat, point.lng], 16.5, {
-          duration: 1.0,
-        });
+        const map = mapInstanceRef.current;
+        if (map) {
+          const [targetLat, targetLng] = getUpperMiddleCenter(map, point.lat, point.lng, 16.5);
+          map.flyTo([targetLat, targetLng], 16.5, {
+            duration: 1.0,
+          });
+        }
+        onSelectPoint(point);
       });
 
       markersLayerRef.current?.addLayer(marker);
@@ -203,8 +224,9 @@ export const MapComponent: React.FC<MapComponentProps> = ({
 
     (window as any).__openPointDetails = (pointId: string) => {
       const p = points.find((item) => item.id === pointId);
-      if (p) {
-        mapInstanceRef.current?.flyTo([p.lat, p.lng], 16.5, {
+      if (p && mapInstanceRef.current) {
+        const [targetLat, targetLng] = getUpperMiddleCenter(mapInstanceRef.current, p.lat, p.lng, 16.5);
+        mapInstanceRef.current.flyTo([targetLat, targetLng], 16.5, {
           duration: 1.0,
         });
         onSelectPoint(p);
@@ -254,10 +276,16 @@ export const MapComponent: React.FC<MapComponentProps> = ({
     }
   }, [selectedWilaya]);
 
-  // Focus and Zoom in Closely on Selected Point
+  // Focus and Zoom in Closely on Selected Point (Positioned in Middle-Upper Screen)
   useEffect(() => {
     if (!mapInstanceRef.current || !selectedPoint) return;
-    mapInstanceRef.current.flyTo([selectedPoint.lat, selectedPoint.lng], 16.5, {
+    const [targetLat, targetLng] = getUpperMiddleCenter(
+      mapInstanceRef.current,
+      selectedPoint.lat,
+      selectedPoint.lng,
+      16.5
+    );
+    mapInstanceRef.current.flyTo([targetLat, targetLng], 16.5, {
       duration: 1.0,
     });
   }, [selectedPoint]);
