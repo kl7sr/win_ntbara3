@@ -136,9 +136,28 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
               className="w-10 h-10 object-contain rounded-xl shadow-xs shrink-0" 
             />
             <div>
-              <h2 className="text-base font-black text-slate-900 leading-tight">
-                {t.appName}
-              </h2>
+              <div className="flex items-center gap-2">
+                <h2 className="text-base font-black text-slate-900 leading-tight">
+                  {t.appName}
+                </h2>
+                {!isStandalone && (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (onOpenInstall) {
+                        onOpenInstall();
+                      } else {
+                        triggerInstall();
+                      }
+                    }}
+                    className="flex items-center gap-1 px-2 py-0.5 rounded-full bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-200 text-[10px] font-bold transition active:scale-95 shadow-2xs cursor-pointer"
+                    title="تثبيت وتحميل التطبيق"
+                  >
+                    <Download className="w-2.5 h-2.5 text-emerald-700 stroke-[2.5]" />
+                    <span>{currentLanguage === 'ar' ? 'تحميل التطبيق' : 'Télécharger'}</span>
+                  </button>
+                )}
+              </div>
               <p className="text-xs text-slate-500 font-medium">
                 {t.appSubtitle}
               </p>
@@ -182,38 +201,6 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
 
         {/* Modal Content Body */}
         <div className="p-4 sm:p-6 overflow-y-auto space-y-4 text-right">
-          {/* Download App Button below Header / Icon (Disappears if running as installed app) */}
-          {!isStandalone && (
-            <button
-              type="button"
-              onClick={() => {
-                if (onOpenInstall) {
-                  onOpenInstall();
-                } else {
-                  triggerInstall();
-                }
-              }}
-              className="w-full flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-gradient-to-r from-emerald-50 via-teal-50 to-emerald-50 hover:from-emerald-100 hover:to-teal-100 border border-emerald-200/90 text-emerald-950 transition active:scale-98 shadow-xs cursor-pointer"
-            >
-              <div className="flex items-center gap-2.5">
-                <span className="p-1.5 rounded-xl bg-emerald-700 text-white shadow-xs">
-                  <Download className="w-4 h-4 stroke-[2.5]" />
-                </span>
-                <div className="text-right">
-                  <span className="text-xs font-black block leading-tight">
-                    {currentLanguage === 'ar' ? 'تحميل وتثبيت التطبيق على الهاتف' : 'Installer l’application sur votre téléphone'}
-                  </span>
-                  <span className="text-[10px] text-emerald-800 font-bold block">
-                    {currentLanguage === 'ar' ? 'وصول فوري وسريع للتبرع والإغاثة' : 'Accès rapide et hors-ligne'}
-                  </span>
-                </div>
-              </div>
-              <span className="text-[11px] font-black bg-emerald-700 text-white px-2.5 py-1 rounded-xl shadow-xs">
-                {currentLanguage === 'ar' ? 'تثبيت' : 'Installer'}
-              </span>
-            </button>
-          )}
-
           {step === 1 ? (
             <div className="space-y-4">
               <div className="text-center space-y-1 py-1">
