@@ -10,7 +10,9 @@ export async function fetchLivePointsFromD1(): Promise<CharityPoint[]> {
       method: 'GET',
       headers: {
         'Accept': 'application/json',
+        'Cache-Control': 'no-cache',
       },
+      cache: 'no-store',
     });
 
     if (response.ok) {
@@ -20,6 +22,8 @@ export async function fetchLivePointsFromD1(): Promise<CharityPoint[]> {
         savePoints(data);
         return data;
       }
+    } else {
+      console.warn(`[API] D1 GET returned status ${response.status}`);
     }
   } catch (err) {
     console.warn('Could not fetch from D1 API (using local cache):', err);
@@ -32,7 +36,7 @@ export async function fetchLivePointsFromD1(): Promise<CharityPoint[]> {
 /**
  * Saves a new point to Cloudflare D1 Database in real time
  */
-export async function createLivePointInD1(point: Omit<CharityPoint, 'id' | 'createdAt'>): Promise<boolean> {
+export async function createLivePointInD1(point: Omit<CharityPoint, 'id' | 'createdAt'> | CharityPoint): Promise<boolean> {
   try {
     const adminPass = getAdminPasscode();
     const response = await fetch('/api/points', {
@@ -52,9 +56,13 @@ export async function createLivePointInD1(point: Omit<CharityPoint, 'id' | 'crea
 }
 
 /**
- * Updates a point in Cloudflare D1 Database (all fields + verification / status)
+ * Updates a point in Cloudflare D1 Database (with full object fallback for instant upsert)
  */
-export async function updateLivePointInD1(id: string, updates: Partial<CharityPoint>): Promise<boolean> {
+export async function updateLivePointInD1(
+  id: string, 
+  updates: Partial<CharityPoint>, 
+  fullPoint?: CharityPoint
+): Promise<boolean> {
   try {
     const adminPass = getAdminPasscode();
     const response = await fetch('/api/points', {
@@ -63,8 +71,12 @@ export async function updateLivePointInD1(id: string, updates: Partial<CharityPo
         'Content-Type': 'application/json',
         'X-Admin-Password': adminPass,
       },
-      body: JSON.stringify({ id, updates }),
+      body: JSON.stringify({ id, updates, fullPoint }),
     });
+
+    if (!response.ok) {
+      console.warn(`[API] D1 PUT returned status ${response.status}`);
+    }
 
     return response.ok;
   } catch (err) {
@@ -127,7 +139,7 @@ export async function bulkExportAllLocalPointsToD1(
             'Content-Type': 'application/json',
             'X-Admin-Password': adminPass,
           },
-          body: JSON.stringify({ id: p.id, updates: p }),
+          body: JSON.stringify({ id: p.id, updates: p, fullPoint: p }),
         });
         if (putRes.ok) {
           success++;

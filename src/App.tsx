@@ -122,14 +122,18 @@ export function App() {
         // 1. Start with all initial / seed points
         initial.forEach((ip) => mergedMap.set(ip.id, ip));
 
-        // 2. Overlay live points from D1
+        // 2. Overlay live points from D1 (live points take 100% precedence)
         livePoints.forEach((lp) => {
           const localMatch = mergedMap.get(lp.id);
-          if (localMatch && localMatch.images && localMatch.images.length > 0 && (!lp.images || lp.images.length === 0)) {
-            mergedMap.set(lp.id, { ...lp, images: localMatch.images, imageUrl: localMatch.imageUrl });
-          } else {
-            mergedMap.set(lp.id, lp);
-          }
+          const images = (lp.images && lp.images.length > 0)
+            ? lp.images
+            : (localMatch?.images && localMatch.images.length > 0 ? localMatch.images : []);
+          mergedMap.set(lp.id, {
+            ...localMatch,
+            ...lp,
+            images,
+            imageUrl: images[0] || lp.imageUrl,
+          });
         });
 
         const finalList = Array.from(mergedMap.values());
@@ -219,40 +223,27 @@ export function App() {
       navigator.geolocation.getCurrentPosition(
         (pos) => {
           const loc: UserLocation = {
-            lat: Number(pos.coords.latitude.toFixed(6)),
-            lng: Number(pos.coords.longitude.toFixed(6)),
-            accuracy: Math.round(pos.coords.accuracy),
+            lat: pos.coords.latitude,
+            lng: pos.coords.longitude,
+            accuracy: Math.round(pos.coords.accuracy || 10),
             timestamp: Date.now(),
           };
           setUserLocation(loc);
-
-          // Find closest Wilaya and automatically update the dropdown and selectedWilaya
-          const closest = WILAYAS.reduce((prev, curr) => {
-            const distPrev = Math.hypot(prev.lat - loc.lat, prev.lng - loc.lng);
-            const distCurr = Math.hypot(curr.lat - loc.lat, curr.lng - loc.lng);
-            return distCurr < distPrev ? curr : prev;
-          });
-
-          if (closest) {
-            setSelectedWilaya(closest.code);
-            showToast(`تم تحديد موقعك: ولاية ${closest.nameAr}`);
-          } else {
-            showToast('تم تحديد موقعك بدقة');
-          }
+          showToast('تم تحديد موقعك بنجاح 📍');
         },
         (err) => {
-          console.warn('Geolocation error:', err.message);
-          showToast('تعذر الوصول إلى نظام GPS، يرجى تفعيل الموقع');
+          console.warn('Geolocation failed:', err);
+          showToast('تعذر الحصول على موقعك بدقة، يرجى تفعيل الـ GPS');
         },
-        { enableHighAccuracy: true, timeout: 8000 }
+        { enableHighAccuracy: true, timeout: 10000, maximumAge: 60000 }
       );
-    } catch (e) {
-      console.warn('Location request exception:', e);
+    } catch {
+      showToast('تعذر الوصول إلى الموقع الجغرافي');
     }
   };
 
   // Handle Intent & Wilaya Selection from WelcomeEntryModal
-  const handleSelectIntentAndWilaya = (intent: 'find' | 'add', wilayaCode: number) => {
+  const handleSelectIntentAndWilaya = (intent: 'find' | 'add', wilayaCode: number | null) => {
     setActiveIntent(intent);
     setSelectedWilaya(wilayaCode);
     setIsWelcomeModalOpen(false);
@@ -262,7 +253,9 @@ export function App() {
     } else {
       // Find mode: show clean Wilaya Results Modal with collapsible neighboring centers dropdown!
       setIsWilayaResultsModalOpen(true);
-      showToast(`تم تحديد ولاية ${WILAYAS.find((w) => w.code === wilayaCode)?.nameAr || ''}`);
+      if (wilayaCode) {
+        showToast(`تم تحديد ولاية ${WILAYAS.find((w) => w.code === wilayaCode)?.nameAr || ''}`);
+      }
     }
   };
 
@@ -301,7 +294,7 @@ export function App() {
       }
       setEditingPoint(null);
 
-      await updateLivePointInD1(id, updates);
+      await updateLivePointInD1(id, updates, updated || undefined);
     } catch (e) {
       console.error(e);
       showToast('تعذر حفظ التعديلات على الخادم');
