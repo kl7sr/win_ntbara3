@@ -47,6 +47,7 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
   const [searchQuery, setSearchQuery] = useState('');
   const [isGpsLoading, setIsGpsLoading] = useState(false);
   const [gpsError, setGpsError] = useState('');
+  const { isStandalone, triggerInstall } = usePwaInstall();
 
   const t = TRANSLATIONS[currentLanguage];
 
@@ -73,8 +74,6 @@ export const WelcomeEntryModal: React.FC<WelcomeEntryModalProps> = ({
   }, [searchQuery]);
 
   if (!isOpen) return null;
-
-  const { isStandalone, triggerInstall } = usePwaInstall();
 
   const handleChooseIntent = (intent: 'find' | 'add') => {
     setSelectedIntent(intent);
